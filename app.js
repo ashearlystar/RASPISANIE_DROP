@@ -1,6 +1,6 @@
 /* ================= CONFIG ================= */
 const DAYS = [["ПН","Понедельник"],["ВТ","Вторник"],["СР","Среда"],["ЧТ","Четверг"],["ПТ","Пятница"],["СБ","Суббота"]];
-const GROUPS = ["609-61", "609-62", "609-61", "609-61", "609-61", "609-62"];    // TODO: from DB (6 groups = 1 Legendary + 3 Common + Rare + Mythic)
+const GROUPS = ["609-31", "609-32", "609-41", "609-42", "609-51", "609-52", "609-61", "609-62"];    // TODO: from DB (6 groups = 1 Legendary + 3 Common + Rare + Mythic)
 const PARTS = ["Верх","Середина","Низ","Полное"], PARTS_L = ["верхняя часть","средняя часть","нижняя часть"];
 const RN  = {common:"Common", rare:"Rare", mythic:"Mythic", legendary:"Legendary"};
 const COL = {common:"#D4D4D4", rare:"#00A0E0", mythic:"#FF00A0", legendary:"#ff9a1f"};
