@@ -44,7 +44,7 @@ button.glass:active{transform:scale(.94)}
 .tile .day{position:absolute;bottom:34px;font:800 19px ui-monospace,Menlo,monospace;text-shadow:0 1px 4px #000}
 
 /* spin */
-.label{margin:0;font-weight:800;font-size:18px;opacity:.85}
+.label{margin:80px 0 0 0;font-weight:800;font-size:18px;opacity:.85}
 .strip{position:relative;width:calc(100% + 24px);height:100px;border-radius:999px;overflow:hidden}
 .track{position:absolute;top:0;left:0;height:100%;display:flex;align-items:center;gap:14px;will-change:transform}
 .card{flex:none;width:84px;height:84px;border-radius:22px;display:grid;place-items:center;font-size:44px;
@@ -160,3 +160,16 @@ canvas#sig{width:100%;max-width:360px;aspect-ratio:330/140;background:#fbf7ea;bo
 .les span{flex:1}
 .les small{opacity:.8;font-size:13px;white-space:nowrap}
 .panel .empty{margin:auto;text-align:center}
+
+/* ===== subgroups + numerator/denominator ===== */
+.les.dim,.cell.dim{opacity:.38}
+.wk{flex:none;align-self:center;padding:4px 12px;border-radius:999px;background:rgba(255,255,255,.14);font-size:12px;font-weight:700}
+.les.sub{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:stretch;background:none;padding:0;position:relative;font-weight:600}
+.les.sub>b{position:absolute;left:-8px;top:-10px;width:24px;height:24px;font-size:13px;z-index:2;box-shadow:0 0 0 3px rgba(70,10,45,.9)}
+.col{display:flex;flex-direction:column;gap:6px;min-width:0}
+.cell{flex:1;display:flex;flex-direction:column;gap:4px;min-width:0;padding:12px 10px 8px;border-radius:16px;background:rgba(255,255,255,.12)}
+.cell .lb{font-size:10.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:#ffb347}
+.cell .t{font-size:13px;line-height:1.2;overflow-wrap:anywhere;hyphens:auto}
+.cell .rm{align-self:flex-start;margin-top:auto;padding:1px 8px;border-radius:8px;background:rgba(0,0,0,.28);font-size:12px}
+.cell.ghost{background:transparent;border:1.5px dashed rgba(255,255,255,.25);justify-content:center}
+.cell.ghost .t{opacity:.5;font-weight:500;font-size:12px}

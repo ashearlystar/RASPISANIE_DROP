@@ -15,6 +15,9 @@ const IMG = {doc:"assets/doc.svg", check:"assets/check.svg"};
 // one icon per case, in order ПН..СБ (change .svg -> .png when you add your own)
 const CASE_IMG = ["assets/case_pn.png","assets/case_vt.png","assets/case_sr.png","assets/case_cht.png","assets/case_pt.png","assets/case_sb.png"];
 const CASE_SIZE = 6;     // schedules inside one case (chosen group + CASE_SIZE-1 random others)
+// Numerator/denominator is counted from this date: put ANY MONDAY OF A NUMERATOR WEEK (YYYY-MM-DD).
+// Weeks then alternate automatically (next Monday = denominator, and so on, also across New Year).
+const WEEK_ANCHOR = "2026-10-26";
 const AVATARS = ["assets/av1.svg","assets/av2.svg","assets/av3.svg","assets/av4.svg","assets/av5.svg","assets/av6.svg"];
 
 /* ================= STATE ================= */
@@ -130,12 +133,50 @@ function partSlots(g, d, p) {
   return s.slice(a, a + sz[i]);
 }
 const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+/* ---------- numerator / denominator (auto) ---------- */
+const WK = { num: "чис", den: "знам" }, WK_FULL = { num: "числитель", den: "знаменатель" };
+function weekType(date = new Date()) {
+  const q = new URLSearchParams(location.search).get("week");      // ?week=num / ?week=den  -> for testing
+  if (q === "num" || q === "den") return q;
+  const [y, mo, d] = WEEK_ANCHOR.split("-").map(Number);
+  const monday = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate() - (date.getDay() + 6) % 7);
+  const diff = Math.round((monday - Date.UTC(y, mo - 1, d)) / 604800000);
+  return diff % 2 === 0 ? "num" : "den";
+}
+
+/* ---------- subgroups: "A, п/г 1 | B, п/г 2" -> left / right ---------- */
+function itemCells(x) {
+  const subj = String(x.subject).trim(), room = String(x.room || "").trim(), week = x.week;
+  const clean = t => t.replace(/,?\s*п\/г\s*\d\s*$/i, "").trim();
+  if (subj.includes("|")) {                                         // position decides: left = п/г 1, right = п/г 2
+    const [a, b] = subj.split("|").map(t => t.trim()), rr = room.split("|").map(t => t.trim());
+    const both = a && b, out = [];
+    if (a) out.push({ side: 0, subject: clean(a), room: both ? (rr.length > 1 ? rr[0] : room) : (rr.find(Boolean) || ""), week });
+    if (b) out.push({ side: 1, subject: clean(b), room: both ? (rr.length > 1 ? rr[1] : room) : (rr.find(Boolean) || ""), week });
+    return out;
+  }
+  const n = (subj.match(/п\/г\s*(\d)/i) || [])[1];                  // single subgroup without "|": side by its label
+  return [{ side: n === "1" ? 0 : n === "2" ? 1 : null, subject: clean(subj), room, week }];
+}
+function slotHTML(sl, cw) {
+  const dim = w => w && w !== cw ? " dim" : "";                     // other week = more transparent
+  const full = [], side = [[], []];
+  sl.items.forEach(x => itemCells(x).forEach(c => (c.side == null ? full : side[c.side]).push(c)));
+  let html = full.map(c => `<div class="les${dim(c.week)}"><b>${esc(sl.num)}</b><span>${esc(c.subject)}</span><small>${esc(c.room)}${c.week ? " · " + WK[c.week] : ""}</small></div>`).join("");
+  if (side[0].length || side[1].length) {
+    const col = (arr, n) => arr.length
+      ? arr.map(c => `<div class="cell${dim(c.week)}"><div class="lb">Подгруппа ${n}${c.week ? " · " + WK[c.week] : ""}</div><div class="t">${esc(c.subject)}</div>${c.room ? `<div class="rm">${esc(c.room)}</div>` : ""}</div>`).join("")
+      : `<div class="cell ghost"><div class="lb">Подгруппа ${n}</div><div class="t">нет пары</div></div>`;
+    html += `<div class="les sub"><b>${esc(sl.num)}</b><div class="col">${col(side[0], 1)}</div><div class="col">${col(side[1], 2)}</div></div>`;
+  }
+  return html;
+}
 function lessonsHTML(g, d, p) {
   if (!slotsOf(g, d)) return `<p class="empty">Расписание ещё не заполнено${location.protocol === "file:" ? " (открой сайт через локальный сервер)" : ""}</p>`;
   const part = partSlots(g, d, p);
   if (!part.length) return '<p class="empty">Пар нет</p>';
-  return part.map(sl => sl.items.map(x =>
-    `<div class="les"><b>${esc(sl.num)}</b><span>${esc(x.subject)}</span><small>${esc(x.room || "")}${x.week ? (x.week === "num" ? " · чис" : " · знам") : ""}</small></div>`).join("")).join("");
+  const cw = weekType();
+  return `<div class="wk">Сейчас: ${WK_FULL[cw]}</div>` + part.map(sl => slotHTML(sl, cw)).join("");
 }
 
 function choose(title, opts) {
