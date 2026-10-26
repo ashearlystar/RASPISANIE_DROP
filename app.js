@@ -14,7 +14,7 @@ const NEXT = {common:"rare", rare:"mythic"};                        // contracts
 const IMG = {doc:"assets/doc.svg", check:"assets/check.svg"};
 // one icon per case, in order ПН..СБ (change .svg -> .png when you add your own)
 const CASE_IMG = ["assets/case_pn.png","assets/case_vt.png","assets/case_sr.png","assets/case_cht.png","assets/case_pt.png","assets/case_sb.png"];
-const CASE_SIZE = 6;     // schedules inside one case (chosen group + CASE_SIZE-1 random others)
+const CASE_SIZE = 8;     // schedules inside one case (chosen group + CASE_SIZE-1 random others)
 // Numerator/denominator is counted from this date: put ANY MONDAY OF A NUMERATOR WEEK (YYYY-MM-DD).
 // Weeks then alternate automatically (next Monday = denominator, and so on, also across New Year).
 const WEEK_ANCHOR = "2026-10-26";
