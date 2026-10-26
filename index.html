@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#2a0716">
+  <title>Raspisanie Drop</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="bg"></div>
+
+  <div id="wallet" class="glass pill"><img src="assets/coin.svg" alt=""><span id="coins">0</span> шышиш</div>
+
+  <!-- group picker (every site open) -->
+  <div id="picker" class="picker open"><div class="glass pbox">
+    <h2 class="big">Выбери группу</h2><div id="pickList" class="list"></div>
+  </div></div>
+
+  <!-- generic choose-one modal -->
+  <div id="modal" class="picker"><div class="glass pbox"><h2 class="big"></h2><div class="list"></div></div></div>
+
+  <main id="app">
+    <section id="home" class="screen active">
+      <div id="cases" class="stage active">
+        <h1 class="title"><img src="assets/raspisaniedrop_big.png" alt="RASPISANIE DROP"></h1>
+        <div id="grid" class="grid glass"></div>
+      </div>
+      <div id="spin" class="stage">
+        <p id="spinLabel" class="label"></p>
+        <div class="strip glass tint" id="strip"><div class="track" id="track"></div><i class="line"></i></div>
+        <div id="drops" class="drops"></div>
+        <button id="spinBtn" class="btn glass green">КРУТИТЬ</button>
+      </div>
+      <div id="result" class="stage">
+        <p id="resultLabel" class="label"></p>
+        <div class="panel glass" id="panel"></div> <!-- TODO: real schedule -->
+        <p id="resultNote" class="label small"></p>
+        <div class="glass tint round doc"><img src="assets/doc.svg" alt=""></div>
+      </div>
+    </section>
+
+    <section id="inventory" class="screen scroll">
+      <h2 class="big">Инвентарь</h2>
+      <div id="sorts" class="chips"></div>
+      <div id="invGrid" class="igrid"></div>
+    </section>
+
+    <section id="upgrader" class="screen scroll">
+      <h2 class="big">Upgrader</h2>
+      <div class="up">
+        <button id="upSrc" class="glass mini">+</button>
+        <div class="wheel" id="wheel"><div class="ptr" id="ptr"></div><span id="upPct">%?</span></div>
+        <button id="upDst" class="glass mini">+</button>
+      </div>
+      <button id="upGo" class="btn glass green">АПГРЕЙД</button>
+      <p id="upMsg" class="label small"></p>
+    </section>
+
+    <section id="contracts" class="screen scroll">
+      <h2 class="big">Контракты</h2>
+      <button id="ctPick" class="btn glass">Выбрать ×10</button>
+      <div id="ctSlots" class="slots"></div>
+      <div class="arrow">↓</div>
+      <div id="ctOut" class="glass mini out">?</div>
+      <p id="sigLbl" class="label">Ваша подпись</p>
+      <canvas id="sig" width="330" height="140"></canvas>
+      <div class="two">
+        <button id="sigClear" class="btn glass small">Очистить</button>
+        <button id="ctGo" class="btn glass green small">ПОДПИСАТЬ</button>
+      </div>
+      <p id="ctMsg" class="label small"></p>
+    </section>
+
+    <section id="profile" class="screen scroll">
+      <button id="avatar" class="glass round avatar"><img src="assets/av1.svg" alt=""></button>
+      <input id="name" class="glass pill input" maxlength="24" placeholder="Имя">
+      <div id="pGroup" class="glass tint pill chip"></div>
+      <h2>История круток</h2>
+      <div id="history" class="list"></div>
+    </section>
+
+    <section id="settings" class="screen scroll">
+      <h2 class="big">Настройки</h2>
+      <h3>Группа</h3>
+      <p class="label small">Смена группы начинает новый сундук</p>
+      <div id="groups" class="list"></div>
+    </section>
+  </main>
+
+  <nav class="bar"><div class="bar-in">
+    <button class="glass round ico" data-tab="profile" aria-label="Профиль"><img src="assets/profile_icon.png" alt=""></button>
+    <button class="glass round ico" data-tab="inventory" aria-label="Инвентарь"><img src="assets/inventory.svg" alt=""></button>
+    <button class="glass pill home active" data-tab="home"><img src="assets/home_icon.png" alt=""> ГЛАВНАЯ</button>
+    <button class="glass round ico" data-tab="upgrader" aria-label="Upgrader"><img src="assets/upgrader.svg" alt=""></button>
+    <button class="glass round ico" data-tab="contracts" aria-label="Контракты"><img src="assets/contracts.svg" alt=""></button>
+    <button class="glass round ico" data-tab="settings" aria-label="Настройки"><img src="assets/settings_icon.png" alt=""></button>
+  </div></nav>
+
+  <script src="app.js"></script>
+</body>
+</html>
