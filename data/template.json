@@ -6,42 +6,48 @@
             {
                 "num": 1,
                 "subject": "",
-                "room": ""
+                "room": "",
+                "week": ""
             }
         ],
         "ВТ": [
             {
                 "num": 1,
                 "subject": "",
-                "room": ""
+                "room": "",
+                "week": ""
             }
         ],
         "СР": [
             {
                 "num": 1,
                 "subject": "",
-                "room": ""
+                "room": "",
+                "week": ""
             }
         ],
         "ЧТ": [
             {
                 "num": 1,
                 "subject": "",
-                "room": ""
+                "room": "",
+                "week": ""
             }
         ],
         "ПТ": [
             {
                 "num": 1,
                 "subject": "",
-                "room": ""
+                "room": "",
+                "week": ""
             }
         ],
         "СБ": [
             {
                 "num": 1,
                 "subject": "",
-                "room": ""
+                "room": "",
+                "week": ""
             }
         ]
     }
