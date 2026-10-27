@@ -1,30 +1,30 @@
 /* ================= CONFIG ================= */
-const DAYS = [["ПН","Понедельник"],["ВТ","Вторник"],["СР","Среда"],["ЧТ","Четверг"],["ПТ","Пятница"],["СБ","Суббота"]];
+const DAYS = [["ПН", "Понедельник"], ["ВТ", "Вторник"], ["СР", "Среда"], ["ЧТ", "Четверг"], ["ПТ", "Пятница"], ["СБ", "Суббота"]];
 const GROUPS = ["608-31", "608-32", "608-41", "608-51", "608-61", "608-62", "609-31", "609-32", "609-41", "609-42", "609-51", "609-52", "609-61", "609-62"];    // TODO: from DB (6 groups = 1 Legendary + 3 Common + Rare + Mythic)
-const PARTS = ["Верх","Середина","Низ","Полное"], PARTS_L = ["верхняя часть","средняя часть","нижняя часть"];
-const RN  = {common:"Common", rare:"Rare", mythic:"Mythic", legendary:"Legendary"};
-const COL = {common:"#D4D4D4", rare:"#00A0E0", mythic:"#FF00A0", legendary:"#ff9a1f"};
-const RI  = {common:0, rare:1, mythic:2, legendary:3};
-const FIX = {rare:.10, mythic:.05, legendary:.01};                  // fixed drop chances
-const PRICE = {common:10, rare:15, mythic:20, legendary:70};        // шышиш
+const PARTS = ["Верх", "Середина", "Низ", "Полное"], PARTS_L = ["верхняя часть", "средняя часть", "нижняя часть"];
+const RN = { common: "Common", rare: "Rare", mythic: "Mythic", legendary: "Legendary" };
+const COL = { common: "#D4D4D4", rare: "#00A0E0", mythic: "#FF00A0", legendary: "#ff9a1f" };
+const RI = { common: 0, rare: 1, mythic: 2, legendary: 3 };
+const FIX = { rare: .10, mythic: .05, legendary: .01 };                  // fixed drop chances
+const PRICE = { common: 10, rare: 15, mythic: 20, legendary: 70 };        // шышиш
 const DEFAULT_N = 5;     // pairs assumed for groups whose schedule file isn't filled yet
 // price factors by number of parts in the day's schedule (1 / 2 / 3 parts)
-const FULL_K = {1: .1, 2: .5, 3: 1}, PIECE_K = {2: .2, 3: 1 / 3};
-const NEXT = {common:"rare", rare:"mythic"};                        // contracts (no Legendary)
-const IMG = {doc:"assets/doc.svg", check:"assets/check.svg"};
+const FULL_K = { 1: .1, 2: .5, 3: 1 }, PIECE_K = { 2: .2, 3: 1 / 3 };
+const NEXT = { common: "rare", rare: "mythic" };                        // contracts (no Legendary)
+const IMG = { doc: "assets/doc.svg", check: "assets/check.svg" };
 // one icon per case, in order ПН..СБ (change .svg -> .png when you add your own)
-const CASE_IMG = ["assets/case_pn.png","assets/case_vt.png","assets/case_sr.png","assets/case_cht.png","assets/case_pt.png","assets/case_sb.png"];
+const CASE_IMG = ["assets/case_pn.png", "assets/case_vt.png", "assets/case_sr.png", "assets/case_cht.png", "assets/case_pt.png", "assets/case_sb.png"];
 const CASE_SIZE = 8;     // schedules inside one case (chosen group + CASE_SIZE-1 random others)
 // Numerator/denominator is counted from this date: put ANY MONDAY OF A NUMERATOR WEEK (YYYY-MM-DD).
 // Weeks then alternate automatically (next Monday = denominator, and so on, also across New Year).
 const WEEK_ANCHOR = "2026-10-26";
-const AVATARS = ["assets/av1.svg","assets/av2.svg","assets/av3.svg","assets/av4.svg","assets/av5.svg","assets/av6.svg"];
+const AVATARS = ["assets/av1.svg", "assets/av2.svg", "assets/av3.svg", "assets/av4.svg", "assets/av5.svg", "assets/av6.svg"];
 
 /* ================= STATE ================= */
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 const store = {
   get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
-  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { } }
 };
 const st = {
   group: GROUPS.includes(store.get("group", null)) ? store.get("group") : null,
@@ -100,7 +100,7 @@ function uniq(list) {
 const SCH = {};
 async function loadSchedules() {
   await Promise.all(GROUPS.map(async g => {
-    try { const r = await fetch(`data/${encodeURIComponent(g)}.json`); if (r.ok) SCH[g] = await r.json(); } catch {}
+    try { const r = await fetch(`data/${encodeURIComponent(g)}.json`); if (r.ok) SCH[g] = await r.json(); } catch { }
   }));
 }
 // lessons of a day grouped by pair number (ПН..СБ key); null = file/day not filled yet
@@ -293,9 +293,9 @@ function finish() {
 let sortBy = "rarity", rev = false, view = [];
 const SORTS = {
   rarity: ["Редкость", (a, b) => RI[a.r] - RI[b.r]],
-  group:  ["Группа",   (a, b) => GROUPS.indexOf(a.g) - GROUPS.indexOf(b.g)],
-  alpha:  ["А–Я",      (a, b) => label(a).localeCompare(label(b), "ru")],
-  price:  ["Цена",     (a, b) => price(a) - price(b)]
+  group: ["Группа", (a, b) => GROUPS.indexOf(a.g) - GROUPS.indexOf(b.g)],
+  alpha: ["А–Я", (a, b) => label(a).localeCompare(label(b), "ru")],
+  price: ["Цена", (a, b) => price(a) - price(b)]
 };
 function renderInv() {
   $("#sorts").innerHTML = Object.entries(SORTS).map(([k, [n]]) => `<button class="glass pill chipb${k === sortBy ? " on" : ""}" data-s="${k}">${n}</button>`).join("")
@@ -397,8 +397,10 @@ $("#ctPick").onclick = async () => {
   const v = await choose("10 одинаковых расписаний", l.map(e => ({ html: optHTML(e.it, e.n), val: e.it })));
   if (v) { ctSel = v; paintCt(); say("#ctMsg", ""); }
 };
-const pos = e => { const r = sig.getBoundingClientRect(); return [(e.clientX - r.left) * sig.width / r.width, (e.clientY - r.top) * sig.height / r.height,
-  e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom]; };
+const pos = e => {
+  const r = sig.getBoundingClientRect(); return [(e.clientX - r.left) * sig.width / r.width, (e.clientY - r.top) * sig.height / r.height,
+  e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom];
+};
 cx.strokeStyle = cx.fillStyle = INK; cx.lineWidth = 2.4; cx.lineCap = cx.lineJoin = "round";
 sig.onpointerdown = e => {
   sig.setPointerCapture(e.pointerId); drawing = true; signed = true;
