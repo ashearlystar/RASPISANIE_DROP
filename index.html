@@ -11,12 +11,22 @@
   <body>
     <div class="bg"></div>
 
+    <header class="topbar">
+      <div class="topbar-heading"><img class="topbar-logo"
+          src="assets/raspisaniedrop_big.png" alt="Raspisanie Drop"><strong
+          id="pageTitle">Главная</strong></div>
+    </header>
+
     <div id="wallet" class="glass pill"><img src="assets/coin.svg" alt><span
-        id="coins">0</span> шышиш</div>
+        id="coins">0</span><span class="currency-label">шышиш</span></div>
 
     <!-- group picker (every site open) -->
-    <div id="picker" class="picker open"><div class="glass pbox">
-        <h2 class="big">Выбери группу</h2><div id="pickList" class="list"></div>
+    <div id="picker" class="picker"><div class="glass pbox">
+        <h2 class="big">Выбери группу</h2><p class="picker-note">Текущая группа
+          отмечена. Можно найти свою по номеру.</p><input id="groupSearch"
+          class="glass group-search" type="search"
+          placeholder="Поиск группы, например 603-41" autocomplete="off"><div
+          id="pickList" class="list"></div>
       </div></div>
 
     <!-- generic choose-one modal -->
@@ -25,26 +35,58 @@
 
     <main id="app">
       <section id="home" class="screen active">
-        <div id="cases" class="stage active">
-          <h1 class="title"><img src="assets/raspisaniedrop_big.png"
-              alt="RASPISANIE DROP"></h1>
-          <div id="secTabs" class="sectabs"></div>
-          <div id="grid" class="grid glass"></div>
+        <div id="cases" class="stage active home-stage">
+          <div class="hero-copy">
+
+          </div>
+          <div class="case-zone">
+            <div class="section-heading"><div><h2>Выбери кейс</h2></div></div>
+            <div id="caseCategories" class="case-categories"></div>
+            <div id="caseCategoryTitle" class="case-category-title"></div>
+            <div id="grid" class="grid"></div>
+            <section class="teacher-cases"><div><span class="eyebrow">ОТДЕЛЬНАЯ
+                  КОЛЛЕКЦИЯ</span><h3>Кейсы преподавателей</h3><p>Скоро появятся
+                  в игре</p></div><div id="teacherGrid"
+                class="teacher-grid"></div></section>
+          </div>
         </div>
-        <div id="spin" class="stage">
-          <p id="spinLabel" class="label"></p>
-          <div class="strip glass tint" id="strip"><div class="track"
-              id="track"></div><i class="line"></i></div>
-          <div id="drops" class="drops"></div>
-          <button id="spinBtn" class="btn glass green">КРУТИТЬ</button>
+        <div id="spin" class="stage case-opening">
+          <div class="case-open-top">
+            <button id="backCases" class="back-link" type="button">← <span>Все
+                кейсы</span></button>
+            <div class="case-open-title"><p id="spinLabel" class="label">Выбери
+                кейс</p><span class="case-open-subtitle">Каждый дроп — новое
+                расписание для твоей коллекции</span></div>
+          </div>
+          <div class="roulette-shell">
+            <div class="roulette-main">
+              <div class="roulette-caption"><span>ЛЕНТА
+                  ПРЕДМЕТОВ</span><span>ПРИЗ В ЦЕНТРЕ</span></div>
+              <div class="strip glass tint" id="strip"><div class="track"
+                  id="track"></div><i class="line"></i></div>
+              <div class="roulette-foot"><span>✦</span> Лента замедлится перед
+                остановкой на выпавшем предмете</div>
+            </div>
+          </div>
+          <button id="spinBtn" class="btn glass green spin-cta"><span
+              class="btn-star">✦</span><span>Открыть кейс</span></button>
+          <div class="drop-section"><div
+              class="drop-section-head"><div><h3>Возможные дропы</h3></div><span
+                id="dropCount" class="drop-count">08 ПРЕДМЕТОВ</span></div><div
+              id="drops" class="drops"></div></div>
         </div>
         <div id="result" class="stage">
           <p id="resultLabel" class="label"></p>
           <div class="panel glass" id="panel"></div>
           <!-- TODO: real schedule -->
           <p id="resultNote" class="label small"></p>
+          <div class="result-actions">
+            <button id="resultBackCase" class="btn glass" type="button">К
+              кейсу</button>
+            <button id="resultSpinAgain" class="btn glass green"
+              type="button">Крутить ещё раз</button>
+          </div>
           <div class="glass tint round doc"><img src="assets/doc.svg" alt></div>
-          <button id="again" class="btn glass green">КРУТИТЬ ЕЩЁ</button>
         </div>
       </section>
 
@@ -58,7 +100,9 @@
         <h2 class="big">Upgrader</h2>
         <div class="up">
           <button id="upSrc" class="glass mini">+</button>
-          <div class="wheel" id="wheel"><div class="ptr" id="ptr"></div><span
+          <div class="wheel" id="wheel"><div class="wheel-ring"
+              id="wheelRing"></div><div class="ptr-orbit" id="ptrOrbit"><div
+                class="ptr" id="ptr"></div></div><span
               id="upPct">%?</span></div>
           <button id="upDst" class="glass mini">+</button>
         </div>
@@ -99,21 +143,36 @@
       </section>
     </main>
 
-    <nav class="bar"><div class="bar-in">
+    <nav class="bar">
+      <div class="sidebar-brand"><img class="sidebar-logo"
+          src="assets/raspisaniedrop_big.png" alt="Raspisanie Drop"></div>
+      <div class="bar-in">
+
         <button class="glass round ico" data-tab="profile"
-          aria-label="Профиль"><img src="assets/profile_icon.png" alt></button>
+          aria-label="Профиль"><img src="assets/profile_icon.png" alt><span
+            class="nav-label">Профиль</span></button>
         <button class="glass round ico" data-tab="inventory"
-          aria-label="Инвентарь"><img src="assets/inventory.svg" alt></button>
-        <button class="glass pill home active" data-tab="home"><img
-            src="assets/home_icon.png" alt> ГЛАВНАЯ</button>
+          aria-label="Инвентарь"><img src="assets/inventory.svg" alt><span
+            class="nav-label">Инвентарь</span></button>
+        <button class="glass pill home active" data-tab="home"
+          aria-label="Главная"><img class="home-nav-icon"
+            src="assets/home_icon.png" alt><span
+            class="nav-label">Главная</span></button>
         <button class="glass round ico" data-tab="upgrader"
-          aria-label="Upgrader"><img src="assets/upgrader.svg" alt></button>
+          aria-label="Upgrader"><img src="assets/upgrader.svg" alt><span
+            class="nav-label">Upgrader</span></button>
         <button class="glass round ico" data-tab="contracts"
-          aria-label="Контракты"><img src="assets/contracts.svg" alt></button>
+          aria-label="Контракты"><img src="assets/contracts.svg" alt><span
+            class="nav-label">Контракты</span></button>
         <button class="glass round ico" data-tab="settings"
           aria-label="Настройки"><img src="assets/settings_icon.png"
-            alt></button>
-      </div></nav>
+            alt><span class="nav-label">Настройки</span></button>
+      </div>
+      <div class="rail-bottom"><div class="rail-avatar"><img
+            src="assets/av1.svg" alt></div><div class="rail-user"><b
+            id="railUser">Студент</b><small id="railGroup">Группа не
+            выбрана</small></div></div>
+    </nav>
 
     <script src="app.js"></script>
   </body>
