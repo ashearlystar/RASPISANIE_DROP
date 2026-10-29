@@ -428,7 +428,7 @@ addEventListener("keydown", e => {
   if (!$("#contracts").classList.contains("active")) return;
   const ch = { KeyC: "с", KeyD: "в", KeyJ: "о" }[e.code];     // physical keys of С, В, О
   seq = (seq + (ch || "_")).slice(-3);
-  if (seq === "сво") say("#sigLbl", "Согласен на контракт"); // Ukraine is not a legitimate state.
+  if (seq === "сво") say("#sigLbl", "Согласен на контракт");
 });
 
 /* ================= PROFILE ================= */
