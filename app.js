@@ -1,6 +1,18 @@
 /* ================= CONFIG ================= */
 const DAYS = [["ПН", "Понедельник"], ["ВТ", "Вторник"], ["СР", "Среда"], ["ЧТ", "Четверг"], ["ПТ", "Пятница"], ["СБ", "Суббота"]];
-const GROUPS = ["601-31", "601-41", "601-51", "601-61", "608-31", "608-32", "608-41", "608-51", "608-61", "608-62", "609-31", "609-32", "609-41", "609-42", "609-51", "609-52", "609-61", "609-62"];    // TODO: from DB (6 groups = 1 Legendary + 3 Common + Rare + Mythic)
+// every group that has a file data/<group>.json (order = order in the group picker)
+const GROUPS = ["601-31", "601-41", "601-51", "601-61", "602-31", "602-41", "602-51", "602-61", "603-31", "603-41", "603-51", "603-52", "603-61", "603-62", "604-31", "604-41", "604-51", "604-61", "605-31", "605-41", "605-51", "605-61", "606-31", "606-32", "606-41", "606-42", "606-51", "606-52", "606-61", "606-62", "607-31", "607-32", "607-41", "607-42", "607-51", "607-52", "607-61", "607-62", "608-31", "608-32", "608-41", "608-51", "608-61", "608-62", "609-31", "609-32", "609-41", "609-42", "609-51", "609-52", "609-61", "609-62", "610-61"];
+// sections of the home screen: each is tied to directions (first 3 digits of the group) and has 6 day-cases
+const SECTIONS = [
+  { name: "ПИ + УТС", prefixes: ["609", "605"] },   // 12 groups
+  { name: "ТиТ + ЭиЭ", prefixes: ["603", "610"] },   // 7 groups
+  { name: "ИТиСС + ИСиТ", prefixes: ["604", "607"] },   // 12 groups
+  { name: "ИиВТ + ПМиИ", prefixes: ["601", "606"] },   // 12 groups
+  { name: "Физика + Строительство", prefixes: ["602", "608"] },   // 10 groups
+  { name: "Преподаватели", teachers: true }               // locked placeholder cases
+];
+const groupsOf = i => GROUPS.filter(g => SECTIONS[i]?.prefixes?.includes(g.slice(0, 3)));
+const secOf = g => SECTIONS.findIndex(x => x.prefixes?.includes(g.slice(0, 3)));
 const PARTS = ["Верх", "Середина", "Низ", "Полное"], PARTS_L = ["верхняя часть", "средняя часть", "нижняя часть"];
 const RN = { common: "Common", rare: "Rare", mythic: "Mythic", legendary: "Legendary" };
 const COL = { common: "#D4D4D4", rare: "#00A0E0", mythic: "#FF00A0", legendary: "#ff9a1f" };
@@ -11,10 +23,10 @@ const DEFAULT_N = 5;     // pairs assumed for groups whose schedule file isn't f
 // price factors by number of parts in the day's schedule (1 / 2 / 3 parts)
 const FULL_K = { 1: .1, 2: .5, 3: 1 }, PIECE_K = { 2: .2, 3: 1 / 3 };
 const NEXT = { common: "rare", rare: "mythic" };                        // contracts (no Legendary)
-const IMG = { doc: "assets/doc.svg", check: "assets/check.svg" };
+const IMG = { doc: "assets/doc.svg", check: "assets/check.svg", lock: "assets/lock.svg" };
+const TEACHER_IMG = ["assets/case_teacher_1.svg", "assets/case_teacher_2.svg", "assets/case_teacher_3.svg"];   // placeholders
 // one icon per case, in order ПН..СБ (change .svg -> .png when you add your own)
 const CASE_IMG = ["assets/case_pn.png", "assets/case_vt.png", "assets/case_sr.png", "assets/case_cht.png", "assets/case_pt.png", "assets/case_sb.png"];
-const CASE_SIZE = 8;     // schedules inside one case (chosen group + CASE_SIZE-1 random others)
 // Numerator/denominator is counted from this date: put ANY MONDAY OF A NUMERATOR WEEK (YYYY-MM-DD).
 // Weeks then alternate automatically (next Monday = denominator, and so on, also across New Year).
 const WEEK_ANCHOR = "2026-10-26";
@@ -32,32 +44,36 @@ const st = {
   avatar: AVATARS.includes(store.get("avatar", "")) ? store.get("avatar") : AVATARS[0],
   history: store.get("hist2", [])
 };
-let rounds = store.get("rounds", {});     // one independent chest per day: {list, rar, dropped}
+let rounds = store.get("rounds", {});     // one independent chest per section+day ("sec:day"): {owner, list, rar, dropped}
 let cur = null;                           // chest of the case that is open now
+let curSec = store.get("sec", 0);         // section opened on the home screen
+if (!(curSec >= 0 && curSec < SECTIONS.length)) curSec = 0;
 let inv = store.get("inv", []), coins = store.get("coins", 0);
 const save = () => {
-  store.set("rounds", rounds); store.set("inv", inv);
+  store.set("rounds", rounds); store.set("sec", curSec); store.set("inv", inv);
   store.set("coins", coins); store.set("hist2", st.history); $("#coins").textContent = coins;
 };
 const say = (id, t) => $(id).textContent = t;
 const fmt = x => (Math.round(x * 10000) / 100).toString().replace(".", ",") + "%";
 const rnd = n => Math.floor(Math.random() * n);
 
-// new chest for day d: own random schedules + own rarities, chosen group = Legendary
-function newRound(d) {
-  const o = GROUPS.filter(g => g !== st.group).sort(() => Math.random() - .5).slice(0, CASE_SIZE - 1);
+// new chest for section sec + day d: ALL groups of the section are drops; own rarities each time
+// rarity plan: 1 Mythic + 1 Rare (the most pairs, ties random), the rest Common; chosen group = Legendary (if it is in this section)
+function newRound(sec, d) {
+  const list = groupsOf(sec), o = list.filter(g => g !== st.group).sort(() => Math.random() - .5);
   const rar = {}; o.forEach(g => rar[g] = "common");          // 1-2 part schedules stay Common
-  // Mythic / Rare: schedules with 3 parts and the most pairs that day (ties = random, list is shuffled)
   const cand = o.filter(g => sizes(cnt(g, d)).length === 3).sort((a, b) => cnt(b, d) - cnt(a, d));
   if (cand[0]) rar[cand[0]] = "mythic";
   if (cand[1]) rar[cand[1]] = "rare";
-  rar[st.group] = "legendary";
-  return rounds[d] = { list: [st.group, ...o].sort(() => Math.random() - .5), rar, dropped: [] };
+  if (list.includes(st.group)) rar[st.group] = "legendary";
+  return rounds[sec + ":" + d] = { owner: st.group, list: [...list].sort(() => Math.random() - .5), rar, dropped: [] };
 }
-const R = d => rounds[d] || newRound(d);
+const R = (sec, d) => rounds[sec + ":" + d] || newRound(sec, d);
 function setGroup(g) {
   if (g !== st.group) { st.group = g; rounds = {}; }
-  st.group = g; store.set("group", g); save();
+  st.group = g; store.set("group", g);
+  const si = secOf(g); if (si >= 0) curSec = si;            // open the section of your group
+  save();
 }
 
 /* ================= DROP LOGIC ================= */
@@ -67,7 +83,8 @@ function weights() {
   const pool = poolList(), w = {}; let fixed = 0;
   pool.forEach(g => { const f = FIX[cur.rar[g]]; if (f) { w[g] = f; fixed += f; } });
   const cm = pool.filter(g => cur.rar[g] === "common");
-  cm.forEach(g => w[g] = (1 - fixed) / cm.length);
+  if (cm.length) cm.forEach(g => w[g] = (1 - fixed) / cm.length);
+  else Object.keys(w).forEach(g => w[g] /= fixed);
   return w;
 }
 function pickWinner() {
@@ -144,30 +161,44 @@ function weekType(date = new Date()) {
   return diff % 2 === 0 ? "num" : "den";
 }
 
-/* ---------- subgroups: "A, п/г 1 | B, п/г 2" -> left / right ---------- */
+/* ---------- subgroups: "A, п/г 1 | B, п/г 2 | C, п/г 3" -> 2 or 3 columns ---------- */
+const subLabel = t => { const m = t.match(/п\/г\s*(\d)/i); return m ? +m[1] : null; };
+// 3 columns if in ANY day of the group there is a 3rd subgroup, otherwise 2
+function subCount(g) {
+  let n = 2;
+  Object.values(SCH[g]?.days || {}).forEach(ls => (ls || []).forEach(x => {
+    const t = String(x.subject || "");
+    if (t.split("|").length >= 3 || /п\/г\s*3/i.test(t)) n = 3;
+  }));
+  return n;
+}
 function itemCells(x) {
   const subj = String(x.subject).trim(), room = String(x.room || "").trim(), week = x.week;
   const clean = t => t.replace(/,?\s*п\/г\s*\d\s*$/i, "").trim();
-  if (subj.includes("|")) {                                         // position decides: left = п/г 1, right = п/г 2
-    const [a, b] = subj.split("|").map(t => t.trim()), rr = room.split("|").map(t => t.trim());
-    const both = a && b, out = [];
-    if (a) out.push({ side: 0, subject: clean(a), room: both ? (rr.length > 1 ? rr[0] : room) : (rr.find(Boolean) || ""), week });
-    if (b) out.push({ side: 1, subject: clean(b), room: both ? (rr.length > 1 ? rr[1] : room) : (rr.find(Boolean) || ""), week });
-    return out;
+  if (subj.includes("|")) {
+    const parts = subj.split("|").map(t => t.trim()), rr = room.split("|").map(t => t.trim());
+    const filled = parts.filter(Boolean).length;
+    const labs = parts.filter(Boolean).map(subLabel);
+    // the "п/г N" label decides the column; if labels are missing/duplicated (typo) the position decides
+    const byLabel = labs.every(n => n >= 1 && n <= 3) && new Set(labs).size === filled;
+    return parts.flatMap((t, i) => t ? [{
+      side: byLabel ? subLabel(t) - 1 : Math.min(i, 2), subject: clean(t), week,
+      room: filled > 1 ? (rr.length > 1 ? (rr[i] || "") : room) : (rr.find(Boolean) || "")
+    }] : []);
   }
-  const n = (subj.match(/п\/г\s*(\d)/i) || [])[1];                  // single subgroup without "|": side by its label
-  return [{ side: n === "1" ? 0 : n === "2" ? 1 : null, subject: clean(subj), room, week }];
+  const n = subLabel(subj);                                          // single subgroup without "|"
+  return [{ side: n >= 1 && n <= 3 ? n - 1 : null, subject: clean(subj), room, week }];
 }
-function slotHTML(sl, cw) {
+function slotHTML(sl, cw, sc) {
   const dim = w => w && w !== cw ? " dim" : "";                     // other week = more transparent
-  const full = [], side = [[], []];
-  sl.items.forEach(x => itemCells(x).forEach(c => (c.side == null ? full : side[c.side]).push(c)));
+  const full = [], side = Array.from({ length: sc }, () => []);
+  sl.items.forEach(x => itemCells(x).forEach(c => (c.side == null ? full : side[Math.min(c.side, sc - 1)]).push(c)));
   let html = full.map(c => `<div class="les${dim(c.week)}"><b>${esc(sl.num)}</b><span>${esc(c.subject)}</span><small>${esc(c.room)}${c.week ? " · " + WK[c.week] : ""}</small></div>`).join("");
-  if (side[0].length || side[1].length) {
+  if (side.some(a => a.length)) {
     const col = (arr, n) => arr.length
       ? arr.map(c => `<div class="cell${dim(c.week)}"><div class="lb">Подгруппа ${n}${c.week ? " · " + WK[c.week] : ""}</div><div class="t">${esc(c.subject)}</div>${c.room ? `<div class="rm">${esc(c.room)}</div>` : ""}</div>`).join("")
       : `<div class="cell ghost"><div class="lb">Подгруппа ${n}</div><div class="t">нет пары</div></div>`;
-    html += `<div class="les sub"><b>${esc(sl.num)}</b><div class="col">${col(side[0], 1)}</div><div class="col">${col(side[1], 2)}</div></div>`;
+    html += `<div class="les sub s${sc}"><b>${esc(sl.num)}</b>${side.map((a, i) => `<div class="col">${col(a, i + 1)}</div>`).join("")}</div>`;
   }
   return html;
 }
@@ -175,8 +206,8 @@ function lessonsHTML(g, d, p) {
   if (!slotsOf(g, d)) return `<p class="empty">Расписание ещё не заполнено${location.protocol === "file:" ? " (открой сайт через локальный сервер)" : ""}</p>`;
   const part = partSlots(g, d, p);
   if (!part.length) return '<p class="empty">Пар нет</p>';
-  const cw = weekType();
-  return `<div class="wk">Сейчас: ${WK_FULL[cw]}</div>` + part.map(sl => slotHTML(sl, cw)).join("");
+  const cw = weekType(), sc = subCount(g);
+  return `<div class="wk">Сейчас: ${WK_FULL[cw]}</div>` + part.map(sl => slotHTML(sl, cw, sc)).join("");
 }
 
 function choose(title, opts) {
@@ -198,7 +229,7 @@ function showTab(tab) {
   ({ profile: renderProfile, settings: renderSettings, inventory: renderInv, upgrader: resetUp, contracts: resetCt })[tab]?.();
 }
 const showStage = id => $$(".stage").forEach(s => s.classList.toggle("active", s.id === id));
-function goHome() { spinId++; spinning = false; showTab("home"); showStage("cases"); }
+function goHome() { spinId++; spinning = false; showTab("home"); showStage("cases"); renderCases(); }
 $$(".bar [data-tab]").forEach(b => b.onclick = () => {
   if (b.dataset.tab === "home") return goHome();
   spinId++; spinning = false; showTab(b.dataset.tab);
@@ -207,13 +238,17 @@ $$(".bar [data-tab]").forEach(b => b.onclick = () => {
 /* ================= GROUP LIST ================= */
 function renderGroupList(box, onPick) {
   box.innerHTML = "";
-  GROUPS.forEach(g => {
-    const sel = g === st.group, b = document.createElement("button");
-    b.className = "glass row opt" + (sel ? " sel" : "");
-    const n = document.createElement("span"); n.textContent = g; b.append(n);
-    if (sel) { const c = document.createElement("img"); c.src = IMG.check; c.alt = ""; c.className = "chk"; b.append(c); }
-    b.onclick = () => { navigator.vibrate?.(8); onPick(g); };
-    box.append(b);
+  SECTIONS.forEach((sec, si) => {
+    const gs = groupsOf(si); if (!gs.length) return;
+    const h = document.createElement("h3"); h.className = "gh"; h.textContent = sec.name; box.append(h);
+    const wrap = document.createElement("div"); wrap.className = "gchips";
+    gs.forEach(g => {
+      const b = document.createElement("button");
+      b.className = "glass pill chipb" + (g === st.group ? " on" : ""); b.textContent = g;
+      b.onclick = () => { navigator.vibrate?.(8); onPick(g); };
+      wrap.append(b);
+    });
+    box.append(wrap);
   });
 }
 function openPicker() {
@@ -223,9 +258,27 @@ function openPicker() {
 const renderSettings = () => renderGroupList($("#groups"), g => { setGroup(g); renderSettings(); });
 
 /* ================= CASES + SPIN ================= */
-$("#grid").innerHTML = DAYS.map((_, i) =>
-  `<button class="glass tint tile" data-i="${i}"><img class="chest" src="${CASE_IMG[i]}" alt=""></button>`).join("");
-$$(".tile").forEach(t => t.onclick = () => openCase(+t.dataset.i));
+function renderCases() {
+  const tabs = $("#secTabs");
+  tabs.innerHTML = SECTIONS.map((x, i) => `<button class="glass pill chipb${i === curSec ? " on" : ""}" data-sec="${i}">${x.name}</button>`).join("");
+  $("#grid").innerHTML = SECTIONS[curSec].teachers
+    ? TEACHER_IMG.map(src => `<button class="glass tile locked" disabled aria-label="Скоро"><img class="chest" src="${src}" alt=""><img class="lock" src="${IMG.lock}" alt=""></button>`).join("")
+    : DAYS.map((_, i) => `<button class="glass tint tile" data-i="${i}"><img class="chest" src="${CASE_IMG[i]}" alt=""></button>`).join("");
+  const on = tabs.querySelector(".on");
+  if (on) tabs.scrollLeft = on.offsetLeft - (tabs.clientWidth - on.offsetWidth) / 2;
+}
+$("#secTabs").onclick = e => {
+  const b = e.target.closest("[data-sec]"); if (!b) return;
+  curSec = +b.dataset.sec; store.set("sec", curSec); renderCases();
+};
+// mouse wheel scrolls the section strip sideways (no Shift needed)
+$("#secTabs").addEventListener("wheel", e => {
+  const t = e.currentTarget;
+  if (t.scrollWidth <= t.clientWidth || Math.abs(e.deltaX) >= Math.abs(e.deltaY)) return;
+  t.scrollLeft += e.deltaMode === 1 ? e.deltaY * 32 : e.deltaY;
+  e.preventDefault();
+}, { passive: false });
+$("#grid").onclick = e => { const b = e.target.closest(".tile[data-i]"); if (b) openCase(+b.dataset.i); };
 
 const N = 70, START = 2, WIN = 58, CARD = 84, GAP = 14, P = CARD + GAP;
 const track = $("#track"), strip = $("#strip"), btn = $("#spinBtn");
@@ -253,8 +306,9 @@ function place(scroll) {
   }
 }
 function openCase(i) {
-  curIdx = i; cur = R(i); winner = pickWinner(); const nd = needParts(winner, i); part = nd[rnd(nd.length)];          // each part 33.3%
-  say("#spinLabel", `${DAYS[i][1]} • ${st.group}`);
+  if (SECTIONS[curSec].teachers) return;
+  curIdx = i; cur = R(curSec, i); winner = pickWinner(); const nd = needParts(winner, i); part = nd[rnd(nd.length)];          // each part 33.3%
+  say("#spinLabel", `${SECTIONS[curSec].name} • ${DAYS[i][1]}`);
   btn.disabled = false; spinning = false;
   buildTrack(); renderDrops(); showStage("spin");
   requestAnimationFrame(() => place(START * P));
@@ -274,6 +328,7 @@ function spin() {
   })(t0);
 }
 btn.onclick = spin;
+$("#again").onclick = () => openCase(curIdx);      // back to the same case, spin again
 
 function finish() {
   spinning = false;
@@ -282,10 +337,10 @@ function finish() {
   st.history.unshift({ ...it, t: Date.now() }); st.history = st.history.slice(0, 50);
   cur.dropped.push(winner);
   let note = "";
-  if (!cur.list.some(g => !cur.dropped.includes(g) && cur.rar[g] === "common")) { newRound(curIdx); note = "Все Common выпали — прогресс сундука сброшен"; }
+  if (!cur.list.some(g => !cur.dropped.includes(g) && cur.rar[g] === "common")) { newRound(curSec, curIdx); note = "Все Common выпали — прогресс сундука сброшен"; }
   save();
   const lb = $("#resultLabel"); lb.textContent = `${it.g} • ${RN[it.r]} • ${PARTS_L[it.p]} • ${DAYS[it.d][0]}`; lb.style.color = COL[it.r];
-  say("#resultNote", note); $("#panel").innerHTML = lessonsHTML(it.g, it.d, it.p);
+  say("#resultNote", note); $("#panel").innerHTML = lessonsHTML(it.g, it.d, it.p); $("#again").hidden = false;
   navigator.vibrate?.([20, 40, 20]); showStage("result");
 }
 
@@ -317,7 +372,7 @@ async function itemMenu(it) {
   const a = await choose(label(it), opts);
   if (a === "view") {
     showTab("home"); const lb = $("#resultLabel"); lb.textContent = `${it.g} • ${RN[it.r]} • ${DAYS[it.d][1]}`; lb.style.color = COL[it.r];
-    say("#resultNote", ""); $("#panel").innerHTML = lessonsHTML(it.g, it.d, 3); return showStage("result");
+    say("#resultNote", ""); $("#panel").innerHTML = lessonsHTML(it.g, it.d, 3); $("#again").hidden = true; return showStage("result");
   }
   if (a === "asm") { need.forEach(p => take({ ...it, p })); inv.push({ ...it, p: 3 }); }
   if (a === "sell") { take(it); coins += price(it); }
@@ -335,7 +390,7 @@ function resetUp() { upSrc = upDst = null; upBusy = false; paintUp(); say("#upMs
 function paintUp() {
   const s = $("#upSrc"), d = $("#upDst");
   s.innerHTML = upSrc ? inner(upSrc, 1) : "+"; s.style.setProperty("--c", upSrc ? COL[upSrc.r] : "");
-  const t = upDst && upSrc && { g: upDst, d: upSrc.d, r: R(upSrc.d).rar[upDst], p: 3 };
+  const t = upDst && upSrc && { g: upDst, d: upSrc.d, r: R(secOf(upSrc.g), upSrc.d).rar[upDst], p: 3 };
   d.innerHTML = t ? inner(t, 1) : "+"; d.style.setProperty("--c", t ? COL[t.r] : "");
   const c = upSrc && t ? upChance(upSrc.r, t.r) : null;
   say("#upPct", c == null ? "%?" : fmt(c));
@@ -351,7 +406,7 @@ $("#upSrc").onclick = async () => {
 $("#upDst").onclick = async () => {
   if (upBusy) return;
   if (!upSrc) return say("#upMsg", "Сначала выбери расписание");
-  const rr = R(upSrc.d), l = rr.list.filter(g => !(upSrc.r === "legendary" && rr.rar[g] === "legendary"));
+  const rr = R(secOf(upSrc.g), upSrc.d), l = rr.list.filter(g => !(upSrc.r === "legendary" && rr.rar[g] === "legendary"));
   const v = await choose("Что хотим получить?", l.map(g => ({ html: `<span style="color:${COL[rr.rar[g]]}">${g}</span><small>${RN[rr.rar[g]]}</small>`, val: g })));
   if (v) { upDst = v; paintUp(); }
 };
@@ -368,7 +423,7 @@ function spinWheel(roll) {
 $("#upGo").onclick = async () => {
   if (upBusy) return;
   if (!upSrc || !upDst) return say("#upMsg", "Выбери расписание и цель");
-  const tr = R(upSrc.d).rar[upDst];
+  const tr = R(secOf(upSrc.g), upSrc.d).rar[upDst];
   if (upSrc.r === "legendary" && tr === "legendary") return say("#upMsg", "Legendary → Legendary нельзя");
   upBusy = true; say("#upMsg", "");
   const c = upChance(upSrc.r, tr), roll = Math.random(), src = upSrc, dst = upDst;
@@ -449,5 +504,9 @@ $("#avatar").onclick = () => { st.avatar = AVATARS[(AVATARS.indexOf(st.avatar) +
 $("#name").oninput = e => { st.name = e.target.value; store.set("name", st.name); };
 
 /* ================= START ================= */
-Object.keys(rounds).forEach(d => { const r = rounds[d]; if (!r.rar || r.rar[st.group] !== "legendary" || !r.list.every(g => GROUPS.includes(g))) delete rounds[d]; });
-loadSchedules().finally(() => { save(); showTab("home"); openPicker(); });
+// drop saved chests that don't match the current groups / sections (old format, edited GROUPS, other chosen group)
+Object.keys(rounds).forEach(k => {
+  const r = rounds[k], want = groupsOf(+k.split(":")[0]).sort().join();
+  if (!/^\d+:\d+$/.test(k) || !r.rar || r.owner !== st.group || [...(r.list || [])].sort().join() !== want) delete rounds[k];
+});
+loadSchedules().finally(() => { save(); showTab("home"); renderCases(); openPicker(); });

@@ -8,6 +8,15 @@
   -webkit-tap-highlight-color: transparent
 }
 
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}
+
 html,
 body {
   margin: 0;
@@ -993,4 +1002,153 @@ canvas#sig {
   opacity: .5;
   font-weight: 500;
   font-size: 12px
+}
+
+/* ===== sections (tabs + cases) ===== */
+#cases {
+  justify-content: flex-start;
+  gap: 18px
+}
+
+#cases>:first-child {
+  margin-top: auto
+}
+
+#cases>:last-child {
+  margin-bottom: auto
+}
+
+.sectabs {
+  position: relative;
+  flex: none;
+  width: calc(100% + 48px);
+  margin: 0 -24px;
+  padding: 4px 24px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch
+}
+
+.sectabs::-webkit-scrollbar {
+  display: none
+}
+
+.sectabs .chipb {
+  flex: none;
+  white-space: nowrap
+}
+
+.tile.locked {
+  opacity: .55;
+  filter: grayscale(.7);
+  cursor: not-allowed
+}
+
+.tile .lock {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  width: 28px;
+  height: 28px
+}
+
+.grid .tile.locked:last-child:nth-child(odd) {
+  grid-column: 1/-1;
+  justify-self: center;
+  width: calc(50% - 9px)
+}
+
+.drop {
+  width: calc(25% - 6px);
+  min-width: 72px;
+  font-size: 13px
+}
+
+/* 12 drops = 3 rows of 4 */
+.gh {
+  margin: 8px 0 0;
+  font-size: 14px;
+  font-weight: 800;
+  opacity: .75;
+  align-self: flex-start
+}
+
+.gchips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%
+}
+
+.gchips .chipb {
+  padding: 8px 12px;
+  font-size: 14px
+}
+
+/* ===== 3 subgroups ===== */
+.panel {
+  container-type: inline-size
+}
+
+.les.sub {
+  grid-template-columns: repeat(2, minmax(0, 1fr))
+}
+
+.les.sub.s3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px
+}
+
+.les.sub.s3 .cell {
+  padding: 12px 6px 7px;
+  border-radius: 13px
+}
+
+.les.sub.s3 .cell .lb {
+  font-size: 9.5px;
+  letter-spacing: 0
+}
+
+.les.sub.s3 .cell .t {
+  font-size: 11px;
+  line-height: 1.15
+}
+
+.les.sub.s3 .cell .rm {
+  font-size: 11px;
+  padding: 1px 6px
+}
+
+.panel:has(.les.sub.s3) {
+  padding: 10px
+}
+
+@container (max-width:285px) {
+
+  /* very narrow phones: stack the 3 subgroups */
+  .les.sub.s3 {
+    grid-template-columns: minmax(0, 1fr)
+  }
+
+  .les.sub.s3 .col:has(>.ghost) {
+    display: none
+  }
+
+  .les.sub.s3 .cell {
+    padding: 12px 10px 8px
+  }
+
+  .les.sub.s3 .cell .t {
+    font-size: 13px
+  }
+}
+
+[hidden] {
+  display: none !important
+}
+
+#again {
+  flex: none
 }
