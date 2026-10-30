@@ -13,25 +13,19 @@ const TEACHER_CASES = ["Скоро", "Скоро", "Скоро"];
 let activeDept = DEPARTMENTS[0].id;
 const deptById = id => DEPARTMENTS.find(d => d.id === id) || DEPARTMENTS[0];
 const deptForGroup = g => DEPARTMENTS.find(d => d.groups.includes(g)) || DEPARTMENTS[0];
-
 const RN = { common: "Common", rare: "Rare", mythic: "Mythic", legendary: "Legendary" };
 const COL = { common: "#D4D4D4", rare: "#00A0E0", mythic: "#FF00A0", legendary: "#ff9a1f" };
 const RI = { common: 0, rare: 1, mythic: 2, legendary: 3 };
 const FIX = { rare: .10, mythic: .05, legendary: .01 };                  // fixed drop chances
 const PRICE = { common: 10, rare: 15, mythic: 20, legendary: 70 };        // шышиш
 const DEFAULT_N = 5;     // pairs assumed for groups whose schedule file isn't filled yet
-// price factors by number of parts in the day's schedule (1 / 2 / 3 parts)
 const FULL_K = { 1: .1, 2: .5, 3: 1 }, PIECE_K = { 2: .2, 3: 1 / 3 };
 const NEXT = { common: "rare", rare: "mythic" };                        // contracts (no Legendary)
 const IMG = { doc: "assets/doc.svg", check: "assets/check.svg" };
-// one icon per case, in order ПН..СБ (change .svg -> .png when you add your own)
 const CASE_IMG = ["assets/case_pn.png", "assets/case_vt.png", "assets/case_sr.png", "assets/case_cht.png", "assets/case_pt.png", "assets/case_sb.png"];
 const CASE_SIZE = 8;     // schedules inside one case (chosen group + CASE_SIZE-1 random others)
-// Numerator/denominator is counted from this date: put ANY MONDAY OF A NUMERATOR WEEK (YYYY-MM-DD).
-// Weeks then alternate automatically (next Monday = denominator, and so on, also across New Year).
 const WEEK_ANCHOR = "2026-10-26";
 const AVATARS = ["assets/av1.svg", "assets/av2.svg", "assets/av3.svg", "assets/av4.svg", "assets/av5.svg", "assets/av6.svg"];
-
 /* ================= STATE ================= */
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 const store = {
@@ -54,8 +48,6 @@ const save = () => {
 const say = (id, t) => $(id).textContent = t;
 const fmt = x => (Math.round(x * 10000) / 100).toString().replace(".", ",") + "%";
 const rnd = n => Math.floor(Math.random() * n);
-
-// Each department has its own six daily cases; all directions in that department are possible drops.
 function roundKey(d, deptId = activeDept) { return `${deptId}:${d}`; }
 function newRound(d, deptId = activeDept) {
   const dept = deptById(deptId), list = [...dept.groups];
@@ -73,10 +65,8 @@ function setGroup(g) {
   if (g !== st.group) { st.group = g; rounds = {}; }
   st.group = g; store.set("group", g); save();
 }
-
 /* ================= DROP LOGIC ================= */
 const poolList = () => cur.list.filter(g => !cur.dropped.includes(g));
-// Legendary 1%, Mythic 5%, Rare 10% are constant while present; Commons share the rest equally
 function weights() {
   const pool = poolList(), w = {}; let fixed = 0;
   pool.forEach(g => { const f = FIX[cur.rar[g]]; if (f) { w[g] = f; fixed += f; } });
@@ -106,7 +96,6 @@ function renderDrops() {
   const counter = $("#dropCount");
   if (counter) counter.textContent = `${String(available.length).padStart(2, "0")} ДОСТУПНО`;
 }
-
 /* ================= INVENTORY HELPERS ================= */
 const same = (a, b) => a.g === b.g && a.d === b.d && a.r === b.r && a.p === b.p;
 const count = it => inv.filter(x => same(x, it)).length;
@@ -130,7 +119,6 @@ async function loadSchedules() {
     try { const r = await fetch(`data/${encodeURIComponent(g)}.json`); if (r.ok) SCH[g] = await r.json(); } catch { }
   }));
 }
-// lessons of a day grouped by pair number (ПН..СБ key); null = file/day not filled yet
 function slotsOf(g, d) {
   const raw = SCH[g]?.days?.[DAYS[d][0]];
   if (!Array.isArray(raw)) return null;
@@ -142,7 +130,6 @@ function slotsOf(g, d) {
   return [...m.values()].sort((a, b) => a.num - b.num);
 }
 const cnt = (g, d) => slotsOf(g, d)?.length ?? DEFAULT_N;
-// how many pairs go into each part
 function sizes(n) {
   if (n <= 1) return [n];            // one part = the full schedule
   if (n === 2) return [1, 1];        // top, bottom
@@ -170,7 +157,6 @@ function weekType(date = new Date()) {
   const diff = Math.round((monday - Date.UTC(y, mo - 1, d)) / 604800000);
   return diff % 2 === 0 ? "num" : "den";
 }
-
 /* ---------- subgroups: "A, п/г 1 | B, п/г 2" -> left / right ---------- */
 function itemCells(x) {
   const subj = String(x.subject || "").trim(), room = String(x.room || "").trim(), week = x.week;
@@ -211,7 +197,6 @@ function lessonsHTML(g, d, p) {
   const cw = weekType();
   return `<div class="schedule-meta"><div class="schedule-meta-title"><span class="eyebrow">SCHEDULE DROP</span><strong>${esc(g)} <i>·</i> ${DAYS[d][1]}</strong><small>${PARTS_L[p]}</small></div><div class="wk"><span class="week-dot"></span>${WK_FULL[cw]}</div></div><div class="lesson-list">${part.map(sl => slotHTML(sl, cw)).join("")}</div>`;
 }
-
 function choose(title, opts) {
   return new Promise(res => {
     const m = $("#modal"), box = m.querySelector(".list");
@@ -222,7 +207,6 @@ function choose(title, opts) {
     box.append(x); m.classList.add("open");
   });
 }
-
 /* ================= NAVIGATION ================= */
 let spinId = 0, spinning = false, curIdx = 0, winner = null, part = 0;
 function showTab(tab) {
@@ -242,7 +226,6 @@ $$(".bar [data-tab]").forEach(b => b.onclick = () => {
   if (b.dataset.tab === "home") return goHome();
   spinId++; spinning = false; showTab(b.dataset.tab);
 });
-
 /* ================= GROUP LIST ================= */
 function renderGroupList(box, onPick, query = "") {
   box.innerHTML = "";
@@ -271,7 +254,6 @@ function openPicker() {
   $("#picker").classList.add("open");
 }
 const renderSettings = () => renderGroupList($("#groups"), g => { setGroup(g); activeDept = deptForGroup(g).id; renderSettings(); renderCases(); say("#pageTitle", "Настройки"); });
-
 /* ================= CASES + SPIN ================= */
 function renderCases() {
   const cats = $("#caseCategories");
@@ -284,21 +266,16 @@ function renderCases() {
 }
 renderCases();
 $("#backCases").onclick = () => { spinId++; spinning = false; btn.disabled = false; showStage("cases"); };
-
-// Keep two additional cards before the initial center marker on wide screens.
 const N = 70, START = 4, WIN = 58;
 const track = $("#track"), strip = $("#strip"), btn = $("#spinBtn");
 let cards = [];
-// Read real geometry from the rendered cards, so CSS/responsive changes cannot desync the prize.
 function trackMetrics() {
   const cardWidth = cards[0]?.offsetWidth || 84;
   const gap = parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap) || 14;
   return { cardWidth, gap, pitch: cardWidth + gap };
 }
 const ease = t => { const sm = t * t * (3 - 2 * t), q = 1 - Math.pow(1 - t, 4); return sm * (1 - t) + q * t; };
-
 function buildTrack() {
-  // A fully exhausted chest is refreshed before building a new roulette strip.
   if (!poolList().length) cur = newRound(curIdx, activeDept);
   const pool = poolList();
   if (!pool.length) throw new Error("Не удалось собрать предметы для рулетки");
@@ -324,7 +301,6 @@ function place(scroll) {
 }
 function openCase(i, deptId = activeDept, autoSpin = false) {
   activeDept = deptId; curIdx = i; cur = R(i, deptId);
-  // Recover safely from an older saved chest whose entire pool was already consumed.
   if (!poolList().length) cur = newRound(i, activeDept);
   winner = pickWinner(); const nd = needParts(winner, i); part = nd[rnd(nd.length)];          // each part 33.3%
   say("#spinLabel", `${deptById(deptId).name} · ${DAYS[i][1]}`);
@@ -354,16 +330,12 @@ function spin() {
   })(t0);
 }
 btn.onclick = spin;
-
-// Result screen actions: return to the same case or prepare another spin.
 $("#resultBackCase").onclick = () => {
-  // Re-enable the primary action when returning from a completed result.
   spinning = false;
   btn.disabled = false;
   showStage("spin");
 };
 $("#resultSpinAgain").onclick = () => openCase(curIdx, activeDept, true);
-
 function finish() {
   $("#result").classList.remove("inventory-view");
   spinning = false;
@@ -378,7 +350,6 @@ function finish() {
   say("#resultNote", note); $("#panel").innerHTML = lessonsHTML(it.g, it.d, it.p);
   navigator.vibrate?.([20, 40, 20]); showStage("result");
 }
-
 /* ================= INVENTORY ================= */
 let sortBy = "rarity", rev = false, view = [];
 const SORTS = {
@@ -397,7 +368,6 @@ function renderInv() {
 }
 $("#sorts").onclick = e => { const s = e.target.dataset.s; if (!s) return; s === "rev" ? rev = !rev : sortBy = s; renderInv(); };
 $("#invGrid").onclick = e => { const b = e.target.closest("[data-i]"); if (b) itemMenu(view[+b.dataset.i].it); };
-
 async function itemMenu(it) {
   const opts = [], have = p => inv.some(x => same(x, { ...it, p }));
   const need = needParts(it.g, it.d);
@@ -414,10 +384,8 @@ async function itemMenu(it) {
   if (a === "sell") { take(it); coins += price(it); }
   save(); renderInv();
 }
-
 /* ================= UPGRADER ================= */
 let upSrc = null, upDst = null, upBusy = false;
-// -24% for using it, -25% per skipped rarity (only upwards), -(fixed drop chance)*3/4
 function upChance(s, t) {
   const d = RI[t] - RI[s];
   return Math.max(0, 1 - .24 - (d > 0 ? .25 * d : 0) - (FIX[t] || 0) * .75);
@@ -480,7 +448,6 @@ $("#upGo").onclick = async () => {
   save(); say("#upMsg", ok ? "Успех! Расписание в инвентаре" : "Неудача — расписание сгорело");
   upSrc = upDst = null; upBusy = false; paintUp();
 };
-
 /* ================= CONTRACTS ================= */
 let ctSel = null, signed = false, drawing = false;
 const sig = $("#sig"), cx = sig.getContext("2d"), INK = "#26336f";
@@ -523,7 +490,6 @@ $("#ctGo").onclick = () => {
   inv.push(it); save(); resetCt();
   say("#ctMsg", `Получено: ${label(it)} (${RN[it.r]})`);
 };
-// easter egg: С → В → О on the contracts screen
 let seq = "";
 addEventListener("keydown", e => {
   if (!$("#contracts").classList.contains("active")) return;
@@ -531,7 +497,6 @@ addEventListener("keydown", e => {
   seq = (seq + (ch || "_")).slice(-3);
   if (seq === "сво") say("#sigLbl", "Согласен на контракт");
 });
-
 /* ================= PROFILE ================= */
 function renderProfile() {
   $("#avatar").innerHTML = `<img src="${st.avatar}" alt="">`;
@@ -548,10 +513,8 @@ function renderProfile() {
 }
 $("#avatar").onclick = () => { st.avatar = AVATARS[(AVATARS.indexOf(st.avatar) + 1) % AVATARS.length]; store.set("avatar", st.avatar); renderProfile(); };
 $("#name").oninput = e => { st.name = e.target.value; store.set("name", st.name); };
-
 /* ================= START ================= */
 Object.keys(rounds).forEach(k => { const r = rounds[k]; if (!k.includes(":") || !r.rar || !Array.isArray(r.list) || !r.list.every(g => GROUPS.includes(g))) delete rounds[k]; });
-// Render navigation and the group selector immediately; schedule files load independently.
 if (st.group) activeDept = deptForGroup(st.group).id;
 renderCases();
 showTab("home");
