@@ -25,6 +25,9 @@ const IMG = { doc: "assets/doc.svg", check: "assets/check.svg" };
 const CASE_IMG = ["assets/case_pn.png", "assets/case_vt.png", "assets/case_sr.png", "assets/case_cht.png", "assets/case_pt.png", "assets/case_sb.png"];
 const CASE_SIZE = 8;     // schedules inside one case (chosen group + CASE_SIZE-1 random others)
 const WEEK_ANCHOR = "2026-10-26";
+const LOCK_CHANCE = .15, UNLOCK_COST = 10, LOCKED_PRICE = 1;                // illegible drops: chance / price to read / sell price
+const FEED_REWARD = 1, CHEST_COST = 5, SKIN_PRICE = 40, REVIVE_COST = 200;   // + revive price of a dead telifon                      // telifon: coins per feeding / skin chest cost / skin sell price
+const SKINS = [1, 2, 3, 4, 5].map(n => ({ id: "s" + n, name: "Скин " + n, img: "assets/telifon.png", hue: (n - 1) * 70 }));   // placeholders
 const AVATARS = ["assets/av1.svg", "assets/av2.svg", "assets/av3.svg", "assets/av4.svg", "assets/av5.svg", "assets/av6.svg"];
 /* ================= STATE ================= */
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
@@ -41,8 +44,9 @@ const st = {
 let rounds = store.get("rounds", {});     // one independent chest per day: {list, rar, dropped}
 let cur = null;                           // chest of the case that is open now
 let inv = store.get("inv", []), coins = store.get("coins", 0);
+const tele = Object.assign({ coins: 0, last: "", skins: [], skin: null, name: "" }, store.get("tele", {}));
 const save = () => {
-  store.set("rounds", rounds); store.set("inv", inv);
+  store.set("rounds", rounds); store.set("inv", inv); store.set("tele", tele);
   store.set("coins", coins); store.set("hist2", st.history); $("#coins").textContent = coins;
 };
 const say = (id, t) => $(id).textContent = t;
@@ -97,19 +101,20 @@ function renderDrops() {
   if (counter) counter.textContent = `${String(available.length).padStart(2, "0")} ДОСТУПНО`;
 }
 /* ================= INVENTORY HELPERS ================= */
-const same = (a, b) => a.g === b.g && a.d === b.d && a.r === b.r && a.p === b.p;
+const same = (a, b) => a.g === b.g && a.d === b.d && a.r === b.r && a.p === b.p && !a.x === !b.x;
 const count = it => inv.filter(x => same(x, it)).length;
 function take(it, n = 1) { for (let i = 0; i < n; i++) { const k = inv.findIndex(x => same(x, it)); if (k >= 0) inv.splice(k, 1); } }
 const price = it => {
+  if (it.x) return LOCKED_PRICE;
   const k = sizes(cnt(it.g, it.d)).length;
   return Math.max(1, Math.floor(PRICE[it.r] * (it.p === 3 ? FULL_K[k] : PIECE_K[k])));
 };
 const label = it => `${it.g} · ${DAYS[it.d][0]} · ${PARTS[it.p]}`;
-const inner = (it, n) => `<img src="${IMG.doc}" alt=""><b>${it.g}</b><small>${DAYS[it.d][0]} · ${PARTS[it.p]}</small><small>${RN[it.r]}${n > 1 ? ` ×${n}` : ""}</small>`;
-const optHTML = (it, n) => `<span style="color:${COL[it.r]}">${label(it)}</span><small>${RN[it.r]}${n > 1 ? ` ×${n}` : ""}</small>`;
+const inner = (it, n) => `${it.x ? '<img class="lockmark" src="assets/lock.svg" alt="" title="Зашифровано">' : ""}<img src="${IMG.doc}" alt=""><b>${it.g}</b><small>${DAYS[it.d][0]} · ${PARTS[it.p]}</small><small>${RN[it.r]}${n > 1 ? ` ×${n}` : ""}</small>`;
+const optHTML = (it, n) => `<span style="color:${COL[it.r]}">${label(it)}${it.x ? " · зашифровано" : ""}</span><small>${RN[it.r]}${n > 1 ? ` ×${n}` : ""}</small>`;
 function uniq(list) {
   const m = new Map();
-  list.forEach(x => { const k = [x.g, x.d, x.r, x.p].join("|"); m.has(k) ? m.get(k).n++ : m.set(k, { it: x, n: 1 }); });
+  list.forEach(x => { const k = [x.g, x.d, x.r, x.p, !!x.x].join("|"); m.has(k) ? m.get(k).n++ : m.set(k, { it: x, n: 1 }); });
   return [...m.values()];
 }
 /* ---------- schedules (data/<group>.json) ---------- */
@@ -146,6 +151,7 @@ function partSlots(g, d, p) {
   const a = sz.slice(0, i).reduce((x, y) => x + y, 0);
   return s.slice(a, a + sz[i]);
 }
+const scr = t => String(t).replace(/\S/g, () => "▓▒░█▚▞▙▟"[rnd(8)]);   // locked text: real characters never reach the DOM
 const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 /* ---------- numerator / denominator (auto) ---------- */
 const WK = { num: "чис", den: "знам" }, WK_FULL = { num: "числитель", den: "знаменатель" };
@@ -174,28 +180,28 @@ function itemCells(x) {
   }
   return [{ side: null, subject: subj, room, week }];
 }
-function slotHTML(sl, cw) {
+function slotHTML(sl, cw, E = esc) {
   const dim = w => w && w !== cw ? " dim" : "";
   const full = [], side = [[], [], []];
   sl.items.forEach(x => itemCells(x).forEach(c => (c.side == null ? full : side[c.side]).push(c)));
-  const card = c => `<div class="lesson-main"><span class="lesson-subject">${esc(c.subject)}</span><small class="lesson-meta">${c.room ? `<span class="room-tag">${esc(c.room)}</span>` : ""}${c.week ? `<span class="week-tag">${WK[c.week]}</span>` : ""}</small></div>`;
-  let html = full.map(c => `<article class="les lesson-card${dim(c.week)}"><b class="lesson-number">${esc(sl.num)}</b>${card(c)}</article>`).join("");
+  const card = c => `<div class="lesson-main"><span class="lesson-subject">${E(c.subject)}</span><small class="lesson-meta">${c.room ? `<span class="room-tag">${E(c.room)}</span>` : ""}${c.week ? `<span class="week-tag">${WK[c.week]}</span>` : ""}</small></div>`;
+  let html = full.map(c => `<article class="les lesson-card${dim(c.week)}"><b class="lesson-number">${E(sl.num)}</b>${card(c)}</article>`).join("");
   if (side.some(a => a.length)) {
     const count = side[2].length ? 3 : 2;
     const col = (arr, n) => arr.length
-      ? arr.map(c => `<div class="cell${dim(c.week)}"><div class="lb">Подгруппа ${n}${c.week ? " · " + WK[c.week] : ""}</div><div class="t">${esc(c.subject)}</div>${c.room ? `<div class="rm">${esc(c.room)}</div>` : ""}</div>`).join("")
+      ? arr.map(c => `<div class="cell${dim(c.week)}"><div class="lb">Подгруппа ${n}${c.week ? " · " + WK[c.week] : ""}</div><div class="t">${E(c.subject)}</div>${c.room ? `<div class="rm">${E(c.room)}</div>` : ""}</div>`).join("")
       : `<div class="cell ghost"><div class="lb">Подгруппа ${n}</div><div class="t">нет пары</div></div>`;
-    html += `<article class="les sub lesson-card split-card" style="--sub-count:${count}"><b class="lesson-number">${esc(sl.num)}</b><div class="subgroup-grid">${side.slice(0, count).map((arr, i) => `<div class="col">${col(arr, i + 1)}</div>`).join("")}</div></article>`;
+    html += `<article class="les sub lesson-card split-card" style="--sub-count:${count}"><b class="lesson-number">${E(sl.num)}</b><div class="subgroup-grid">${side.slice(0, count).map((arr, i) => `<div class="col">${col(arr, i + 1)}</div>`).join("")}</div></article>`;
   }
   return html;
 }
-function lessonsHTML(g, d, p) {
+function lessonsHTML(g, d, p, locked = false) {
   const slots = slotsOf(g, d);
   if (!slots) return `<div class="schedule-empty"><span class="empty-mark">⌁</span><strong>Расписание ещё не заполнено</strong><p>${location.protocol === "file:" ? "Открой сайт через локальный сервер, чтобы загрузить данные." : "Для этой группы пока нет опубликованных пар на выбранный день."}</p></div>`;
   const part = partSlots(g, d, p);
   if (!part.length) return '<div class="schedule-empty"><span class="empty-mark">✓</span><strong>На этот день пар нет</strong><p>Можно выдохнуть — свободный день.</p></div>';
   const cw = weekType();
-  return `<div class="schedule-meta"><div class="schedule-meta-title"><span class="eyebrow">SCHEDULE DROP</span><strong>${esc(g)} <i>·</i> ${DAYS[d][1]}</strong><small>${PARTS_L[p]}</small></div><div class="wk"><span class="week-dot"></span>${WK_FULL[cw]}</div></div><div class="lesson-list">${part.map(sl => slotHTML(sl, cw)).join("")}</div>`;
+  return `<div class="schedule-meta"><div class="schedule-meta-title"><span class="eyebrow">SCHEDULE DROP</span><strong>${esc(g)} <i>·</i> ${DAYS[d][1]}</strong><small>${PARTS_L[p]}</small></div><div class="wk"><span class="week-dot"></span>${WK_FULL[cw]}</div></div><div class="lesson-list${locked ? " is-locked" : ""}">${part.map(sl => slotHTML(sl, cw, locked ? scr : esc)).join("")}</div>`;
 }
 function choose(title, opts) {
   return new Promise(res => {
@@ -212,13 +218,13 @@ let spinId = 0, spinning = false, curIdx = 0, winner = null, part = 0;
 function showTab(tab) {
   $$(".screen").forEach(s => s.classList.toggle("active", s.id === tab));
   $$(".bar [data-tab]").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
-  const pageNames = { home: "Главная", inventory: "Коллекция", upgrader: "Upgrader", contracts: "Контрактный центр", profile: "Профиль игрока", settings: "Настройки" };
+  const pageNames = { home: "Главная", inventory: "Коллекция", upgrader: "Upgrader", contracts: "Контрактный центр", profile: "Профиль игрока", telifon: "Телифон", settings: "Настройки" };
   const title = $("#pageTitle");
   if (title) title.textContent = pageNames[tab] || "Raspisanie Drop";
   const ru = $("#railUser"), rg = $("#railGroup");
   if (ru) ru.textContent = st.name || "Студент";
   if (rg) rg.textContent = st.group ? `Группа ${st.group}` : "Группа не выбрана";
-  ({ profile: renderProfile, settings: renderSettings, inventory: renderInv, upgrader: resetUp, contracts: resetCt })[tab]?.();
+  ({ profile: renderProfile, settings: renderSettings, inventory: renderInv, upgrader: resetUp, contracts: resetCt, telifon: renderTele })[tab]?.();
 }
 const showStage = id => $$(".stage").forEach(s => s.classList.toggle("active", s.id === id));
 function goHome() { spinId++; spinning = false; showTab("home"); showStage("cases"); }
@@ -339,15 +345,15 @@ $("#resultSpinAgain").onclick = () => openCase(curIdx, activeDept, true);
 function finish() {
   $("#result").classList.remove("inventory-view");
   spinning = false;
-  const it = { g: winner, d: curIdx, r: cur.rar[winner], p: part };
+  const it = { g: winner, d: curIdx, r: cur.rar[winner], p: part, ...(Math.random() < LOCK_CHANCE && { x: true }) };
   inv.push(it);
   st.history.unshift({ ...it, t: Date.now() }); st.history = st.history.slice(0, 50);
   if (!cur.dropped.includes(winner)) cur.dropped.push(winner);
   let note = "";
   if (!cur.list.some(g => !cur.dropped.includes(g))) { newRound(curIdx, activeDept); note = "Кейс собран полностью — его содержимое обновлено"; }
   save();
-  const lb = $("#resultLabel"); lb.textContent = `${it.g} • ${RN[it.r]} • ${PARTS_L[it.p]} • ${DAYS[it.d][0]}`; lb.style.color = COL[it.r];
-  say("#resultNote", note); $("#panel").innerHTML = lessonsHTML(it.g, it.d, it.p);
+  const lb = $("#resultLabel"); lb.textContent = `${it.g} • ${RN[it.r]} • ${PARTS_L[it.p]} • ${DAYS[it.d][0]}${it.x ? " • зашифровано" : ""}`; lb.style.color = COL[it.r];
+  say("#resultNote", it.x ? `Зашифровано! Расшифровка в инвентаре — ${UNLOCK_COST} шышиш${note ? " · " + note : ""}` : note); $("#panel").innerHTML = lessonsHTML(it.g, it.d, it.p, it.x);
   navigator.vibrate?.([20, 40, 20]); showStage("result");
 }
 /* ================= INVENTORY ================= */
@@ -368,17 +374,22 @@ function renderInv() {
 }
 $("#sorts").onclick = e => { const s = e.target.dataset.s; if (!s) return; s === "rev" ? rev = !rev : sortBy = s; renderInv(); };
 $("#invGrid").onclick = e => { const b = e.target.closest("[data-i]"); if (b) itemMenu(view[+b.dataset.i].it); };
+function viewItem(it) {
+  $("#result").classList.add("inventory-view"); showTab("home");
+  const lb = $("#resultLabel"); lb.textContent = `${it.g} • ${RN[it.r]} • ${it.p === 3 ? DAYS[it.d][1] : PARTS_L[it.p] + " • " + DAYS[it.d][0]}`; lb.style.color = COL[it.r];
+  say("#resultNote", ""); $("#panel").innerHTML = lessonsHTML(it.g, it.d, it.p); showStage("result");
+}
 async function itemMenu(it) {
-  const opts = [], have = p => inv.some(x => same(x, { ...it, p }));
-  const need = needParts(it.g, it.d);
-  if (it.p < 3 && need.every(have)) opts.push({ html: "Собрать расписание", val: "asm" });
-  if (it.p === 3) opts.push({ html: "Открыть расписание", val: "view" });
+  const opts = [], have = p => inv.some(x => same(x, { ...it, p })), need = needParts(it.g, it.d);
+  if (it.x) opts.push({ html: `Расшифровать за ${UNLOCK_COST} шышиш`, val: "unlock" });
+  else opts.push({ html: it.p === 3 ? "Открыть расписание" : "Открыть часть", val: "view" });
+  if (!it.x && it.p < 3 && need.every(have)) opts.push({ html: "Собрать расписание", val: "asm" });
   opts.push({ html: `Продать за ${price(it)} шышиш`, val: "sell" });
-  const a = await choose(label(it), opts);
-  if (a === "view") {
-    $("#result").classList.add("inventory-view");
-    showTab("home"); const lb = $("#resultLabel"); lb.textContent = `${it.g} • ${RN[it.r]} • ${DAYS[it.d][1]}`; lb.style.color = COL[it.r];
-    say("#resultNote", ""); $("#panel").innerHTML = lessonsHTML(it.g, it.d, 3); return showStage("result");
+  const a = await choose(label(it) + (it.x ? " · зашифровано" : ""), opts);
+  if (a === "view") return viewItem(it);
+  if (a === "unlock") {
+    if (coins < UNLOCK_COST) return choose(`Не хватает шышиш: нужно ${UNLOCK_COST}, у тебя ${coins}`, []);
+    coins -= UNLOCK_COST; take(it); const open = { ...it }; delete open.x; inv.push(open); save(); renderInv(); return viewItem(open);
   }
   if (a === "asm") { need.forEach(p => take({ ...it, p })); inv.push({ ...it, p: 3 }); }
   if (a === "sell") { take(it); coins += price(it); }
@@ -406,7 +417,7 @@ function paintUp() {
 }
 $("#upSrc").onclick = async () => {
   if (upBusy) return;
-  const l = uniq(inv.filter(x => x.p === 3));
+  const l = uniq(inv.filter(x => x.p === 3 && !x.x));
   if (!l.length) return say("#upMsg", "Нет полных расписаний — собери 3 части в инвентаре");
   const v = await choose("Что улучшаем?", l.map(e => ({ html: optHTML(e.it, e.n), val: e.it })));
   if (v) { upSrc = v; upDst = null; paintUp(); }
@@ -460,7 +471,7 @@ function paintCt() {
   o.innerHTML = ctSel ? `<img src="${IMG.doc}" alt=""><b>${ctSel.g}</b><small>${RN[NEXT[ctSel.r]]} · ?</small>` : "?";
 }
 $("#ctPick").onclick = async () => {
-  const l = uniq(inv.filter(x => x.p === 3 && NEXT[x.r])).filter(e => e.n >= 10);
+  const l = uniq(inv.filter(x => x.p === 3 && !x.x && NEXT[x.r])).filter(e => e.n >= 10);
   if (!l.length) return say("#ctMsg", "Нужно 10 одинаковых полных расписаний (Common или Rare)");
   const v = await choose("10 одинаковых расписаний", l.map(e => ({ html: optHTML(e.it, e.n), val: e.it })));
   if (v) { ctSel = v; paintCt(); say("#ctMsg", ""); }
@@ -497,6 +508,52 @@ addEventListener("keydown", e => {
   seq = (seq + (ch || "_")).slice(-3);
   if (seq === "сво") say("#sigLbl", "Согласен на контракт");
 });
+/* ================= TELIFON ================= */
+const today = () => new Date().toLocaleDateString("sv"), skinOf = id => SKINS.find(s => s.id === id);
+if (!tele.born) tele.born = today();                                                    // day the telifon started to be counted
+const telDead = () => Math.round((new Date(today()) - new Date(tele.last || tele.born)) / 864e5) >= 2;   // a whole day without feeding
+// death wipes the telifocoins (checked whenever the telifon is used)
+const telCheck = () => { const dead = telDead(); if (dead && tele.coins) { tele.coins = 0; save(); } return dead; };
+telCheck();
+const skinHTML = s => `<img class="skin-prev" src="${s ? s.img : "assets/telifon.png"}" alt="" style="filter:hue-rotate(${s ? s.hue : 0}deg)">`;
+function renderTele() {
+  const s = skinOf(tele.skin), dead = telCheck(), fed = !dead && tele.last === today(), owned = new Map();
+  tele.skins.forEach(id => owned.set(id, (owned.get(id) || 0) + 1));
+  $("#pet").innerHTML = skinHTML(s); $("#pet").classList.toggle("fed", fed); $("#pet").classList.toggle("dead", dead);
+  const nm = tele.name.trim() || "Телифон", ps = $("#petStatus"), stt = dead ? "dead" : fed ? "fed" : "hungry";
+  $("#petNameInput").value = tele.name; ps.textContent = "• " + { dead: "мертв", fed: "сыт", hungry: "голоден" }[stt]; ps.dataset.s = stt;
+  say("#petHint", dead ? `${nm} умер: ты не кормил его целый день, телифокоины сгорели. Воскреси за ${REVIVE_COST} шышиш` : fed ? `${nm} сыт. Приходи завтра — снова будет голоден` : `${nm} голоден! Покорми его любым полным расписанием`);
+  say("#teleCoins", tele.coins); $("#feedBtn").disabled = fed; $("#feedBtn").style.display = dead ? "none" : ""; $("#reviveBtn").style.display = dead ? "" : "none"; say("#chestBtn", `Сундук · ${CHEST_COST}`);
+  $("#skinGrid").innerHTML = owned.size ? [...owned].map(([id, n]) => `<button class="glass icard${id === tele.skin ? " using" : ""}" data-id="${id}" style="--c:#FF6500">${skinHTML(skinOf(id))}<b>${skinOf(id).name}</b><small>${[id === tele.skin && "используется", n > 1 && "×" + n].filter(Boolean).join(" · ") || "&nbsp;"}</small></button>`).join("")
+    : '<p class="empty">Скинов пока нет. Копи телифокоины и открывай сундук.</p>';
+}
+$("#feedBtn").onclick = async () => {
+  if (telCheck()) return say("#telMsg", "Телифон умер. Сначала воскреси его");
+  if (tele.last === today()) return say("#telMsg", "Телифон уже сыт. Возвращайся завтра!");
+  const l = uniq(inv.filter(x => x.p === 3 && !x.x));
+  if (!l.length) return say("#telMsg", "Нужно полное читаемое расписание — собери или расшифруй его в инвентаре");
+  const v = await choose("Чем кормим телифон?", l.map(e => ({ html: optHTML(e.it, e.n), val: e.it })));
+  if (!v) return;
+  take(v); tele.coins += FEED_REWARD; tele.last = today(); save(); renderTele(); say("#telMsg", `Ням! +${FEED_REWARD} телифокоин`);
+};
+$("#chestBtn").onclick = () => {
+  telCheck();
+  if (tele.coins < CHEST_COST) return say("#telMsg", `Нужно ${CHEST_COST} телифокоинов, у тебя ${tele.coins}`);
+  const s = SKINS[rnd(SKINS.length)]; tele.coins -= CHEST_COST; tele.skins.push(s.id); save(); renderTele(); say("#telMsg", `Из сундука выпал «${s.name}»!`);
+};
+$("#petNameInput").oninput = e => { tele.name = e.target.value.slice(0, 16); save(); };
+$("#reviveBtn").onclick = async () => {
+  if (coins < REVIVE_COST) return say("#telMsg", `Нужно ${REVIVE_COST} шышиш, у тебя ${coins}`);
+  if (!await choose(`Воскресить телифон за ${REVIVE_COST} шышиш?`, [{ html: "Воскресить", val: 1 }])) return;
+  coins -= REVIVE_COST; tele.last = ""; tele.born = today(); save(); renderTele(); say("#telMsg", "Телифон ожил! Корми его хотя бы раз в день");
+};
+$("#skinGrid").onclick = async e => {
+  const b = e.target.closest("[data-id]"); if (!b) return;
+  const k = skinOf(b.dataset.id), a = await choose(k.name, [{ html: "Использовать", val: "use" }, { html: `Продать за ${SKIN_PRICE} шышиш`, val: "sell" }]);
+  if (a === "use") tele.skin = k.id;
+  if (a === "sell") { tele.skins.splice(tele.skins.indexOf(k.id), 1); coins += SKIN_PRICE; if (tele.skin === k.id && !tele.skins.includes(k.id)) tele.skin = null; }
+  save(); renderTele();
+};
 /* ================= PROFILE ================= */
 function renderProfile() {
   $("#avatar").innerHTML = `<img src="${st.avatar}" alt="">`;
