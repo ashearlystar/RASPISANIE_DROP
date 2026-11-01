@@ -356,7 +356,10 @@ function finish() {
   st.history.unshift({ ...it, t: Date.now() }); st.history = st.history.slice(0, 50);
   if (!cur.dropped.includes(winner)) cur.dropped.push(winner);
   let note = "";
-  if (!cur.list.some(g => !cur.dropped.includes(g))) { newRound(curIdx, activeDept); note = "Кейс собран полностью — его содержимое обновлено"; }
+  const commonsLeft = cur.list.some(g => cur.rar[g] === "common" && !cur.dropped.includes(g));
+  if (!commonsLeft) {
+    newRound(curIdx, activeDept); note = "Все Common выпали — кейс обновлён";
+  }
   save();
   const lb = $("#resultLabel"); lb.textContent = `${it.g} • ${RN[it.r]} • ${PARTS_L[it.p]} • ${DAYS[it.d][0]}${it.x ? " • зашифровано" : ""}`; lb.style.color = COL[it.r];
   say("#resultNote", it.x ? `Зашифровано! Расшифровка в инвентаре — ${UNLOCK_COST} шышиш${note ? " · " + note : ""}` : note); $("#panel").innerHTML = lessonsHTML(it.g, it.d, it.p, it.x);
