@@ -27,7 +27,13 @@ const CASE_SIZE = 8;     // schedules inside one case (chosen group + CASE_SIZE-
 const WEEK_ANCHOR = "2026-10-26";
 const LOCK_CHANCE = .15, UNLOCK_COST = 10, LOCKED_PRICE = 1;                // illegible drops: chance / price to read / sell price
 const FEED_REWARD = 1, CHEST_COST = 5, SKIN_PRICE = 40, REVIVE_COST = 200;   // + revive price of a dead telifon                      // telifon: coins per feeding / skin chest cost / skin sell price
-const SKINS = [1, 2, 3, 4, 5].map(n => ({ id: "s" + n, name: "Скин " + n, img: "assets/telifon.png", hue: (n - 1) * 70 }));   // placeholders
+const SKINS = [
+  { id: "s1", name: "Мраморный градиент", img: "assets/telifon_marble-fade.png", hue: 0 },
+  { id: "s2", name: "Голографический", img: "assets/telifon_hologram.png", hue: 0 },
+  { id: "s3", name: "Северное сияние", img: "assets/telifon_north-glow.png", hue: 0 },
+  { id: "s4", name: "Соевый", img: "assets/telifon_soeviy.png", hue: 0 },
+  { id: "s5", name: "Вязанный", img: "assets/telifon_zov.png", hue: 0 }
+];  // placeholders
 const AVATARS = ["assets/av1.svg", "assets/av2.svg", "assets/av3.svg", "assets/av4.svg", "assets/av5.svg", "assets/av6.svg"];
 /* ================= STATE ================= */
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
