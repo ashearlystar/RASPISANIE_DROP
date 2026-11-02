@@ -34,6 +34,59 @@ const SKINS = [
   { id: "s4", name: "Соевый", img: "assets/telifon_soeviy.png", hue: 0 },
   { id: "s5", name: "Вязанный", img: "assets/telifon_zov.png", hue: 0 }
 ];  // placeholders
+
+// Коллекционные кейсы телифона. Здесь удобно менять цену, состав, изображения и шансы.
+// chances — относительные веса; они автоматически нормализуются при открытии кейса.
+const COLLECTION_CASES = [
+  { id:"halloween-2026", name:"HALLOWEEN 2026 COLLECTION", price:25, image:"assets/telifon.png", rewards:[
+    {id:"h26-1",name:"Призрак",img:"assets/HALLOWEEN 2026/telifon_ghost.png",chance:50},
+    {id:"h26-2",name:"Крик",img:"assets/HALLOWEEN 2026/telifon_scream.png",chance:30},
+    {id:"h26-3",name:"Слэшер",img:"assets/HALLOWEEN 2026/telifon_slasher.png",chance:15},
+    {id:"h26-4",name:"Вампир",img:"assets/HALLOWEEN 2026/telifon_vamp.png",chance:5}
+  ]},
+  { id:"new-year-2026", name:"NEW YEAR EVE 2026 COLLECTION", price:30, image:"assets/telifon.png", rewards:[
+    {id:"ny26-1",name:"Олененок",img:"assets/NEW YEAR EVE 2026/telifon_deer.png",chance:65},
+    {id:"ny26-2",name:"Эльф",img:"assets/NEW YEAR EVE 2026/telifon_elf.png",chance:30},
+    {id:"ny26-3",name:"Праздничный",img:"assets/NEW YEAR EVE 2026/telifon_new-year.png",chance:5},
+  ]},
+  { id:"jobs", name:"JOBS COLLECTION", price:20, image:"assets/telifon.png", rewards:[
+    {id:"jobs-1",name:"Космонавт",img:"assets/JOBS/telifon_cosmonaut.png",chance:40},
+    {id:"jobs-2",name:"Офисный работник",img:"assets/JOBS/telifon_employee.png",chance:30},
+    {id:"jobs-3",name:"Хакер",img:"assets/JOBS/telifon_hacker.png",chance:20},
+    {id:"jobs-4",name:"Кассир",img:"assets/JOBS/telifon_mcdonalds.png",chance:5},
+    {id:"jobs-5",name:"Рэпер",img:"assets/JOBS/telifon_rap.png",chance:5}
+  ]},
+  { id:"valentines", name:"VALENTINE'S DAY COLLECTION", price:25, image:"assets/telifon.png", rewards:[
+    {id:"val-1",name:"Ангел",img:"assets/VALENTINES DAY/telifon_angel.png",chance:30},
+    {id:"val-2",name:"Разбитое сердце",img:"assets/VALENTINES DAY/telifon_broken-heart.png",chance:10},
+    {id:"val-3",name:"Тортик",img:"assets/VALENTINES DAY/telifon_cake.png",chance:20},
+    {id:"val-4",name:"Купидон",img:"assets/VALENTINES DAY/telifon_cupid.png",chance:15},
+    {id:"val-5",name:"Фембой",img:"assets/VALENTINES DAY/telifon_femboy.png",chance:10},
+    {id:"val-6",name:"Любовь по-готически",img:"assets/VALENTINES DAY/telifon_goth-romance.png",chance:10},
+    {id:"val-7",name:"Роза",img:"assets/VALENTINES DAY/telifon_rose.png",chance:5}
+  ]},
+  { id:"cosplay", name:"COSPLAY COLLECTION", price:35, image:"assets/telifon.png", rewards:[
+    {id:"cos-1",name:"Американский",img:"assets/COSPLAY/telifon_capt-am.png",chance:5},
+    {id:"cos-2",name:"Киберпанк",img:"assets/COSPLAY/telifon_cyberpunk.png",chance:10},
+    {id:"cos-3",name:"Зеленый монстр",img:"assets/COSPLAY/telifon_hulk.png",chance:5},
+    {id:"cos-4",name:"Стальной человек",img:"assets/COSPLAY/telifon_iron-man.png",chance:5},
+    {id:"cos-5",name:"ZXC DEMON",img:"assets/COSPLAY/telifon_kaneki.png",chance:5},
+    {id:"cos-6",name:"Скр-скр-скр",img:"assets/COSPLAY/telifon_pharaon.png",chance:5},
+    {id:"cos-7",name:"Радик",img:"assets/COSPLAY/telifon_pirate.png",chance:5},
+    {id:"cos-8",name:"Самурай",img:"assets/COSPLAY/telifon_samurai.png",chance:45},
+    {id:"cos-9",name:"Телифон-паук",img:"assets/COSPLAY/telifon_spider-man.png",chance:5},
+    {id:"cos-10",name:"Телефон",img:"assets/COSPLAY/telifon_telephone.png",chance:5},
+    {id:"cos-11",name:"Маелстром",img:"assets/COSPLAY/telifon_thor.png",chance:5}
+  ]},
+  { id:"repaint", name:"REPAINT COLLECTION", price:15, image:"assets/telifon.png", rewards:[
+    {id:"rep-1",name:"Голографический",img:"assets/REPAINT/telifon_hologram.png",chance:5},
+    {id:"rep-1",name:"Мраморный градиент",img:"assets/REPAINT/telifon_marble-fade.png",chance:10},
+    {id:"rep-1",name:"Северное сияние",img:"assets/REPAINT/telifon_north-glow.png",chance:5},
+    {id:"rep-1",name:"Соевый",img:"assets/REPAINT/telifon_soeviy.png",chance:20},
+    {id:"rep-1",name:"Вязанный",img:"assets/REPAINT/telifon_zov.png",chance:60}
+  ]}
+];
+const collectionSkin = id => COLLECTION_CASES.flatMap(c => c.rewards).find(s => s.id === id);
 const AVATARS = ["assets/av1.svg", "assets/av2.svg", "assets/av3.svg", "assets/av4.svg", "assets/av5.svg", "assets/av6.svg"];
 /* ================= STATE ================= */
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
@@ -281,6 +334,7 @@ $("#backCases").onclick = () => { spinId++; spinning = false; btn.disabled = fal
 const N = 70, START = 4, WIN = 58;
 const track = $("#track"), strip = $("#strip"), btn = $("#spinBtn");
 let cards = [];
+let fastSpin = false;
 function trackMetrics() {
   const cardWidth = cards[0]?.offsetWidth || 84;
   const gap = parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap) || 14;
@@ -326,7 +380,7 @@ function openCase(i, deptId = activeDept, autoSpin = false) {
 function spin() {
   if (spinning) return;
   spinning = true; btn.disabled = true;
-  const id = ++spinId, dur = 5000 + Math.random() * 2000, t0 = performance.now();
+  const id = ++spinId, dur = fastSpin ? 1100 : 5000 + Math.random() * 2000, t0 = performance.now();
   const pitch = trackMetrics().pitch;
   const startScroll = START * pitch;
   const endScroll = WIN * pitch;
@@ -342,6 +396,11 @@ function spin() {
   })(t0);
 }
 btn.onclick = spin;
+$("#fastSpinBtn").onclick = () => {
+  fastSpin = !fastSpin;
+  $("#fastSpinBtn").textContent = `Быстрая прокрутка: ${fastSpin ? "вкл." : "выкл."}`;
+  $("#fastSpinBtn").classList.toggle("green", fastSpin);
+};
 $("#resultBackCase").onclick = () => {
   spinning = false;
   btn.disabled = false;
@@ -371,7 +430,8 @@ const SORTS = {
   rarity: ["Редкость", (a, b) => RI[a.r] - RI[b.r]],
   group: ["Группа", (a, b) => GROUPS.indexOf(a.g) - GROUPS.indexOf(b.g)],
   alpha: ["А–Я", (a, b) => label(a).localeCompare(label(b), "ru")],
-  price: ["Цена", (a, b) => price(a) - price(b)]
+  price: ["Цена", (a, b) => price(a) - price(b)],
+  day: ["По дням", (a, b) => a.d - b.d || GROUPS.indexOf(a.g) - GROUPS.indexOf(b.g)]
 };
 function renderInv() {
   $("#sorts").innerHTML = Object.entries(SORTS).map(([k, [n]]) => `<button class="glass pill chipb${k === sortBy ? " on" : ""}" data-s="${k}">${n}</button>`).join("")
@@ -380,6 +440,17 @@ function renderInv() {
   if (rev) view.reverse();
   $("#invGrid").innerHTML = view.length ? view.map((e, i) => `<button class="glass icard" data-i="${i}" style="--c:${COL[e.it.r]};--card-i:${i}">${inner(e.it, e.n)}</button>`).join("")
     : '<p class="empty">Пока пусто</p>';
+  const progress = new Map();
+  inv.filter(x => !x.x).forEach(x => {
+    const key = `${x.g}|${x.d}`;
+    if (!progress.has(key)) progress.set(key, {g:x.g,d:x.d,parts:new Set()});
+    if (x.p === 3) needParts(x.g,x.d).forEach(p=>progress.get(key).parts.add(p)); else progress.get(key).parts.add(x.p);
+  });
+  const host = $("#scheduleProgress");
+  if (host) host.innerHTML = progress.size ? `<h3>Прогресс расписаний</h3>` + [...progress.values()].sort((a,b)=>a.d-b.d || a.g.localeCompare(b.g)).map(x => {
+    const total = needParts(x.g,x.d).length, done = needParts(x.g,x.d).filter(p=>x.parts.has(p)).length, pct = Math.round(done/total*100);
+    return `<div class="progress-row"><div><b>${esc(x.g)} · ${DAYS[x.d][1]}</b><small>${done} из ${total} частей</small></div><div class="progress-track"><i style="width:${pct}%"></i></div><small>${pct}%</small></div>`;
+  }).join("") : "";
 }
 $("#sorts").onclick = e => { const s = e.target.dataset.s; if (!s) return; s === "rev" ? rev = !rev : sortBy = s; renderInv(); };
 $("#invGrid").onclick = e => { const b = e.target.closest("[data-i]"); if (b) itemMenu(view[+b.dataset.i].it); };
@@ -518,7 +589,7 @@ addEventListener("keydown", e => {
   if (seq === "сво") say("#sigLbl", "Согласен на контракт");
 });
 /* ================= TELIFON ================= */
-const today = () => new Date().toLocaleDateString("sv"), skinOf = id => SKINS.find(s => s.id === id);
+const today = () => new Date().toLocaleDateString("sv"), skinOf = id => SKINS.find(s => s.id === id) || collectionSkin(id);
 if (!tele.born) tele.born = today();                                                    // day the telifon started to be counted
 const telDead = () => Math.round((new Date(today()) - new Date(tele.last || tele.born)) / 864e5) >= 2;   // a whole day without feeding
 // death wipes the telifocoins (checked whenever the telifon is used)
@@ -532,7 +603,7 @@ function renderTele() {
   const nm = tele.name.trim() || "Телифон", ps = $("#petStatus"), stt = dead ? "dead" : fed ? "fed" : "hungry";
   $("#petNameInput").value = tele.name; ps.textContent = "• " + { dead: "мертв", fed: "сыт", hungry: "голоден" }[stt]; ps.dataset.s = stt;
   say("#petHint", dead ? `${nm} умер: ты не кормил его целый день, телифокоины сгорели. Воскреси за ${REVIVE_COST} шышиш` : fed ? `${nm} сыт. Приходи завтра — снова будет голоден` : `${nm} голоден! Покорми его любым полным расписанием`);
-  say("#teleCoins", tele.coins); $("#feedBtn").disabled = fed; $("#feedBtn").style.display = dead ? "none" : ""; $("#reviveBtn").style.display = dead ? "" : "none"; say("#chestBtn", `Сундук · ${CHEST_COST}`);
+  say("#teleCoins", tele.coins); renderCollectionCases(); $("#feedBtn").disabled = fed; $("#feedBtn").style.display = dead ? "none" : ""; $("#reviveBtn").style.display = dead ? "" : "none"; say("#chestBtn", "Коллекции кейсов");
   $("#skinGrid").innerHTML = owned.size ? [...owned].map(([id, n]) => `<button class="glass icard${id === tele.skin ? " using" : ""}" data-id="${id}" style="--c:#FF6500">${skinHTML(skinOf(id))}<b>${skinOf(id).name}</b><small>${[id === tele.skin && "используется", n > 1 && "×" + n].filter(Boolean).join(" · ") || "&nbsp;"}</small></button>`).join("")
     : '<p class="empty">Скинов пока нет. Копи телифокоины и открывай сундук.</p>';
 }
@@ -545,10 +616,29 @@ $("#feedBtn").onclick = async () => {
   if (!v) return;
   take(v); tele.coins += FEED_REWARD; tele.last = today(); save(); renderTele(); say("#telMsg", `Ням! +${FEED_REWARD} телифокоин`);
 };
-$("#chestBtn").onclick = () => {
+function renderCollectionCases() {
+  const host = $("#collectionCases");
+  if (!host) return;
+  host.innerHTML = COLLECTION_CASES.map(c => `<article class="collection-case glass">
+    <img src="${esc(c.image)}" alt="" class="collection-cover">
+    <div class="collection-copy"><b>${esc(c.name)}</b><small>${c.rewards.length} скинов · ${c.price} tele.coins</small></div>
+    <button class="btn glass green small" data-open-collection="${esc(c.id)}">Открыть</button>
+    <div class="collection-rewards">${c.rewards.map(r=>`<div class="collection-reward"><img src="${esc(r.img)}" alt=""><span>${esc(r.name)}</span><small>${r.chance}%</small></div>`).join("")}</div>
+  </article>`).join("");
+}
+$("#chestBtn").onclick = () => { renderCollectionCases(); $("#collectionCases").scrollIntoView({behavior:"smooth",block:"start"}); };
+$("#collectionCases").onclick = e => {
+  const button = e.target.closest("[data-open-collection]");
+  if (!button) return;
+  const c = COLLECTION_CASES.find(x=>x.id===button.dataset.openCollection);
+  if (!c) return;
   telCheck();
-  if (tele.coins < CHEST_COST) return say("#telMsg", `Нужно ${CHEST_COST} телифокоинов, у тебя ${tele.coins}`);
-  const s = SKINS[rnd(SKINS.length)]; tele.coins -= CHEST_COST; tele.skins.push(s.id); save(); renderTele(); say("#telMsg", `Из сундука выпал «${s.name}»!`);
+  if (tele.coins < c.price) return say("#telMsg", `Нужно ${c.price} tele.coins, у тебя ${tele.coins}`);
+  const total = c.rewards.reduce((n,r)=>n+Math.max(0,Number(r.chance)||0),0);
+  if (!total) return say("#telMsg","У этого кейса пока не настроены шансы");
+  let roll=Math.random()*total, reward=c.rewards.find(r=>(roll-=Math.max(0,Number(r.chance)||0))<0) || c.rewards[c.rewards.length-1];
+  tele.coins-=c.price; tele.skins.push(reward.id); save(); renderTele();
+  say("#telMsg",`Из ${c.name} выпал скин «${reward.name}»!`);
 };
 $("#petNameInput").oninput = e => { tele.name = e.target.value.slice(0, 16); save(); };
 $("#reviveBtn").onclick = async () => {

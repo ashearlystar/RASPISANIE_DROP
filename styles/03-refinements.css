@@ -2072,3 +2072,25 @@ button:disabled:before {
 .pet-info .pet-name{width:100%;padding:8px 14px;font-size:18px;text-align:left}
 .pet-info .pet-status{font-size:16px;letter-spacing:.04em}
 .pet-status[data-s=fed]{color:#64e6a8}.pet-status[data-s=hungry]{color:#ffb347}.pet-status[data-s=dead]{color:#f16b7d}
+
+/* Collection cases and schedule progress */
+.spin-actions{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%}
+#fastSpinBtn{max-width:260px}
+.schedule-progress{display:grid;gap:12px;margin:22px 0 10px}
+.schedule-progress h3{margin:0}
+.progress-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px 12px;align-items:center;padding:12px 14px;border:1px solid var(--glass-border,rgba(255,255,255,.12));border-radius:14px;background:rgba(255,255,255,.035)}
+.progress-row>div:first-child{display:flex;justify-content:space-between;gap:10px;grid-column:1/-1}
+.progress-row small{opacity:.72;font-size:11px}
+.progress-track{height:7px;border-radius:20px;background:rgba(255,255,255,.1);overflow:hidden}
+.progress-track i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#ff6b9d,#ffbd68);transition:width .25s}
+.collection-cases{display:grid;gap:14px;margin:12px 0 24px}
+.collection-case{padding:14px;border-radius:18px;display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:10px;align-items:center}
+.collection-cover{width:64px;height:64px;object-fit:cover;border-radius:12px;background:rgba(255,255,255,.06)}
+.collection-copy{display:grid;gap:5px;min-width:0}
+.collection-copy b{font-size:12px;overflow-wrap:anywhere}
+.collection-copy small,.collection-reward small{font-size:10px;opacity:.7}
+.collection-rewards{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:4px}
+.collection-reward{min-width:0;display:grid;gap:4px;text-align:center;font-size:10px}
+.collection-reward img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;background:rgba(255,255,255,.06)}
+.collection-reward span{overflow-wrap:anywhere}
+@media(max-width:520px){.collection-case{grid-template-columns:52px minmax(0,1fr)}.collection-cover{width:52px;height:52px}.collection-case>.btn{grid-column:1/-1;width:100%}.collection-rewards{grid-template-columns:repeat(4,minmax(0,1fr))}}
