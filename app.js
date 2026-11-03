@@ -28,64 +28,86 @@ const WEEK_ANCHOR = "2026-10-26";
 const LOCK_CHANCE = .15, UNLOCK_COST = 10, LOCKED_PRICE = 1;                // illegible drops: chance / price to read / sell price
 const FEED_REWARD = 1, CHEST_COST = 5, SKIN_PRICE = 40, REVIVE_COST = 200;   // + revive price of a dead telifon                      // telifon: coins per feeding / skin chest cost / skin sell price
 const SKINS = [
-  { id: "s1", name: "Мраморный градиент", img: "assets/telifon_marble-fade.png", hue: 0 },
-  { id: "s2", name: "Голографический", img: "assets/telifon_hologram.png", hue: 0 },
-  { id: "s3", name: "Северное сияние", img: "assets/telifon_north-glow.png", hue: 0 },
-  { id: "s4", name: "Соевый", img: "assets/telifon_soeviy.png", hue: 0 },
-  { id: "s5", name: "Вязанный", img: "assets/telifon_zov.png", hue: 0 }
+  { id: "default", name: "Стандартный телифон", img: "assets/telifon.png", hue: 0, rarity: "default", description: "Классический внешний вид телифона. Базовый скин без особой редкости." },
+  { id: "s1", name: "Мраморный градиент", img: "assets/telifon_marble-fade.png", hue: 0, description: "Мраморный узор с плавным переходом цветов. Классика, которая не выходит из моды." },
+  { id: "s2", name: "Голографический", img: "assets/telifon_hologram.png", hue: 0, description: "Телифон проецирует себя на твой экран. Да пребудет с тобой телифон!" },
+  { id: "s3", name: "Северное сияние", img: "assets/telifon_north-glow.png", hue: 0, description: "Глядя на северное сияние ты начинаешь соединять звезды, где столь прекрасное свечение и есть цвет некой фигуры. Получившийся результат и есть телифон." },
+  { id: "s4", name: "Соевый", img: "assets/telifon_soeviy.png", hue: 0, description: "Телифон в очках и с поцелуем. Последнее, пожалуй, единственное, что позволяет не оскорблять его за соевость." },
+  { id: "s5", name: "Вязанный", img: "assets/telifon_zov.png", hue: 0, description: "Телифон твоей бабушки." }
 ];  // placeholders
 
 // Коллекционные кейсы телифона. Здесь удобно менять цену, состав, изображения и шансы.
 // chances — относительные веса; они автоматически нормализуются при открытии кейса.
 const COLLECTION_CASES = [
-  { id:"halloween-2026", name:"HALLOWEEN 2026 COLLECTION", price:25, image:"assets/telifon.png", rewards:[
-    {id:"h26-1",name:"Призрак",img:"assets/HALLOWEEN 2026/telifon_ghost.png",chance:50},
-    {id:"h26-2",name:"Крик",img:"assets/HALLOWEEN 2026/telifon_scream.png",chance:30},
-    {id:"h26-3",name:"Слэшер",img:"assets/HALLOWEEN 2026/telifon_slasher.png",chance:15},
-    {id:"h26-4",name:"Вампир",img:"assets/HALLOWEEN 2026/telifon_vamp.png",chance:5}
-  ]},
-  { id:"new-year-2026", name:"NEW YEAR EVE 2026 COLLECTION", price:30, image:"assets/telifon.png", rewards:[
-    {id:"ny26-1",name:"Олененок",img:"assets/NEW YEAR EVE 2026/telifon_deer.png",chance:65},
-    {id:"ny26-2",name:"Эльф",img:"assets/NEW YEAR EVE 2026/telifon_elf.png",chance:30},
-    {id:"ny26-3",name:"Праздничный",img:"assets/NEW YEAR EVE 2026/telifon_new-year.png",chance:5},
-  ]},
-  { id:"jobs", name:"JOBS COLLECTION", price:20, image:"assets/telifon.png", rewards:[
-    {id:"jobs-1",name:"Космонавт",img:"assets/JOBS/telifon_cosmonaut.png",chance:40},
-    {id:"jobs-2",name:"Офисный работник",img:"assets/JOBS/telifon_employee.png",chance:30},
-    {id:"jobs-3",name:"Хакер",img:"assets/JOBS/telifon_hacker.png",chance:20},
-    {id:"jobs-4",name:"Кассир",img:"assets/JOBS/telifon_mcdonalds.png",chance:5},
-    {id:"jobs-5",name:"Рэпер",img:"assets/JOBS/telifon_rap.png",chance:5}
-  ]},
-  { id:"valentines", name:"VALENTINE'S DAY COLLECTION", price:25, image:"assets/telifon.png", rewards:[
-    {id:"val-1",name:"Ангел",img:"assets/VALENTINES DAY/telifon_angel.png",chance:30},
-    {id:"val-2",name:"Разбитое сердце",img:"assets/VALENTINES DAY/telifon_broken-heart.png",chance:10},
-    {id:"val-3",name:"Тортик",img:"assets/VALENTINES DAY/telifon_cake.png",chance:20},
-    {id:"val-4",name:"Купидон",img:"assets/VALENTINES DAY/telifon_cupid.png",chance:15},
-    {id:"val-5",name:"Фембой",img:"assets/VALENTINES DAY/telifon_femboy.png",chance:10},
-    {id:"val-6",name:"Любовь по-готически",img:"assets/VALENTINES DAY/telifon_goth-romance.png",chance:10},
-    {id:"val-7",name:"Роза",img:"assets/VALENTINES DAY/telifon_rose.png",chance:5}
-  ]},
-  { id:"cosplay", name:"COSPLAY COLLECTION", price:35, image:"assets/telifon.png", rewards:[
-    {id:"cos-1",name:"Американский",img:"assets/COSPLAY/telifon_capt-am.png",chance:5},
-    {id:"cos-2",name:"Киберпанк",img:"assets/COSPLAY/telifon_cyberpunk.png",chance:10},
-    {id:"cos-3",name:"Зеленый монстр",img:"assets/COSPLAY/telifon_hulk.png",chance:5},
-    {id:"cos-4",name:"Стальной человек",img:"assets/COSPLAY/telifon_iron-man.png",chance:5},
-    {id:"cos-5",name:"ZXC DEMON",img:"assets/COSPLAY/telifon_kaneki.png",chance:5},
-    {id:"cos-6",name:"Скр-скр-скр",img:"assets/COSPLAY/telifon_pharaon.png",chance:5},
-    {id:"cos-7",name:"Радик",img:"assets/COSPLAY/telifon_pirate.png",chance:5},
-    {id:"cos-8",name:"Самурай",img:"assets/COSPLAY/telifon_samurai.png",chance:45},
-    {id:"cos-9",name:"Телифон-паук",img:"assets/COSPLAY/telifon_spider-man.png",chance:5},
-    {id:"cos-10",name:"Телефон",img:"assets/COSPLAY/telifon_telephone.png",chance:5},
-    {id:"cos-11",name:"Маелстром",img:"assets/COSPLAY/telifon_thor.png",chance:5}
-  ]},
-  { id:"repaint", name:"REPAINT COLLECTION", price:15, image:"assets/telifon.png", rewards:[
-    {id:"rep-1",name:"Голографический",img:"assets/REPAINT/telifon_hologram.png",chance:5},
-    {id:"rep-1",name:"Мраморный градиент",img:"assets/REPAINT/telifon_marble-fade.png",chance:10},
-    {id:"rep-1",name:"Северное сияние",img:"assets/REPAINT/telifon_north-glow.png",chance:5},
-    {id:"rep-1",name:"Соевый",img:"assets/REPAINT/telifon_soeviy.png",chance:20},
-    {id:"rep-1",name:"Вязанный",img:"assets/REPAINT/telifon_zov.png",chance:60}
-  ]}
+  {
+    id: "halloween-2026", name: "HALLOWEEN 2026 COLLECTION", price: 25, image: "assets/telifon.png", rewards: [
+      { id: "h26-1", name: "Призрак", img: "assets/HALLOWEEN 2026/telifon_ghost.png", chance: 50, description: "Бу-у-у! Испугался?! А это обыкновенный телифон!" },
+      { id: "h26-2", name: "Крик", img: "assets/HALLOWEEN 2026/telifon_scream.png", chance: 30, description: "Где-то я эту маску уже видел..." },
+      { id: "h26-3", name: "Слэшер", img: "assets/HALLOWEEN 2026/telifon_slasher.png", chance: 15, description: "Телифон хоккеист! А, может и не хоккеист..." },
+      { id: "h26-4", name: "Вампир", img: "assets/HALLOWEEN 2026/telifon_vamp.png", chance: 5, description: "Он вампир! Какая твоя группа крови? Дай ему укусить, он клянется, не будет больно." }
+    ]
+  },
+  {
+    id: "new-year-2026", name: "NEW YEAR EVE 2026 COLLECTION", price: 30, image: "assets/telifon.png", rewards: [
+      { id: "ny26-1", name: "Олененок", img: "assets/NEW YEAR EVE 2026/telifon_deer.png", chance: 65, description: "Милый телифон с рогами." },
+      { id: "ny26-2", name: "Эльф", img: "assets/NEW YEAR EVE 2026/telifon_elf.png", chance: 30, description: "Один из тех, кто помогает Санте делать игрушки-телифоны." },
+      { id: "ny26-3", name: "Праздничный", img: "assets/NEW YEAR EVE 2026/telifon_new-year.png", chance: 5, description: "Бр-р-р... Он, конечно, нарядный, но черт его возьми, как ему не холодно?!" },
+    ]
+  },
+  {
+    id: "jobs", name: "JOBS COLLECTION", price: 20, image: "assets/telifon.png", rewards: [
+      { id: "jobs-1", name: "Космонавт", img: "assets/JOBS/telifon_cosmonaut.png", chance: 40, description: "Мечта многих в детстве, но только телифон смог воплотить ее в реальность!" },
+      { id: "jobs-2", name: "Офисный работник", img: "assets/JOBS/telifon_employee.png", chance: 30, description: "Офисный работник. Ничего необычного. Скучен. Скучно. Скукота." },
+      { id: "jobs-3", name: "Хакер", img: "assets/JOBS/telifon_hacker.png", chance: 20, description: "PENTAGON DESTROYER." },
+      { id: "jobs-4", name: "Кассир", img: "assets/JOBS/telifon_mcdonalds.png", chance: 5, description: "Работник забегаловки. Где же он работает в таких цветах, а то без логотипа невозможно догадаться..." },
+      { id: "jobs-5", name: "Рэпер", img: "assets/JOBS/telifon_rap.png", chance: 5, description: "New Gen Rapper Yeah Gng 67676767 Cool telifon.png Download Free." }
+    ]
+  },
+  {
+    id: "valentines", name: "VALENTINE'S DAY COLLECTION", price: 25, image: "assets/telifon.png", rewards: [
+      { id: "val-1", name: "Ангел", img: "assets/VALENTINES DAY/telifon_angel.png", chance: 30, description: "Нимб над головою и сила божья." },
+      { id: "val-2", name: "Разбитое сердце", img: "assets/VALENTINES DAY/telifon_broken-heart.png", chance: 10, description: "Даже телифону можно разбить сердце. Жалко красавчика." },
+      { id: "val-3", name: "Тортик", img: "assets/VALENTINES DAY/telifon_cake.png", chance: 20, description: "Какой он вкусный! Попробуй!" },
+      { id: "val-4", name: "Купидон", img: "assets/VALENTINES DAY/telifon_cupid.png", chance: 15, description: "'Любовь нельзя объяснить,' говорят они. Конечно, как объяснить то, что телифон-купидон существует?" },
+      { id: "val-5", name: "Фембой", img: "assets/VALENTINES DAY/telifon_femboy.png", chance: 10, description: "Господи, Даня, как ты оказался здесь?!?!?!!" },
+      { id: "val-6", name: "Любовь по-готически", img: "assets/VALENTINES DAY/telifon_goth-romance.png", chance: 10, description: "Даже готы способны любить." },
+      { id: "val-7", name: "Роза", img: "assets/VALENTINES DAY/telifon_rose.png", chance: 5, description: "Благородный запах, листья, цвет их. Все про этот телифон." },
+      { id: "val-8", name: "Маша", img: "assets/VALENTINES DAY/telifon_masha.png", chance: 1, description: "Не кусается. Ну, если не считать случаев, когда хочет внимания" },
+      { id: "val-9", name: "Таня", img: "assets/VALENTINES DAY/telifon_tanya.png", chance: 1, description: "В серых глазах этого ненаглядного телифончика можно утонуть." }
+    ]
+  },
+  {
+    id: "cosplay", name: "COSPLAY COLLECTION", price: 35, image: "assets/telifon.png", rewards: [
+      { id: "cos-1", name: "Американский", img: "assets/COSPLAY/telifon_capt-am.png", chance: 5, description: "Откуда он такой сбежал?" },
+      { id: "cos-2", name: "Киберпанк", img: "assets/COSPLAY/telifon_cyberpunk.png", chance: 10, description: "Он реально хочет остаться в твоем инвентаре." },
+      { id: "cos-3", name: "Зеленый монстр", img: "assets/COSPLAY/telifon_hulk.png", chance: 5, description: "Телифон крушить-ломать!" },
+      { id: "cos-4", name: "Стальной человек", img: "assets/COSPLAY/telifon_iron-man.png", chance: 5, description: "Гений, миллиардер, плэйбой, филантроп." },
+      { id: "cos-5", name: "ZXC DEMON", img: "assets/COSPLAY/telifon_kaneki.png", chance: 5, description: "1000 - 7 посчитают все, а что насчет 1000 - телифон?" },
+      { id: "cos-6", name: "Скр-скр-скр", img: "assets/COSPLAY/telifon_pharaon.png", chance: 5, description: "Интересно, в мертвых ли он найках...?" },
+      { id: "cos-7", name: "Радик", img: "assets/COSPLAY/telifon_pirate.png", chance: 5, description: "Пират. С радиком. ТП? Отменено. Колбасу? Украл." },
+      { id: "cos-8", name: "Самурай", img: "assets/COSPLAY/telifon_samurai.png", chance: 45, description: "Телифон ронин." },
+      { id: "cos-9", name: "Телифон-паук", img: "assets/COSPLAY/telifon_spider-man.png", chance: 5, description: "Телифон-паук хахаха) Поняли? Ладно, надо прекращать это, я понял..." },
+      { id: "cos-10", name: "Телефон", img: "assets/COSPLAY/telifon_telephone.png", chance: 5, description: "Телифон-телефон. Да, это жестко." },
+      { id: "cos-11", name: "Маелстром", img: "assets/COSPLAY/telifon_thor.png", chance: 5, description: "Дает +25 к урону, +25 к скорости атаки... А, точно, он крутой, да." }
+    ]
+  },
+  {
+    id: "repaint", name: "REPAINT COLLECTION", price: 15, image: "assets/telifon.png", rewards: [
+      { id: "rep-1", name: "Голографический", img: "assets/REPAINT/telifon_hologram.png", chance: 5, description: "Телифон проецирует себя на твой экран. Да пребудет с тобой телифон!" },
+      { id: "rep-2", name: "Мраморный градиент", img: "assets/REPAINT/telifon_marble-fade.png", chance: 10, description: "Мраморный узор с плавным переходом цветов. Классика, которая не выходит из моды." },
+      { id: "rep-3", name: "Северное сияние", img: "assets/REPAINT/telifon_north-glow.png", chance: 5, description: "Глядя на северное сияние ты начинаешь соединять звезды, где столь прекрасное свечение и есть цвет некой фигуры. Получившийся результат и есть телифон." },
+      { id: "rep-4", name: "Соевый", img: "assets/REPAINT/telifon_soeviy.png", chance: 20, description: "Телифон в очках и с поцелуем. Последнее, пожалуй, единственное, что позволяет не оскорблять его за соевость." },
+      { id: "rep-5", name: "Вязанный", img: "assets/REPAINT/telifon_zov.png", chance: 60, description: "Телифон твоей бабушки." }
+    ]
+  }
 ];
+
+// Редкость определяется шансом отдельно внутри каждой коллекции; описания можно менять у каждого скина.
+COLLECTION_CASES.forEach(c => c.rewards.forEach(r => {
+  const chance = Number(r.chance) || 0;
+  r.rarity = chance >= 30 ? "common" : chance >= 15 ? "rare" : chance >= 5 ? "mythic" : "legendary";
+  r.description ??= "Коллекционный скин для телифона. Украшает телифон и доступен в твоём инвентаре скинов.";
+}));
 const collectionSkin = id => COLLECTION_CASES.flatMap(c => c.rewards).find(s => s.id === id);
 const AVATARS = ["assets/av1.svg", "assets/av2.svg", "assets/av3.svg", "assets/av4.svg", "assets/av5.svg", "assets/av6.svg"];
 /* ================= STATE ================= */
@@ -102,8 +124,12 @@ const st = {
 };
 let rounds = store.get("rounds", {});     // one independent chest per day: {list, rar, dropped}
 let cur = null;                           // chest of the case that is open now
-let inv = store.get("inv", []), coins = store.get("coins", 0);
-const tele = Object.assign({ coins: 0, last: "", skins: [], skin: null, name: "" }, store.get("tele", {}));
+let collectionDropped = store.get("collectionDropped", {});   // { caseId: [skinIds] }
+let inv = store.get("inv", []), coins = store.get("coins", 100);
+const tele = Object.assign({ coins: 0, last: "", skins: ["default"], skin: "default", name: "" }, store.get("tele", {}));
+if (!Array.isArray(tele.skins)) tele.skins = [];
+if (!tele.skins.includes("default")) tele.skins.unshift("default");
+if (!tele.skin) tele.skin = "default";
 const save = () => {
   store.set("rounds", rounds); store.set("inv", inv); store.set("tele", tele);
   store.set("coins", coins); store.set("hist2", st.history); $("#coins").textContent = coins;
@@ -262,10 +288,23 @@ function lessonsHTML(g, d, p, locked = false) {
   const cw = weekType();
   return `<div class="schedule-meta"><div class="schedule-meta-title"><span class="eyebrow">SCHEDULE DROP</span><strong>${esc(g)} <i>·</i> ${DAYS[d][1]}</strong><small>${PARTS_L[p]}</small></div><div class="wk"><span class="week-dot"></span>${WK_FULL[cw]}</div></div><div class="lesson-list${locked ? " is-locked" : ""}">${part.map(sl => slotHTML(sl, cw, locked ? scr : esc)).join("")}</div>`;
 }
-function choose(title, opts) {
+function choose(title, opts, desc = "", previewImg = "") {
   return new Promise(res => {
     const m = $("#modal"), box = m.querySelector(".list");
-    m.querySelector("h2").textContent = title; box.innerHTML = "";
+    m.querySelector("h2").textContent = title;
+    box.innerHTML = "";
+    if (previewImg) {
+      const p = document.createElement("div");
+      p.className = "choose-preview";
+      p.innerHTML = `<img src="${esc(previewImg)}" alt="">`;
+      box.append(p);
+    }
+    if (desc) {
+      const d = document.createElement("div");
+      d.className = "glass row opt opt-static";
+      d.textContent = desc;
+      box.append(d);
+    }
     const done = v => { m.classList.remove("open"); res(v); };
     opts.forEach(o => { const b = document.createElement("button"); b.className = "glass row opt"; b.innerHTML = o.html; b.onclick = () => done(o.val); box.append(b); });
     const x = document.createElement("button"); x.className = "glass row opt"; x.textContent = "Отмена"; x.onclick = () => done(null);
@@ -275,6 +314,10 @@ function choose(title, opts) {
 /* ================= NAVIGATION ================= */
 let spinId = 0, spinning = false, curIdx = 0, winner = null, part = 0;
 function showTab(tab) {
+  colSpinId++;
+  colSpinning = false;
+  $("#collectionOpening")?.classList.remove("active");
+  $("#collectionResult")?.classList.remove("active");
   $$(".screen").forEach(s => s.classList.toggle("active", s.id === tab));
   $$(".bar [data-tab]").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
   const pageNames = { home: "Главная", inventory: "Коллекция", upgrader: "Upgrader", contracts: "Контрактный центр", profile: "Профиль игрока", telifon: "Телифон", settings: "Настройки" };
@@ -286,7 +329,7 @@ function showTab(tab) {
   ({ profile: renderProfile, settings: renderSettings, inventory: renderInv, upgrader: resetUp, contracts: resetCt, telifon: renderTele })[tab]?.();
 }
 const showStage = id => $$(".stage").forEach(s => s.classList.toggle("active", s.id === id));
-function goHome() { spinId++; spinning = false; showTab("home"); showStage("cases"); }
+function goHome() { spinId++; spinning = false; showTab("home"); renderCases(); showStage("cases"); }
 $$(".bar [data-tab]").forEach(b => b.onclick = () => {
   if (b.dataset.tab === "home") return goHome();
   spinId++; spinning = false; showTab(b.dataset.tab);
@@ -325,12 +368,18 @@ function renderCases() {
   cats.innerHTML = DEPARTMENTS.map(d => `<button class="case-cat${d.id === activeDept ? " active" : ""}" data-dept="${d.id}"><span>${d.name}</span><small>${d.groups.length} направлений</small></button>`).join("");
   cats.querySelectorAll("[data-dept]").forEach(b => b.onclick = () => { activeDept = b.dataset.dept; renderCases(); });
   const dept = deptById(activeDept); $("#caseCategoryTitle").textContent = `${dept.name} · ${dept.groups.length} направлений`;
-  $("#grid").innerHTML = DAYS.map((day, i) => `<button class="glass tint tile" data-i="${i}" data-dept="${dept.id}"><img class="chest" src="${CASE_IMG[i]}" alt=""><span class="tile-day">${day[1]}</span></button>`).join("");
+  $("#grid").innerHTML = DAYS.map((day, i) => {
+    const group = st.group, need = group ? needParts(group, i).length : 3;
+    const got = group ? new Set(inv.filter(x => x.g === group && x.d === i && !x.x && needParts(group, i).includes(x.p)).map(x => x.p)).size : 0;
+    const pct = Math.min(100, Math.round(got / Math.max(1, need) * 100));
+    return `<button class="glass tint tile" data-i="${i}" data-dept="${dept.id}">
+      <img class="chest" src="${CASE_IMG[i]}" alt=""><span class="tile-day">${day[1]}</span></button>`;
+  }).join("");
   $("#grid").querySelectorAll(".tile").forEach(t => t.onclick = () => openCase(+t.dataset.i, t.dataset.dept));
   $("#teacherGrid").innerHTML = TEACHER_CASES.map((day, i) => `<button class="teacher-case" disabled><span class="teacher-placeholder">✦</span><b>${day}</b><small>Скоро</small></button>`).join("");
 }
 renderCases();
-$("#backCases").onclick = () => { spinId++; spinning = false; btn.disabled = false; showStage("cases"); };
+$("#backCases").onclick = () => { spinId++; spinning = false; renderCases(); btn.disabled = coins < 10; showStage("cases"); };
 const N = 70, START = 4, WIN = 58;
 const track = $("#track"), strip = $("#strip"), btn = $("#spinBtn");
 let cards = [];
@@ -366,11 +415,14 @@ function place(scroll) {
   }
 }
 function openCase(i, deptId = activeDept, autoSpin = false) {
+  if (autoSpin && coins < 10) { say("#resultNote", "Не хватает шышиш — потапай на телифон, чтобы получить ещё."); return; }
   activeDept = deptId; curIdx = i; cur = R(i, deptId);
   if (!poolList().length) cur = newRound(i, activeDept);
-  winner = pickWinner(); const nd = needParts(winner, i); part = nd[rnd(nd.length)];          // each part 33.3%
+  winner = pickWinner(); const nd = needParts(winner, i); part = nd[rnd(nd.length)];
   say("#spinLabel", `${deptById(deptId).name} · ${DAYS[i][1]}`);
-  btn.disabled = false; spinning = false;
+  $("#spinBtn").disabled = coins < 10;
+  btn.disabled = coins < 10; spinning = false;
+  setSpinBtnText("Открыть кейс");
   buildTrack(); renderDrops(); showStage("spin");
   requestAnimationFrame(() => {
     place(START * trackMetrics().pitch);
@@ -380,6 +432,7 @@ function openCase(i, deptId = activeDept, autoSpin = false) {
 function spin() {
   if (spinning) return;
   spinning = true; btn.disabled = true;
+  setSpinBtnText("Открытие...", false);
   const id = ++spinId, dur = fastSpin ? 1100 : 5000 + Math.random() * 2000, t0 = performance.now();
   const pitch = trackMetrics().pitch;
   const startScroll = START * pitch;
@@ -395,7 +448,16 @@ function spin() {
     setTimeout(() => { if (id === spinId) finish(); }, 450);
   })(t0);
 }
-btn.onclick = spin;
+btn.onclick = () => {
+  if (spinning) return;
+  if (coins < 10) { say("#spinLabel", "Не хватает шышиш · потапай на телифон, чтобы получить ещё"); return; }
+  spin();
+};
+function setSpinBtnText(text, withPrice = true) {
+  const b = $("#spinBtn");
+  if (!b) return;
+  b.innerHTML = `<span class="btn-star">✦</span><span class="btn-main">${text}${withPrice ? '<small>за 10 шышиш</small>' : ''}</span>`;
+}
 $("#fastSpinBtn").onclick = () => {
   fastSpin = !fastSpin;
   $("#fastSpinBtn").textContent = `Быстрая прокрутка: ${fastSpin ? "вкл." : "выкл."}`;
@@ -404,6 +466,7 @@ $("#fastSpinBtn").onclick = () => {
 $("#resultBackCase").onclick = () => {
   spinning = false;
   btn.disabled = false;
+  setSpinBtnText("Открыть кейс");
   showStage("spin");
 };
 $("#resultSpinAgain").onclick = () => openCase(curIdx, activeDept, true);
@@ -419,9 +482,12 @@ function finish() {
   if (!commonsLeft) {
     newRound(curIdx, activeDept); note = "Все Common выпали — кейс обновлён";
   }
+  coins -= 10;
   save();
   const lb = $("#resultLabel"); lb.textContent = `${it.g} • ${RN[it.r]} • ${PARTS_L[it.p]} • ${DAYS[it.d][0]}${it.x ? " • зашифровано" : ""}`; lb.style.color = COL[it.r];
-  say("#resultNote", it.x ? `Зашифровано! Расшифровка в инвентаре — ${UNLOCK_COST} шышиш${note ? " · " + note : ""}` : note); $("#panel").innerHTML = lessonsHTML(it.g, it.d, it.p, it.x);
+  $("#resultNote").innerHTML = "";
+  const noteHTML = note ? `<div class="result-note-badge">✦ ${note}</div>` : "";
+  $("#panel").innerHTML = lessonsHTML(it.g, it.d, it.p, it.x) + noteHTML;
   navigator.vibrate?.([20, 40, 20]); showStage("result");
 }
 /* ================= INVENTORY ================= */
@@ -438,19 +504,19 @@ function renderInv() {
     + `<button class="glass pill chipb${rev ? " on" : ""}" data-s="rev">⇅ Обратно</button>`;
   view = uniq(inv).sort((a, b) => SORTS[sortBy][1](a.it, b.it) || label(a.it).localeCompare(label(b.it), "ru"));
   if (rev) view.reverse();
-  $("#invGrid").innerHTML = view.length ? view.map((e, i) => `<button class="glass icard" data-i="${i}" style="--c:${COL[e.it.r]};--card-i:${i}">${inner(e.it, e.n)}</button>`).join("")
-    : '<p class="empty">Пока пусто</p>';
+  $("#invGrid").innerHTML = view.length ? view.map((e, i) => {
+    const need = needParts(e.it.g, e.it.d), owned = new Set(inv.filter(x => !x.x && x.g === e.it.g && x.d === e.it.d).flatMap(x => x.p === 3 ? need : [x.p]));
+    const done = need.filter(p => owned.has(p)).length, pct = Math.round(done / Math.max(1, need.length) * 100);
+    return `<button class="glass icard schedule-inv-card" data-i="${i}" style="--c:${COL[e.it.r]};--card-i:${i}"><span class="schedule-card-progress" style="--progress:${pct}%"><b>${done}/${need.length}</b></span>${inner(e.it, e.n)}</button>`;
+  }).join("") : '<p class="empty">Пока пусто</p>';
   const progress = new Map();
   inv.filter(x => !x.x).forEach(x => {
     const key = `${x.g}|${x.d}`;
-    if (!progress.has(key)) progress.set(key, {g:x.g,d:x.d,parts:new Set()});
-    if (x.p === 3) needParts(x.g,x.d).forEach(p=>progress.get(key).parts.add(p)); else progress.get(key).parts.add(x.p);
+    if (!progress.has(key)) progress.set(key, { g: x.g, d: x.d, parts: new Set() });
+    if (x.p === 3) needParts(x.g, x.d).forEach(p => progress.get(key).parts.add(p)); else progress.get(key).parts.add(x.p);
   });
   const host = $("#scheduleProgress");
-  if (host) host.innerHTML = progress.size ? `<h3>Прогресс расписаний</h3>` + [...progress.values()].sort((a,b)=>a.d-b.d || a.g.localeCompare(b.g)).map(x => {
-    const total = needParts(x.g,x.d).length, done = needParts(x.g,x.d).filter(p=>x.parts.has(p)).length, pct = Math.round(done/total*100);
-    return `<div class="progress-row"><div><b>${esc(x.g)} · ${DAYS[x.d][1]}</b><small>${done} из ${total} частей</small></div><div class="progress-track"><i style="width:${pct}%"></i></div><small>${pct}%</small></div>`;
-  }).join("") : "";
+  if (host) host.innerHTML = "";
 }
 $("#sorts").onclick = e => { const s = e.target.dataset.s; if (!s) return; s === "rev" ? rev = !rev : sortBy = s; renderInv(); };
 $("#invGrid").onclick = e => { const b = e.target.closest("[data-i]"); if (b) itemMenu(view[+b.dataset.i].it); };
@@ -595,17 +661,61 @@ const telDead = () => Math.round((new Date(today()) - new Date(tele.last || tele
 // death wipes the telifocoins (checked whenever the telifon is used)
 const telCheck = () => { const dead = telDead(); if (dead && tele.coins) { tele.coins = 0; save(); } return dead; };
 telCheck();
-const skinHTML = s => `<img class="skin-prev" src="${s ? s.img : "assets/telifon.png"}" alt="" style="filter:hue-rotate(${s ? s.hue : 0}deg)">`;
+const skinHTML = s => `<img class="skin-prev" src="${s ? s.img : "assets/telifon.png"}" alt="">`;
+let skinFilters = { rarity: "all", collection: "all", name: "", sort: "rarity", reverse: false };
+let lastTapAt = 0, tapDay = store.get("teleTapDay", ""), tapsToday = store.get("teleTapsToday", 0);
+const TAP_COOLDOWN = 350;
 function renderTele() {
-  const s = skinOf(tele.skin), dead = telCheck(), fed = !dead && tele.last === today(), owned = new Map();
+  const s = skinOf(tele.skin) || skinOf("default"), dead = telCheck(), fed = !dead && tele.last === today(), owned = new Map();
   tele.skins.forEach(id => owned.set(id, (owned.get(id) || 0) + 1));
   $("#pet").innerHTML = skinHTML(s); $("#pet").classList.toggle("fed", fed); $("#pet").classList.toggle("dead", dead);
+  const equippedRarity = s?.rarity || "default"; $("#pet").style.setProperty("--pet-glow", equippedRarity === "default" ? "transparent" : (COL[equippedRarity] || "transparent"));
   const nm = tele.name.trim() || "Телифон", ps = $("#petStatus"), stt = dead ? "dead" : fed ? "fed" : "hungry";
   $("#petNameInput").value = tele.name; ps.textContent = "• " + { dead: "мертв", fed: "сыт", hungry: "голоден" }[stt]; ps.dataset.s = stt;
   say("#petHint", dead ? `${nm} умер: ты не кормил его целый день, телифокоины сгорели. Воскреси за ${REVIVE_COST} шышиш` : fed ? `${nm} сыт. Приходи завтра — снова будет голоден` : `${nm} голоден! Покорми его любым полным расписанием`);
   say("#teleCoins", tele.coins); renderCollectionCases(); $("#feedBtn").disabled = fed; $("#feedBtn").style.display = dead ? "none" : ""; $("#reviveBtn").style.display = dead ? "" : "none"; say("#chestBtn", "Коллекции кейсов");
-  $("#skinGrid").innerHTML = owned.size ? [...owned].map(([id, n]) => `<button class="glass icard${id === tele.skin ? " using" : ""}" data-id="${id}" style="--c:#FF6500">${skinHTML(skinOf(id))}<b>${skinOf(id).name}</b><small>${[id === tele.skin && "используется", n > 1 && "×" + n].filter(Boolean).join(" · ") || "&nbsp;"}</small></button>`).join("")
-    : '<p class="empty">Скинов пока нет. Копи телифокоины и открывай сундук.</p>';
+  renderSkinInventory();
+}
+function renderSkinInventory() {
+  if (!tele.skin) tele.skin = "default";
+  const host = $("#skinGrid");
+  const all = [...new Set(tele.skins)];
+  const rarityOrder = { common: 0, rare: 1, mythic: 2, legendary: 3, default: -1 };
+  const items = all.map(id => ({ id, skin: skinOf(id), count: tele.skins.filter(x => x === id).length }))
+    .filter(x => x.skin)
+    .filter(x => skinFilters.rarity === "all" || (x.skin.rarity || "default") === skinFilters.rarity)
+    .filter(x => skinFilters.collection === "all" || COLLECTION_CASES.some(c => c.id === skinFilters.collection && c.rewards.some(r => r.id === x.id)))
+    .filter(x => x.skin.name.toLowerCase().includes(skinFilters.name.toLowerCase()))
+    .sort((a, b) => {
+      let cmp = 0;
+      if (skinFilters.sort === "name") cmp = a.skin.name.localeCompare(b.skin.name, "ru");
+      else if (skinFilters.sort === "collection") {
+        const ca = COLLECTION_CASES.find(c => c.rewards.some(r => r.id === a.id))?.name || "Стандартный";
+        const cb = COLLECTION_CASES.find(c => c.rewards.some(r => r.id === b.id))?.name || "Стандартный";
+        cmp = ca.localeCompare(cb, "ru");
+      } else cmp = rarityOrder[a.skin.rarity || "default"] - rarityOrder[b.skin.rarity || "default"];
+      return skinFilters.reverse ? -cmp : cmp;
+    });
+  host.innerHTML = `<div class="skin-filters">
+    <input id="skinNameFilter" class="glass pill input" placeholder="Поиск по имени" value="${esc(skinFilters.name)}">
+    <select id="skinRarityFilter" class="glass pill input"><option value="all">Все редкости</option><option value="common">Common</option><option value="rare">Rare</option><option value="mythic">Mythic</option><option value="legendary">Legendary</option><option value="default">Обычный</option></select>
+    <select id="skinCollectionFilter" class="glass pill input"><option value="all">Все коллекции</option>${COLLECTION_CASES.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join("")}</select>
+    <select id="skinSortBy" class="glass pill input"><option value="rarity">Сортировать: редкость</option><option value="name">Сортировать: имя</option><option value="collection">Сортировать: коллекция</option></select>
+    <button class="btn glass small" id="skinSortReverse">Порядок: ${skinFilters.reverse ? "обратный" : "прямой"}</button>
+  </div>` + (items.length ? `<div class="skin-cards">${items.map(({ id, skin, count }) => {
+    const rarity = skin.rarity || "default";
+    const isUsing = id === tele.skin;
+    const c = COL[rarity] || (rarity === "default" ? "#D4D4D4" : "transparent");
+    return `<button class="glass icard skin-card rarity-${rarity}${isUsing ? " using" : ""}" data-id="${esc(id)}" style="--c:${c}">${isUsing ? '<span class="skin-used-badge">✓</span>' : ""}${skinHTML(skin)}<b>${esc(skin.name)}</b><small>${RN[rarity] || "Обычный"}${count > 1 ? ` · ×${count}` : ""}${isUsing ? " · используется" : ""}</small></button>`;
+  }).join("")}</div>` : '<p class="empty">По этим фильтрам скинов нет.</p>');
+  $("#skinRarityFilter").value = skinFilters.rarity;
+  $("#skinCollectionFilter").value = skinFilters.collection;
+  $("#skinSortBy").value = skinFilters.sort;
+  $("#skinNameFilter").oninput = e => { skinFilters.name = e.target.value; renderSkinInventory(); const el = $("#skinNameFilter"); el.focus(); el.setSelectionRange(el.value.length, el.value.length); };
+  $("#skinRarityFilter").onchange = e => { skinFilters.rarity = e.target.value; renderSkinInventory(); };
+  $("#skinCollectionFilter").onchange = e => { skinFilters.collection = e.target.value; renderSkinInventory(); };
+  $("#skinSortBy").onchange = e => { skinFilters.sort = e.target.value; renderSkinInventory(); };
+  $("#skinSortReverse").onclick = () => { skinFilters.reverse = !skinFilters.reverse; renderSkinInventory(); };
 }
 $("#feedBtn").onclick = async () => {
   if (telCheck()) return say("#telMsg", "Телифон умер. Сначала воскреси его");
@@ -621,26 +731,196 @@ function renderCollectionCases() {
   if (!host) return;
   host.innerHTML = COLLECTION_CASES.map(c => `<article class="collection-case glass">
     <img src="${esc(c.image)}" alt="" class="collection-cover">
-    <div class="collection-copy"><b>${esc(c.name)}</b><small>${c.rewards.length} скинов · ${c.price} tele.coins</small></div>
+    <div class="collection-copy"><b>${esc(c.name)}</b><small>${c.rewards.length} скинов · ${c.price} телифокоинов</small></div>
     <button class="btn glass green small" data-open-collection="${esc(c.id)}">Открыть</button>
-    <div class="collection-rewards">${c.rewards.map(r=>`<div class="collection-reward"><img src="${esc(r.img)}" alt=""><span>${esc(r.name)}</span><small>${r.chance}%</small></div>`).join("")}</div>
+    <div class="collection-rewards">${c.rewards.map(r => `<div class="collection-reward rarity-${r.rarity}" style="--c:${COL[r.rarity]}" data-skin-id="${esc(r.id)}" role="button" tabindex="0"><img src="${esc(r.img)}" alt=""><span>${esc(r.name)}</span><small>${RN[r.rarity]} · ${r.chance}%</small></div>`).join("")}</div>
   </article>`).join("");
 }
-$("#chestBtn").onclick = () => { renderCollectionCases(); $("#collectionCases").scrollIntoView({behavior:"smooth",block:"start"}); };
+$("#chestBtn").onclick = () => { renderCollectionCases(); $("#collectionCases").scrollIntoView({ behavior: "smooth", block: "start" }); };
 $("#collectionCases").onclick = e => {
+  const reward = e.target.closest("[data-skin-id]");
+  if (reward) {
+    const skin = collectionSkin(reward.dataset.skinId);
+    if (skin) showSkinViewer(skin);
+    return;
+  }
   const button = e.target.closest("[data-open-collection]");
   if (!button) return;
-  const c = COLLECTION_CASES.find(x=>x.id===button.dataset.openCollection);
-  if (!c) return;
-  telCheck();
-  if (tele.coins < c.price) return say("#telMsg", `Нужно ${c.price} tele.coins, у тебя ${tele.coins}`);
-  const total = c.rewards.reduce((n,r)=>n+Math.max(0,Number(r.chance)||0),0);
-  if (!total) return say("#telMsg","У этого кейса пока не настроены шансы");
-  let roll=Math.random()*total, reward=c.rewards.find(r=>(roll-=Math.max(0,Number(r.chance)||0))<0) || c.rewards[c.rewards.length-1];
-  tele.coins-=c.price; tele.skins.push(reward.id); save(); renderTele();
-  say("#telMsg",`Из ${c.name} выпал скин «${reward.name}»!`);
+  const c = COLLECTION_CASES.find(x => x.id === button.dataset.openCollection);
+  if (c) showCollectionOpening(c.id);
 };
+
+$("#collectionCases").addEventListener("keydown", e => {
+  if (e.key !== "Enter" && e.key !== " ") return;
+  const reward = e.target.closest("[data-skin-id]");
+  if (!reward) return;
+  e.preventDefault();
+  const skin = collectionSkin(reward.dataset.skinId);
+  if (skin) showSkinViewer(skin);
+});
+
+/* ================= COLLECTION CASE OPENING (roulette) ================= */
+let colSpinId = 0, colSpinning = false, colWinner = null;
+let colCards = [], colFastSpin = false, colCurrentCase = null;
+const COL_N = 70, COL_START = 4, COL_WIN = 58;
+
+function colTrackMetrics() {
+  const track = $("#collectionOpenTrack");
+  if (!colCards[0]) return { cardWidth: 94, gap: 13, pitch: 107 };
+  const cardWidth = colCards[0].offsetWidth;
+  const gap = parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap) || 13;
+  return { cardWidth, gap, pitch: cardWidth + gap };
+}
+
+function pickColWinner(rewards, caseId) {
+  const dropped = collectionDropped[caseId] || [];
+  const pool = rewards.filter(r => !dropped.includes(r.id));
+  if (!pool.length) return null;
+
+  const w = {}; let fixed = 0;
+  pool.forEach(r => {
+    if (r.rarity !== "common") {
+      w[r.id] = Math.max(0, Number(r.chance) || 0);
+      fixed += w[r.id];
+    }
+  });
+  const commons = pool.filter(r => r.rarity === "common");
+  if (commons.length) {
+    const remaining = Math.max(0, 100 - fixed);
+    commons.forEach(r => w[r.id] = remaining / commons.length);
+  } else {
+    const total = pool.reduce((s, r) => s + (w[r.id] || 0), 0) || 1;
+    pool.forEach(r => w[r.id] = (w[r.id] || 1) / total);
+  }
+
+  const total = Object.values(w).reduce((a, b) => a + b, 0);
+  let roll = Math.random() * total;
+  for (const r of pool) {
+    roll -= w[r.id];
+    if (roll < 0) return r;
+  }
+  return pool[pool.length - 1];
+}
+
+function buildColTrack(rewards) {
+  const track = $("#collectionOpenTrack");
+  track.innerHTML = ""; colCards = [];
+  for (let i = 0; i < COL_N; i++) {
+    const r = (i === COL_WIN && colWinner) ? colWinner : rewards[rnd(rewards.length)];
+    const c = document.createElement("div");
+    c.className = "card";
+    c.style.setProperty("--c", COL[r.rarity]);
+    c.innerHTML = `<img src="${esc(r.img)}" alt=""><b>${esc(r.name)}</b>`;
+    track.append(c); colCards.push(c);
+  }
+}
+
+function setColWinnerCard(reward) {
+  const c = colCards[COL_WIN];
+  if (!c || !reward) return;
+  c.style.setProperty("--c", COL[reward.rarity]);
+  c.innerHTML = `<img src="${esc(reward.img)}" alt=""><b>${esc(reward.name)}</b>`;
+}
+
+function colPlace(scroll) {
+  const strip = $("#collectionStrip");
+  const track = $("#collectionOpenTrack");
+  if (!strip || !track) return;
+  const w = strip.clientWidth;
+  const { cardWidth, pitch } = colTrackMetrics();
+  track.style.transform = `translate3d(${w / 2 - cardWidth / 2 - scroll}px,0,0)`;
+  for (let i = 0; i < COL_N; i++) {
+    const d = i * pitch - scroll;
+    if (Math.abs(d) > w / 2 + cardWidth) continue;
+    const near = Math.max(0, 1 - Math.abs(d) / (pitch * 1.6));
+    colCards[i].style.transform = `scale(${0.8 + 0.4 * near})`;
+    colCards[i].style.opacity = Math.max(0.4, 1 - Math.abs(d) / (w / 2));
+  }
+}
+
+function spinCollection() {
+  if (colSpinning) return;
+  colSpinning = true;
+  const id = ++colSpinId;
+  const dur = colFastSpin ? 1100 : 5000 + Math.random() * 2000;
+  const t0 = performance.now();
+  const pitch = colTrackMetrics().pitch;
+  const startScroll = COL_START * pitch;
+  const endScroll = COL_WIN * pitch;
+  const travel = endScroll - startScroll;
+  navigator.vibrate?.(15);
+  (function frame(now) {
+    if (id !== colSpinId) return;
+    const p = Math.min(1, (now - t0) / dur);
+    colPlace(startScroll + ease(p) * travel);
+    if (p < 1) return requestAnimationFrame(frame);
+    colPlace(endScroll);
+    setTimeout(() => { if (id === colSpinId) colFinish(); }, 450);
+  })(t0);
+}
+
+function colFinish() {
+  colSpinning = false;
+  const reward = colWinner, c = colCurrentCase;
+  if (!reward || !c) return;
+  if (tele.coins < c.price) return;
+  tele.coins -= c.price;
+  tele.skins.push(reward.id);
+
+  const droppedBefore = collectionDropped[c.id] || [];
+  const wouldBeDropped = [...droppedBefore, reward.id];
+  const commons = c.rewards.filter(r => r.rarity === "common");
+  const wasReset = commons.length > 0 && commons.every(r => wouldBeDropped.includes(r.id));
+  recordColDrop(c.id, reward.id, c.rewards);
+
+  save();
+
+  const lbl = $("#collectionResultLabel");
+  lbl.textContent = `${reward.name} • ${RN[reward.rarity]}`;
+  lbl.style.color = COL[reward.rarity];
+
+  $("#collectionResultPanel").innerHTML = `
+  <div class="schedule-meta">
+    <div class="schedule-meta-title">
+      <span class="eyebrow">TELIFON SKIN DROP</span>
+      <strong>${esc(reward.name)}</strong>
+      <small>${esc(c.name)}</small>
+    </div>
+    <div class="wk">${RN[reward.rarity]}</div>
+  </div>
+  <div class="collection-result-visual" style="--c:${COL[reward.rarity]}">
+    <img src="${esc(reward.img)}" alt="">
+  </div>
+  <p class="collection-result-description">${esc(reward.description || "Коллекционный скин для телифона.")}</p>
+  ${wasReset ? `<p class="collection-result-note">✦ Все Common выпали — кейс обновлён</p>` : ""}
+`;
+
+  $("#collectionOpenHint").textContent = wasReset
+    ? `Выпал скин «${reward.name}»! Все Common выпали — кейс обновлён.`
+    : `Выпал скин «${reward.name}»!`;
+
+  const btn = $("#collectionOpenBtn");
+  btn.innerHTML = `<span class="btn-star">✦</span><span class="btn-main">Открыть ещё раз<small>за ${c.price} телифокоинов</small></span>`;
+  btn.disabled = tele.coins < c.price;
+
+  $("#collectionOpening").classList.remove("active");
+  $("#collectionResult").classList.add("active");
+  renderTele();
+  navigator.vibrate?.([20, 40, 20]);
+}
 $("#petNameInput").oninput = e => { tele.name = e.target.value.slice(0, 16); save(); };
+$("#pet").onclick = () => {
+  const now = Date.now();
+  if (now - lastTapAt < TAP_COOLDOWN) { say("#telMsg", "Не так быстро! Подожди мгновение."); return; }
+  lastTapAt = now; coins += 1;
+  const pet = $("#pet");
+  pet.classList.remove("tap-pop");
+  void pet.offsetWidth;
+  pet.classList.add("tap-pop");
+  setTimeout(() => pet.classList.remove("tap-pop"), 260);
+  save(); renderTele(); say("#telMsg", "+1 шышиш за нажатие!");
+};
+
 $("#reviveBtn").onclick = async () => {
   if (coins < REVIVE_COST) return say("#telMsg", `Нужно ${REVIVE_COST} шышиш, у тебя ${coins}`);
   if (!await choose(`Воскресить телифон за ${REVIVE_COST} шышиш?`, [{ html: "Воскресить", val: 1 }])) return;
@@ -648,10 +928,23 @@ $("#reviveBtn").onclick = async () => {
 };
 $("#skinGrid").onclick = async e => {
   const b = e.target.closest("[data-id]"); if (!b) return;
-  const k = skinOf(b.dataset.id), a = await choose(k.name, [{ html: "Использовать", val: "use" }, { html: `Продать за ${SKIN_PRICE} шышиш`, val: "sell" }]);
+  const k = skinOf(b.dataset.id); if (!k) return;
+  const curSkin = tele.skin || "default";
+  const choices = [];
+  if (curSkin !== k.id) choices.push({ html: "Использовать", val: "use" });
+  else choices.push({ html: "Снять скин", val: "unequip" });
+  if (k.id !== "default") choices.push({ html: `Продать за ${SKIN_PRICE} шышиш`, val: "sell" });
+  const a = await choose(
+    `${k.name} · ${RN[k.rarity] || "Обычный"}`,
+    choices,
+    k.description || "Коллекционный скин для телифона.",
+    k.img
+  );
   if (a === "use") tele.skin = k.id;
+  if (a === "unequip") tele.skin = "default";
   if (a === "sell") { tele.skins.splice(tele.skins.indexOf(k.id), 1); coins += SKIN_PRICE; if (tele.skin === k.id && !tele.skins.includes(k.id)) tele.skin = null; }
   save(); renderTele();
+  if (!tele.skins.includes("default")) tele.skins.unshift("default");
 };
 /* ================= PROFILE ================= */
 function renderProfile() {
@@ -675,4 +968,118 @@ if (st.group) activeDept = deptForGroup(st.group).id;
 renderCases();
 showTab("home");
 openPicker();
-loadSchedules().then(() => { save(); }).catch(err => console.warn("Не удалось загрузить часть расписаний", err));
+loadSchedules().then(() => { renderCases(); save(); }).catch(err => console.warn("Не удалось загрузить часть расписаний", err));
+/* ================= COLLECTION OPENING (stage + result) ================= */
+function showCollectionOpening(id) {
+  const c = COLLECTION_CASES.find(x => x.id === id); if (!c) return;
+  const stage = $("#collectionOpening"); if (!stage) return;
+  colSpinning = false; colSpinId++;
+  colCurrentCase = c;
+  colWinner = null;
+  stage.dataset.case = id;
+  $("#collectionOpenTitle").textContent = c.name;
+
+  const dropped = collectionDropped[c.id] || [];
+  const available = c.rewards.filter(r => !dropped.includes(r.id));
+  $("#collectionOpenDrops").innerHTML = c.rewards.map(r => {
+    const gone = dropped.includes(r.id);
+    return `<article class="glass drop rarity-${r.rarity}${gone ? " out" : ""}" style="--c:${COL[r.rarity]}"><div class="drop-visual"><img src="${esc(r.img)}" alt=""><span class="drop-glint"></span></div><span class="drop-group">${esc(r.name)}</span><small class="drop-rarity">${RN[r.rarity]}</small></article>`;
+  }).join("");
+  $("#collectionDropCount").textContent = `${String(available.length).padStart(2, "0")} ДОСТУПНО`;
+
+  $("#collectionOpenHint").textContent = tele.coins < c.price ? "Покорми телифона полным расписанием, чтобы получить телифокоины." : "";
+  const btn = $("#collectionOpenBtn");
+  btn.innerHTML = `<span class="btn-star">✦</span><span class="btn-main">Открыть коллекцию<small>за ${c.price} телифокоинов</small></span>`;
+  btn.disabled = tele.coins < c.price || available.length === 0;
+  $("#collectionResult").classList.remove("active");
+  $("#telifon").classList.remove("active");
+  stage.classList.add("active");
+  requestAnimationFrame(() => {
+    buildColTrack(c.rewards);
+    colPlace(COL_START * colTrackMetrics().pitch);
+  });
+}
+
+function closeCollectionOpening() {
+  $("#collectionOpening").classList.remove("active");
+  $("#collectionResult").classList.remove("active");
+  showTab("telifon");
+}
+
+$("#collectionOpenBack").onclick = closeCollectionOpening;
+
+$("#collectionFastSpinBtn").onclick = () => {
+  colFastSpin = !colFastSpin;
+  $("#collectionFastSpinBtn").textContent = `Быстрая прокрутка: ${colFastSpin ? "вкл." : "выкл."}`;
+  $("#collectionFastSpinBtn").classList.toggle("green", colFastSpin);
+};
+
+$("#collectionOpenBtn").onclick = () => {
+  const stage = $("#collectionOpening");
+  const c = COLLECTION_CASES.find(x => x.id === stage.dataset.case);
+  if (!c || colSpinning) return;
+  if (tele.coins < c.price) {
+    $("#collectionOpenHint").textContent = "Покорми телифона полным расписанием, чтобы получить телифокоины.";
+    return;
+  }
+  colCurrentCase = c;
+  colWinner = pickColWinner(c.rewards, c.id);
+  if (!colWinner) {
+    $("#collectionOpenHint").textContent = "Все скины уже выпали. Кейс обновится, когда выпадут все Common.";
+    return;
+  }
+  setColWinnerCard(colWinner);
+  $("#collectionOpenHint").textContent = "";
+  const btn = $("#collectionOpenBtn");
+  btn.innerHTML = '<span class="btn-star">✦</span><span class="btn-main">Открытие...</span>';
+  btn.disabled = true;
+  requestAnimationFrame(() => {
+    colPlace(COL_START * colTrackMetrics().pitch);
+    requestAnimationFrame(() => spinCollection());
+  });
+};
+
+function recordColDrop(caseId, skinId, rewards) {
+  if (!collectionDropped[caseId]) collectionDropped[caseId] = [];
+  if (!collectionDropped[caseId].includes(skinId)) collectionDropped[caseId].push(skinId);
+  const commons = rewards.filter(r => r.rarity === "common");
+  const allCommonsDropped = commons.length > 0 && commons.every(r => collectionDropped[caseId].includes(r.id));
+  if (allCommonsDropped) delete collectionDropped[caseId];    // сброс
+  store.set("collectionDropped", collectionDropped);
+}
+
+$("#collectionResultBack").onclick = () => {
+  const c = colCurrentCase;
+  $("#collectionResult").classList.remove("active");
+  if (c) showCollectionOpening(c.id);
+  else showTab("telifon");
+};
+
+$("#collectionResultAgain").onclick = () => {
+  const c = colCurrentCase;
+  if (!c) return;
+  $("#collectionResult").classList.remove("active");
+  showCollectionOpening(c.id);
+  requestAnimationFrame(() => {
+    if (tele.coins >= c.price) $("#collectionOpenBtn").click();
+  });
+};
+
+/* ================= SKIN VIEWER ================= */
+function showSkinViewer(skin) {
+  if (!skin) return;
+  const v = $("#skinViewer"), body = $("#skinViewerBody");
+  const color = COL[skin.rarity] || "#ffffff";
+  body.innerHTML = `
+    <div class="collection-result-visual" style="--c:${color}">
+      <img src="${esc(skin.img)}" alt="">
+    </div>
+    <h2>${esc(skin.name)}</h2>
+    <p class="skin-viewer-rarity" style="color:${color}">${RN[skin.rarity] || "Обычный"}</p>
+    <p class="collection-result-description">${esc(skin.description || "Коллекционный скин для телифона.")}</p>
+  `;
+  v.classList.add("open");
+}
+
+$("#skinViewerClose").onclick = () => $("#skinViewer").classList.remove("open");
+$("#skinViewer").onclick = e => { if (e.target.id === "skinViewer") $("#skinViewer").classList.remove("open"); };

@@ -1227,8 +1227,10 @@ input:focus-visible {
 }
 
 .drop-visual img {
-    width: 34px;
-    height: 34px;
+    width: 76px;
+    height: 76px;
+    object-fit: contain;
+    position: absolute;
     filter: drop-shadow(0 5px 9px rgba(0, 0, 0, .25))
 }
 
@@ -1693,8 +1695,8 @@ input:focus-visible {
     }
 
     .drop-visual img {
-        width: 30px;
-        height: 30px
+        width: 39px;
+        height: 39px
     }
 
     .spin-cta {
@@ -1795,8 +1797,8 @@ input:focus-visible {
     }
 
     .drop-visual img {
-        width: 27px;
-        height: 27px
+        width: 39px;
+        height: 39px
     }
 
     .lesson-card {
