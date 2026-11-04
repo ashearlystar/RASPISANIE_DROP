@@ -368,7 +368,7 @@ function scheduleProgress(group, day) {
   const need = needParts(group, day);
   const owned = new Set();
   inv.filter(x => x.g === group && x.d === day && !x.x).forEach(x => {
-    if (x.p !== 3 && need.includes(x.p)) owned.add(x.p);   // полное расписание не считается частью
+    if (x.p !== 3 && need.includes(x.p)) owned.add(x.p);   // полное расписание НЕ считается частью
   });
   return { done: owned.size, total: need.length };
 }
@@ -516,7 +516,7 @@ function renderInv() {
     + `<button class="glass pill chipb${rev ? " on" : ""}" data-s="rev">⇅ Обратно</button>`;
   view = uniq(inv).sort((a, b) => SORTS[sortBy][1](a.it, b.it) || label(a.it).localeCompare(label(b.it), "ru"));
   if (rev) view.reverse();
-  $("#invGrid").innerHTML = view.length ? view.map((e, i) => {
+    $("#invGrid").innerHTML = view.length ? view.map((e, i) => {
     const { done, total } = scheduleProgress(e.it.g, e.it.d);
     const pct = Math.min(100, Math.round(done / Math.max(1, total) * 100));
     const badge = e.it.p === 3 ? "" : `<span class="schedule-card-progress" style="--progress:${pct}%" aria-label="Собрано ${done} из ${total}"><b>${done}/${total}</b></span>`;
