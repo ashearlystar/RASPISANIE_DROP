@@ -40,64 +40,64 @@ const SKINS = [
 // chances — относительные веса; они автоматически нормализуются при открытии кейса.
 const COLLECTION_CASES = [
   {
-    id: "halloween-2026", name: "HALLOWEEN 2026 COLLECTION", price: 25, image: "assets/telifon.png", rewards: [
-      { id: "h26-1", name: "Призрак", img: "assets/HALLOWEEN 2026/telifon_ghost.png", chance: 50, description: "Бу-у-у! Испугался?! А это обыкновенный телифон!" },
-      { id: "h26-2", name: "Крик", img: "assets/HALLOWEEN 2026/telifon_scream.png", chance: 30, description: "Где-то я эту маску уже видел..." },
-      { id: "h26-3", name: "Слэшер", img: "assets/HALLOWEEN 2026/telifon_slasher.png", chance: 15, description: "Телифон хоккеист! А, может и не хоккеист..." },
-      { id: "h26-4", name: "Вампир", img: "assets/HALLOWEEN 2026/telifon_vamp.png", chance: 5, description: "Он вампир! Какая твоя группа крови? Дай ему укусить, он клянется, не будет больно." }
+    id: "halloween-2026", name: "HALLOWEEN 2026 COLLECTION", price: 7, image: "assets/telifon.png", rewards: [
+      { id: "h26-1", name: "Призрак", img: "assets/HALLOWEEN 2026/telifon_ghost.png", chance: 79, description: "Бу-у-у! Испугался?! А это обыкновенный телифон!" },
+      { id: "h26-2", name: "Крик", img: "assets/HALLOWEEN 2026/telifon_scream.png", chance: 15, description: "Где-то я эту маску уже видел..." },
+      { id: "h26-3", name: "Слэшер", img: "assets/HALLOWEEN 2026/telifon_slasher.png", chance: 5, description: "Телифон хоккеист! А, может и не хоккеист..." },
+      { id: "h26-4", name: "Вампир", img: "assets/HALLOWEEN 2026/telifon_vamp.png", chance: 1, description: "Он вампир! Какая твоя группа крови? Дай ему укусить, он клянется, не будет больно." }
     ]
   },
   {
-    id: "new-year-2026", name: "NEW YEAR EVE 2026 COLLECTION", price: 30, image: "assets/telifon.png", rewards: [
-      { id: "ny26-1", name: "Олененок", img: "assets/NEW YEAR EVE 2026/telifon_deer.png", chance: 65, description: "Милый телифон с рогами." },
-      { id: "ny26-2", name: "Эльф", img: "assets/NEW YEAR EVE 2026/telifon_elf.png", chance: 30, description: "Один из тех, кто помогает Санте делать игрушки-телифоны." },
+    id: "new-year-2026", name: "NEW YEAR EVE 2026 COLLECTION", price: 7, image: "assets/telifon.png", rewards: [
+      { id: "ny26-1", name: "Олененок", img: "assets/NEW YEAR EVE 2026/telifon_deer.png", chance: 15, description: "Милый телифон с рогами." },
+      { id: "ny26-2", name: "Эльф", img: "assets/NEW YEAR EVE 2026/telifon_elf.png", chance: 80, description: "Один из тех, кто помогает Санте делать игрушки-телифоны." },
       { id: "ny26-3", name: "Праздничный", img: "assets/NEW YEAR EVE 2026/telifon_new-year.png", chance: 5, description: "Бр-р-р... Он, конечно, нарядный, но черт его возьми, как ему не холодно?!" },
     ]
   },
   {
-    id: "jobs", name: "JOBS COLLECTION", price: 20, image: "assets/telifon.png", rewards: [
+    id: "jobs", name: "JOBS COLLECTION", price: 3, image: "assets/telifon.png", rewards: [
       { id: "jobs-1", name: "Космонавт", img: "assets/JOBS/telifon_cosmonaut.png", chance: 40, description: "Мечта многих в детстве, но только телифон смог воплотить ее в реальность!" },
-      { id: "jobs-2", name: "Офисный работник", img: "assets/JOBS/telifon_employee.png", chance: 30, description: "Офисный работник. Ничего необычного. Скучен. Скучно. Скукота." },
-      { id: "jobs-3", name: "Хакер", img: "assets/JOBS/telifon_hacker.png", chance: 20, description: "PENTAGON DESTROYER." },
-      { id: "jobs-4", name: "Кассир", img: "assets/JOBS/telifon_mcdonalds.png", chance: 5, description: "Работник забегаловки. Где же он работает в таких цветах, а то без логотипа невозможно догадаться..." },
-      { id: "jobs-5", name: "Рэпер", img: "assets/JOBS/telifon_rap.png", chance: 5, description: "New Gen Rapper Yeah Gng 67676767 Cool telifon.png Download Free." }
+      { id: "jobs-2", name: "Офисный работник", img: "assets/JOBS/telifon_employee.png", chance: 39, description: "Офисный работник. Ничего необычного. Скучен. Скучно. Скукота." },
+      { id: "jobs-3", name: "Хакер", img: "assets/JOBS/telifon_hacker.png", chance: 5, description: "PENTAGON DESTROYER." },
+      { id: "jobs-4", name: "Кассир", img: "assets/JOBS/telifon_mcdonalds.png", chance: 15, description: "Работник забегаловки. Где же он работает в таких цветах, а то без логотипа невозможно догадаться..." },
+      { id: "jobs-5", name: "Рэпер", img: "assets/JOBS/telifon_rap.png", chance: 1, description: "New Gen Rapper Yeah Gng 67676767 Cool telifon.png Download Free." }
     ]
   },
   {
-    id: "valentines", name: "VALENTINE'S DAY COLLECTION", price: 25, image: "assets/telifon.png", rewards: [
-      { id: "val-1", name: "Ангел", img: "assets/VALENTINES DAY/telifon_angel.png", chance: 30, description: "Нимб над головою и сила божья." },
-      { id: "val-2", name: "Разбитое сердце", img: "assets/VALENTINES DAY/telifon_broken-heart.png", chance: 10, description: "Даже телифону можно разбить сердце. Жалко красавчика." },
-      { id: "val-3", name: "Тортик", img: "assets/VALENTINES DAY/telifon_cake.png", chance: 20, description: "Какой он вкусный! Попробуй!" },
+    id: "valentines", name: "VALENTINE'S DAY COLLECTION", price: 3, image: "assets/telifon.png", rewards: [
+      { id: "val-1", name: "Ангел", img: "assets/VALENTINES DAY/telifon_angel.png", chance: 15, description: "Нимб над головою и сила божья." },
+      { id: "val-2", name: "Разбитое сердце", img: "assets/VALENTINES DAY/telifon_broken-heart.png", chance: 15, description: "Даже телифону можно разбить сердце. Жалко красавчика." },
+      { id: "val-3", name: "Тортик", img: "assets/VALENTINES DAY/telifon_cake.png", chance: 32, description: "Какой он вкусный! Попробуй!" },
       { id: "val-4", name: "Купидон", img: "assets/VALENTINES DAY/telifon_cupid.png", chance: 15, description: "'Любовь нельзя объяснить,' говорят они. Конечно, как объяснить то, что телифон-купидон существует?" },
       { id: "val-5", name: "Фембой", img: "assets/VALENTINES DAY/telifon_femboy.png", chance: 10, description: "Господи, Даня, как ты оказался здесь?!?!?!!" },
       { id: "val-6", name: "Любовь по-готически", img: "assets/VALENTINES DAY/telifon_goth-romance.png", chance: 10, description: "Даже готы способны любить." },
-      { id: "val-7", name: "Роза", img: "assets/VALENTINES DAY/telifon_rose.png", chance: 5, description: "Благородный запах, листья, цвет их. Все про этот телифон." },
-      { id: "val-8", name: "Маша", img: "assets/VALENTINES DAY/telifon_masha.png", chance: 1, description: "Не кусается. Ну, если не считать случаев, когда хочет внимания" },
+      { id: "val-7", name: "Роза", img: "assets/VALENTINES DAY/telifon_rose.png", chance: 1, description: "Благородный запах, листья, цвет их. Все про этот телифон." },
+      { id: "val-8", name: "Маша", img: "assets/VALENTINES DAY/telifon_masha.png", chance: 1, description: "Не кусается. Ну, если не считать случаев, когда хочет внимания." },
       { id: "val-9", name: "Таня", img: "assets/VALENTINES DAY/telifon_tanya.png", chance: 1, description: "В серых глазах этого ненаглядного телифончика можно утонуть." }
     ]
   },
   {
-    id: "cosplay", name: "COSPLAY COLLECTION", price: 35, image: "assets/telifon.png", rewards: [
+    id: "cosplay", name: "COSPLAY COLLECTION", price: 3, image: "assets/telifon.png", rewards: [
       { id: "cos-1", name: "Американский", img: "assets/COSPLAY/telifon_capt-am.png", chance: 5, description: "Откуда он такой сбежал?" },
-      { id: "cos-2", name: "Киберпанк", img: "assets/COSPLAY/telifon_cyberpunk.png", chance: 10, description: "Он реально хочет остаться в твоем инвентаре." },
+      { id: "cos-2", name: "Киберпанк", img: "assets/COSPLAY/telifon_cyberpunk.png", chance: 1, description: "Он реально хочет остаться в твоем инвентаре." },
       { id: "cos-3", name: "Зеленый монстр", img: "assets/COSPLAY/telifon_hulk.png", chance: 5, description: "Телифон крушить-ломать!" },
       { id: "cos-4", name: "Стальной человек", img: "assets/COSPLAY/telifon_iron-man.png", chance: 5, description: "Гений, миллиардер, плэйбой, филантроп." },
-      { id: "cos-5", name: "ZXC DEMON", img: "assets/COSPLAY/telifon_kaneki.png", chance: 5, description: "1000 - 7 посчитают все, а что насчет 1000 - телифон?" },
+      { id: "cos-5", name: "ZXC DEMON", img: "assets/COSPLAY/telifon_kaneki.png", chance: 1, description: "1000 - 7 посчитают все, а что насчет 1000 - телифон?" },
       { id: "cos-6", name: "Скр-скр-скр", img: "assets/COSPLAY/telifon_pharaon.png", chance: 5, description: "Интересно, в мертвых ли он найках...?" },
-      { id: "cos-7", name: "Радик", img: "assets/COSPLAY/telifon_pirate.png", chance: 5, description: "Пират. С радиком. ТП? Отменено. Колбасу? Украл." },
-      { id: "cos-8", name: "Самурай", img: "assets/COSPLAY/telifon_samurai.png", chance: 45, description: "Телифон ронин." },
+      { id: "cos-7", name: "Радик", img: "assets/COSPLAY/telifon_pirate.png", chance: 15, description: "Пират. С радиком. ТП? Отменено. Колбасу? Украл." },
+      { id: "cos-8", name: "Самурай", img: "assets/COSPLAY/telifon_samurai.png", chance: 52, description: "Телифон ронин." },
       { id: "cos-9", name: "Телифон-паук", img: "assets/COSPLAY/telifon_spider-man.png", chance: 5, description: "Телифон-паук хахаха) Поняли? Ладно, надо прекращать это, я понял..." },
-      { id: "cos-10", name: "Телефон", img: "assets/COSPLAY/telifon_telephone.png", chance: 5, description: "Телифон-телефон. Да, это жестко." },
+      { id: "cos-10", name: "Телефон", img: "assets/COSPLAY/telifon_telephone.png", chance: 1, description: "Телифон-телефон. Да, это жестко." },
       { id: "cos-11", name: "Маелстром", img: "assets/COSPLAY/telifon_thor.png", chance: 5, description: "Дает +25 к урону, +25 к скорости атаки... А, точно, он крутой, да." }
     ]
   },
   {
-    id: "repaint", name: "REPAINT COLLECTION", price: 15, image: "assets/telifon.png", rewards: [
+    id: "repaint", name: "REPAINT COLLECTION", price: 1, image: "assets/telifon.png", rewards: [
       { id: "rep-1", name: "Голографический", img: "assets/REPAINT/telifon_hologram.png", chance: 5, description: "Телифон проецирует себя на твой экран. Да пребудет с тобой телифон!" },
-      { id: "rep-2", name: "Мраморный градиент", img: "assets/REPAINT/telifon_marble-fade.png", chance: 10, description: "Мраморный узор с плавным переходом цветов. Классика, которая не выходит из моды." },
-      { id: "rep-3", name: "Северное сияние", img: "assets/REPAINT/telifon_north-glow.png", chance: 5, description: "Глядя на северное сияние ты начинаешь соединять звезды, где столь прекрасное свечение и есть цвет некой фигуры. Получившийся результат и есть телифон." },
-      { id: "rep-4", name: "Соевый", img: "assets/REPAINT/telifon_soeviy.png", chance: 20, description: "Телифон в очках и с поцелуем. Последнее, пожалуй, единственное, что позволяет не оскорблять его за соевость." },
-      { id: "rep-5", name: "Вязанный", img: "assets/REPAINT/telifon_zov.png", chance: 60, description: "Телифон твоей бабушки." }
+      { id: "rep-2", name: "Мраморный градиент", img: "assets/REPAINT/telifon_marble-fade.png", chance: 15, description: "Мраморный узор с плавным переходом цветов. Классика, которая не выходит из моды." },
+      { id: "rep-3", name: "Северное сияние", img: "assets/REPAINT/telifon_north-glow.png", chance: 1, description: "Глядя на северное сияние ты начинаешь соединять звезды, где столь прекрасное свечение и есть цвет некой фигуры. Получившийся результат и есть телифон." },
+      { id: "rep-4", name: "Соевый", img: "assets/REPAINT/telifon_soeviy.png", chance: 15, description: "Телифон в очках и с поцелуем. Последнее, пожалуй, единственное, что позволяет не оскорблять его за соевость." },
+      { id: "rep-5", name: "Вязанный", img: "assets/REPAINT/telifon_zov.png", chance: 64, description: "Телифон твоей бабушки." }
     ]
   }
 ];
@@ -729,12 +729,15 @@ $("#feedBtn").onclick = async () => {
 function renderCollectionCases() {
   const host = $("#collectionCases");
   if (!host) return;
-  host.innerHTML = COLLECTION_CASES.map(c => `<article class="collection-case glass">
-    <img src="${esc(c.image)}" alt="" class="collection-cover">
-    <div class="collection-copy"><b>${esc(c.name)}</b><small>${c.rewards.length} скинов · ${c.price} телифокоинов</small></div>
-    <button class="btn glass green small" data-open-collection="${esc(c.id)}">Открыть</button>
-    <div class="collection-rewards">${c.rewards.map(r => `<div class="collection-reward rarity-${r.rarity}" style="--c:${COL[r.rarity]}" data-skin-id="${esc(r.id)}" role="button" tabindex="0"><img src="${esc(r.img)}" alt=""><span>${esc(r.name)}</span><small>${RN[r.rarity]} · ${r.chance}%</small></div>`).join("")}</div>
-  </article>`).join("");
+  host.innerHTML = COLLECTION_CASES.map(c => {
+    const sorted = [...c.rewards].sort((a, b) => (RI[a.rarity] ?? 99) - (RI[b.rarity] ?? 99));
+    return `<article class="collection-case glass">
+      <img src="${esc(c.image)}" alt="" class="collection-cover">
+      <div class="collection-copy"><b>${esc(c.name)}</b><small>${c.rewards.length} скинов · ${c.price} телифокоинов</small></div>
+      <button class="btn glass green small" data-open-collection="${esc(c.id)}">Открыть</button>
+      <div class="collection-rewards">${sorted.map(r => `<div class="collection-reward rarity-${r.rarity}" style="--c:${COL[r.rarity]}" data-skin-id="${esc(r.id)}" role="button" tabindex="0"><img src="${esc(r.img)}" alt=""><span>${esc(r.name)}</span><small>${RN[r.rarity]} · ${r.chance}%</small></div>`).join("")}</div>
+    </article>`;
+  }).join("");
 }
 $("#chestBtn").onclick = () => { renderCollectionCases(); $("#collectionCases").scrollIntoView({ behavior: "smooth", block: "start" }); };
 $("#collectionCases").onclick = e => {
@@ -981,13 +984,14 @@ function showCollectionOpening(id) {
 
   const dropped = collectionDropped[c.id] || [];
   const available = c.rewards.filter(r => !dropped.includes(r.id));
-  $("#collectionOpenDrops").innerHTML = c.rewards.map(r => {
+  const sorted = [...c.rewards].sort((a, b) => (RI[a.rarity] ?? 99) - (RI[b.rarity] ?? 99));
+  $("#collectionOpenDrops").innerHTML = sorted.map(r => {
     const gone = dropped.includes(r.id);
     return `<article class="glass drop rarity-${r.rarity}${gone ? " out" : ""}" style="--c:${COL[r.rarity]}"><div class="drop-visual"><img src="${esc(r.img)}" alt=""><span class="drop-glint"></span></div><span class="drop-group">${esc(r.name)}</span><small class="drop-rarity">${RN[r.rarity]}</small></article>`;
   }).join("");
   $("#collectionDropCount").textContent = `${String(available.length).padStart(2, "0")} ДОСТУПНО`;
 
-  $("#collectionOpenHint").textContent = tele.coins < c.price ? "Покорми телифона полным расписанием, чтобы получить телифокоины." : "";
+  $("#collectionOpenHint").textContent = tele.coins < c.price ? "Покорми телифон полным расписанием, чтобы получить телифокоины." : "";
   const btn = $("#collectionOpenBtn");
   btn.innerHTML = `<span class="btn-star">✦</span><span class="btn-main">Открыть коллекцию<small>за ${c.price} телифокоинов</small></span>`;
   btn.disabled = tele.coins < c.price || available.length === 0;
@@ -1019,7 +1023,7 @@ $("#collectionOpenBtn").onclick = () => {
   const c = COLLECTION_CASES.find(x => x.id === stage.dataset.case);
   if (!c || colSpinning) return;
   if (tele.coins < c.price) {
-    $("#collectionOpenHint").textContent = "Покорми телифона полным расписанием, чтобы получить телифокоины.";
+    $("#collectionOpenHint").textContent = "Покорми телифон полным расписанием, чтобы получить телифокоины.";
     return;
   }
   colCurrentCase = c;

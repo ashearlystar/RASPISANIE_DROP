@@ -3398,3 +3398,69 @@ button:disabled:before {
   box-shadow: 0 2px 10px rgba(255, 213, 0, .55);
   pointer-events: none;
 }
+
+/* ===== Filter dropdowns in "Мои скины" ===== */
+.skin-filters input,
+.skin-filters select {
+  width: 100%;
+  min-width: 0;
+  height: 42px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 650;
+  text-align: left;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .12);
+  color: #fff8fd;
+  outline: none;
+  transition: border-color .2s ease, background-color .2s ease, box-shadow .2s ease;
+}
+
+.skin-filters select {
+  padding-right: 34px;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='none' stroke='%23d5bfd8' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' d='M1 1l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.skin-filters input:hover,
+.skin-filters select:hover {
+  border-color: rgba(255, 176, 225, .4);
+  background-color: rgba(255, 255, 255, .09);
+}
+
+.skin-filters input:focus,
+.skin-filters select:focus {
+  border-color: rgba(255, 166, 111, .7);
+  box-shadow: 0 0 0 3px rgba(255, 166, 111, .12);
+}
+
+.skin-filters select option,
+.skin-filters select optgroup {
+  background: #1a0c20;
+  color: #fff8fd;
+  font-size: 13px;
+  padding: 8px 10px;
+}
+
+.skin-filters select option:checked {
+  background: linear-gradient(110deg, #ffbd7b, #ff7ca3);
+  color: #271020;
+  font-weight: 700;
+}
+
+/* Кнопка «Порядок: …» — такая же высота, чтобы сетка была ровной */
+.skin-filters #skinSortReverse {
+  height: 42px;
+  min-height: 42px;
+  padding: 0 14px;
+  font-size: 12px;
+  font-weight: 650;
+  text-transform: none;
+  letter-spacing: 0;
+}
