@@ -368,8 +368,7 @@ function scheduleProgress(group, day) {
   const need = needParts(group, day);
   const owned = new Set();
   inv.filter(x => x.g === group && x.d === day && !x.x).forEach(x => {
-    if (x.p === 3) need.forEach(p => owned.add(p));   // полное = все части
-    else if (need.includes(x.p)) owned.add(x.p);       // дедуп по части
+    if (x.p !== 3 && need.includes(x.p)) owned.add(x.p);   // полное расписание не считается частью
   });
   return { done: owned.size, total: need.length };
 }
