@@ -21,7 +21,7 @@ const PRICE = { common: 10, rare: 15, mythic: 20, legendary: 70 };        // ш�
 const DEFAULT_N = 5;     // pairs assumed for groups whose schedule file isn't filled yet
 const FULL_K = { 1: .1, 2: .5, 3: 1 }, PIECE_K = { 2: .2, 3: 1 / 3 };
 const NEXT = { common: "rare", rare: "mythic" };                        // contracts (no Legendary)
-const IMG = { doc: "assets/doc.svg", check: "assets/check.svg" };
+const IMG = { doc: "assets/icons/doc.svg", check: "assets/icons/check.svg" };
 const CASE_IMG = ["assets/case_pn.png", "assets/case_vt.png", "assets/case_sr.png", "assets/case_cht.png", "assets/case_pt.png", "assets/case_sb.png"];
 const CASE_SIZE = 8;     // schedules inside one case (chosen group + CASE_SIZE-1 random others)
 const WEEK_ANCHOR = "2026-10-26";
@@ -196,7 +196,7 @@ const price = it => {
   return Math.max(1, Math.floor(PRICE[it.r] * (it.p === 3 ? FULL_K[k] : PIECE_K[k])));
 };
 const label = it => `${it.g} · ${DAYS[it.d][0]} · ${PARTS[it.p]}`;
-const inner = (it, n) => `${it.x ? '<img class="lockmark" src="assets/lock.svg" alt="" title="Зашифровано">' : ""}<img src="${IMG.doc}" alt=""><b>${it.g}</b><small>${DAYS[it.d][0]} · ${PARTS[it.p]}</small><small>${RN[it.r]}${n > 1 ? ` ×${n}` : ""}</small>`;
+const inner = (it, n) => `${it.x ? '<img class="lockmark" src="assets/icons/lock.svg" alt="" title="Зашифровано">' : ""}<img src="${IMG.doc}" alt=""><b>${it.g}</b><small>${DAYS[it.d][0]} · ${PARTS[it.p]}</small><small>${RN[it.r]}${n > 1 ? ` ×${n}` : ""}</small>`;
 const optHTML = (it, n) => `<span style="color:${COL[it.r]}">${label(it)}${it.x ? " · зашифровано" : ""}</span><small>${RN[it.r]}${n > 1 ? ` ×${n}` : ""}</small>`;
 function uniq(list) {
   const m = new Map();

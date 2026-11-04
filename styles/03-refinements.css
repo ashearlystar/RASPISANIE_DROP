@@ -1119,7 +1119,7 @@ button:disabled:before {
 }
 
 #inventory .icard b {
-    font-size: 19px;
+    font-size: 14px;
     line-height: 1.3;
 }
 
@@ -1244,7 +1244,7 @@ button:disabled:before {
     }
 
     #inventory .icard b {
-        font-size: 17px;
+        font-size: 12px;
     }
 
     #settings #groups .group-dept-grid .row {
@@ -2948,8 +2948,8 @@ button:disabled:before {
     }
 
     #collectionOpenTrack .card img {
-        width: 39px;
-        height: 39px;
+        width: 64px;
+        height: 64px;
     }
 
     #collectionOpenTrack .card b {
@@ -2990,8 +2990,8 @@ button:disabled:before {
     }
 
     #collectionOpenTrack .card img {
-        width: 39px;
-        height: 39px;
+        width: 52px;
+        height: 52px;
     }
 
     #collectionOpenTrack .card b {
@@ -3982,4 +3982,26 @@ body.info-hidden .info-btn {
     .float-coin {
         animation-duration: .01ms;
     }
+}
+
+/* ===== SVG Nav Icons ===== */
+.bar-in button img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    opacity: 1;
+    filter: none;
+    /* Убираем старое приглушение */
+    transition: transform .2s ease, filter .2s ease;
+}
+
+/* Активная иконка — добавляем свечение */
+.bar-in button.active img {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 8px rgba(255, 156, 74, 0.6));
+}
+
+/* Неактивные иконки — чуть приглушаем, чтобы активная выделялась */
+.bar-in button:not(.active) img {
+    filter: saturate(0.7) brightness(0.8);
 }

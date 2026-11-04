@@ -611,8 +611,8 @@ input:focus-visible {
     }
 
     #spin .drop img {
-        width: 22px;
-        height: 22px
+        width: 64px;
+        height: 64px
     }
 
     #spin .drop small {
@@ -1217,8 +1217,8 @@ input:focus-visible {
 
 .drop-visual {
     position: relative;
-    width: 52px;
-    height: 52px;
+    width: 76px;
+    height: 76px;
     display: grid;
     place-items: center;
     margin-bottom: 2px;
@@ -1236,8 +1236,8 @@ input:focus-visible {
 
 .drop-glint {
     position: absolute;
-    top: 4px;
-    right: 7px;
+    top: 0px;
+    right: 0px;
     width: 5px;
     height: 5px;
     border-radius: 50%;
@@ -1690,13 +1690,13 @@ input:focus-visible {
     }
 
     .drop-visual {
-        width: 45px;
-        height: 45px
+        width: 76px;
+        height: 76px
     }
 
     .drop-visual img {
-        width: 39px;
-        height: 39px
+        width: 76px;
+        height: 76px
     }
 
     .spin-cta {
@@ -1792,13 +1792,13 @@ input:focus-visible {
     }
 
     .drop-visual {
-        width: 39px;
-        height: 39px
+        width: 52px;
+        height: 52px
     }
 
     .drop-visual img {
-        width: 39px;
-        height: 39px
+        width: 52px;
+        height: 52px
     }
 
     .lesson-card {
