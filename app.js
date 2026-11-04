@@ -539,15 +539,14 @@ function renderInv() {
   view = uniq(inv).sort((a, b) => SORTS[sortBy][1](a.it, b.it) || label(a.it).localeCompare(label(b.it), "ru"));
   if (rev) view.reverse();
   $("#invGrid").innerHTML = view.length ? view.map((e, i) => {
+    const isFull = e.it.p === 3;
     const { done, total } = scheduleProgress(e.it.g, e.it.d);
-    const isStarted = done > 0;
-    const pct = Math.min(100, Math.round(done / Math.max(1, total) * 100));
-    let badge = "";
-    if (e.it.p !== 3) {
-      const label = `${done}/${total}`;
-      const cls = `schedule-card-progress${isStarted ? "" : " is-empty"}`;
-      badge = `<span class="${cls}" style="--progress:${pct}%" aria-label="Собрано ${done} из ${total}"><b>${label}</b></span>`;
-    }
+    const isStarted = isFull || done > 0;
+    const pct = isFull ? 100 : Math.min(100, Math.round(done / Math.max(1, total) * 100));
+    const label = isFull ? "✓" : `${done}/${total}`;
+    const cls = `schedule-card-progress${isFull ? " is-complete" : isStarted ? "" : " is-empty"}`;
+    const aria = isFull ? "Расписание полностью собрано" : `Собрано ${done} из ${total}`;
+    const badge = `<span class="${cls}" style="--progress:${pct}%" aria-label="${aria}"><b>${label}</b></span>`;
     return `<button class="glass icard schedule-inv-card" data-i="${i}" style="--c:${COL[e.it.r]};--card-i:${i}">${badge}${inner(e.it, e.n)}</button>`;
   }).join("") : '<p class="empty">Пока пусто</p>';
   const progress = new Map();
