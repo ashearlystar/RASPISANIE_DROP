@@ -92,8 +92,8 @@
 
     .bar-in button,
     .bar-in button.home {
-        width: 44px;
-        height: 48px;
+        width: 28px;
+        height: 28px;
         padding: 0;
         justify-content: center;
         gap: 0;
@@ -108,8 +108,8 @@
     }
 
     .bar-in button img {
-        width: 23px;
-        height: 23px
+        width: 28px;
+        height: 28px
     }
 
     .bar-in button.home {
@@ -117,8 +117,8 @@
     }
 
     .bar-in button.home img {
-        width: 24px;
-        height: 24px
+        width: 28px;
+        height: 28px
     }
 
     .nav-arrow {
@@ -2533,10 +2533,10 @@ input:focus-visible {
 
     .bar-in button,
     .bar-in button.home {
-        height: 48px;
+        height: 40px;
         align-self: center;
         flex: 1 1 0;
-        min-height: 48px;
+        min-height: 36px;
         max-height: 48px;
         margin: 0
     }
@@ -2618,15 +2618,15 @@ input:focus-visible {
 
     .bar-in button,
     .bar-in button.home {
-        height: 46px;
-        min-height: 46px;
-        max-height: 46px;
+        height: 30px;
+        min-height: 24px;
+        max-height: 36px;
         border-radius: 13px
     }
 
     .bar-in button img {
-        width: 21px;
-        height: 21px
+        width: 28px;
+        height: 28px
     }
 
     .case-categories {
@@ -2683,9 +2683,9 @@ input:focus-visible {
         top: 0;
         transform: none;
         flex: 1 1 0;
-        height: 48px;
-        min-height: 48px;
-        max-height: 48px;
+        height: 36px;
+        min-height: 28px;
+        max-height: 40px;
         margin: 0;
         box-sizing: border-box
     }
@@ -2722,9 +2722,9 @@ input:focus-visible {
 
     .bar-in button,
     .bar-in button.home {
-        height: 46px;
-        min-height: 46px;
-        max-height: 46px
+        height: 36px;
+        min-height: 28px;
+        max-height: 40px
     }
 }
 
