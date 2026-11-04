@@ -14,7 +14,7 @@
         <div class="bg"></div>
         <header class="topbar">
             <div class="topbar-heading">
-                <img class="topbar-logo" src="assets/raspisaniedrop_big.png" alt="Raspisanie Drop">
+                <img class="topbar-logo" src="assets/raspisaniedrop_big_cropped.png" alt="Raspisanie Drop">
                 <strong id="pageTitle">Главная</strong>
             </div>
         </header>
@@ -368,6 +368,13 @@
         </section>
         <section id="settings" class="screen scroll">
             <h2 class="big">Настройки</h2>
+            <button id="howToPlayBtn" class="btn glass green how-to-play-btn" type="button">
+                <span class="btn-star">✦</span>
+                <span class="btn-main">
+                    Как играть
+                    <small>полное руководство по механикам</small>
+                </span>
+            </button>
             <h3>Группа</h3>
             <p class="label small">
                 Смена группы начинает новый
@@ -378,7 +385,7 @@
     </main>
     <nav class="bar">
         <div class="sidebar-brand">
-            <img class="sidebar-logo" src="assets/raspisaniedrop_big.png" alt="Raspisanie Drop">
+            <img class="sidebar-logo" src="assets/raspisaniedrop_big_cropped.png" alt="Raspisanie Drop">
         </div>
         <div class="bar-in">
             <button class="glass round ico" data-tab="profile" aria-label="Профиль">
@@ -412,17 +419,102 @@
         </div>
         <div class="rail-bottom">
             <div class="rail-avatar">
-                <img src="assets/av1.svg" alt>
+                <img id="railAvatarImg" src="assets/av1.svg" alt>
             </div>
             <div class="rail-user">
                 <b id="railUser">Студент</b>
-                <small id="railGroup">
-                    Группа не
-                    выбрана
-                </small>
+                <small id="railGroup">Группа не выбрана</small>
             </div>
         </div>
     </nav>
+    <button
+        id="infoBtn"
+        class="info-btn"
+        type="button"
+        aria-label="Информация"
+    >?</button>
+    <div
+        id="infoModal"
+        class="picker"
+        role="dialog"
+        aria-modal="true"
+    >
+        <div class="glass pbox info-modal-box">
+            <button
+                id="infoModalClose"
+                class="info-close"
+                type="button"
+                aria-label="Закрыть"
+            >✕</button>
+            <h2 id="infoTitle" class="big"></h2>
+            <div id="infoBody" class="info-body"></div>
+        </div>
+    </div>
+    <div
+        id="welcomeModal"
+        class="picker"
+        role="dialog"
+        aria-modal="true"
+    >
+        <div class="glass pbox welcome-modal-box">
+            <button
+                id="welcomeClose"
+                class="info-close"
+                type="button"
+                aria-label="Закрыть"
+            >✕</button>
+            <h2 class="big">Как играть</h2>
+            <div class="info-body">
+                <p>
+                    Добро пожаловать в
+                    <b>Raspisanie Drop</b>
+                    ! Кратко — что тут делать:
+                </p>
+                <ol class="info-steps">
+                    <li>
+                        Тапай на
+                        <b>телифон</b>
+                        (вкладка «Телифон») → получаешь
+                        <b>шышиш</b>
+                        .
+                    </li>
+                    <li>
+                        Открывай
+                        <b>кейсы расписаний</b>
+                        на «Главной» (10 шышиш) → собирай части: верх, середину (при наличии), низ.
+                    </li>
+                    <li>
+                        Собирай
+                        <b>полные расписания</b>
+                        из частей в «Инвентаре».
+                    </li>
+                    <li>
+                        Корми телифон раз в день
+                        <b>полным расписанием</b>
+                        → получаешь
+                        <b>телифокоины</b>
+                        .
+                    </li>
+                    <li>
+                        Копи телифокоины и открывай
+                        <b>коллекционные кейсы</b>
+                        со скинами (Телифон → «Коллекции кейсов»).
+                    </li>
+                    <li>Скины можно использовать, снимать или продавать — они хранятся в «Мои скины».</li>
+                </ol>
+                <p class="info-muted">
+                    Бонус:
+                    <b>Upgrader</b>
+                    повышает редкость расписания с шансом,
+                    <b>Контракты</b>
+                    обменивают 10 одинаковых расписаний на более редкое. Кнопка
+                    <b>«?»</b>
+                    в правом нижнем углу объясняет любой экран.
+                </p>
+            </div>
+            <button id="welcomeOk" class="btn glass green" type="button">Понятно, играем!</button>
+        </div>
+    </div>
     <script src="app.js"></script>
 </body>
 </html>

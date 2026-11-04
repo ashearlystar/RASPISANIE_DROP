@@ -133,6 +133,7 @@ if (!tele.skin) tele.skin = "default";
 const save = () => {
   store.set("rounds", rounds); store.set("inv", inv); store.set("tele", tele);
   store.set("coins", coins); store.set("hist2", st.history); $("#coins").textContent = coins;
+  document.body.classList.toggle("has-group", !!st.group);
 };
 const say = (id, t) => $(id).textContent = t;
 const fmt = x => (Math.round(x * 10000) / 100).toString().replace(".", ",") + "%";
@@ -316,6 +317,7 @@ let spinId = 0, spinning = false, curIdx = 0, winner = null, part = 0;
 function showTab(tab) {
   colSpinId++;
   colSpinning = false;
+  document.body.classList.toggle("info-hidden", tab === "settings");
   $("#collectionOpening")?.classList.remove("active");
   $("#collectionResult")?.classList.remove("active");
   $$(".screen").forEach(s => s.classList.toggle("active", s.id === tab));
@@ -323,9 +325,10 @@ function showTab(tab) {
   const pageNames = { home: "Главная", inventory: "Коллекция", upgrader: "Upgrader", contracts: "Контрактный центр", profile: "Профиль игрока", telifon: "Телифон", settings: "Настройки" };
   const title = $("#pageTitle");
   if (title) title.textContent = pageNames[tab] || "Raspisanie Drop";
-  const ru = $("#railUser"), rg = $("#railGroup");
+  const ru = $("#railUser"), rg = $("#railGroup"), ra = $("#railAvatarImg");
   if (ru) ru.textContent = st.name || "Студент";
   if (rg) rg.textContent = st.group ? `Группа ${st.group}` : "Группа не выбрана";
+  if (ra) ra.src = st.avatar;
   ({ profile: renderProfile, settings: renderSettings, inventory: renderInv, upgrader: resetUp, contracts: resetCt, telifon: renderTele })[tab]?.();
 }
 const showStage = id => $$(".stage").forEach(s => s.classList.toggle("active", s.id === id));
@@ -355,7 +358,17 @@ function renderGroupList(box, onPick, query = "") {
 }
 function openPicker() {
   const list = $("#pickList"), search = $("#groupSearch");
-  const pick = g => { setGroup(g); activeDept = deptForGroup(g).id; renderCases(); $("#picker").classList.remove("open"); goHome(); };
+  const pick = g => {
+    setGroup(g);
+    activeDept = deptForGroup(g).id;
+    renderCases();
+    $("#picker").classList.remove("open");
+    goHome();
+    if (!store.get("welcomeShown", false)) {
+      store.set("welcomeShown", true);
+      setTimeout(() => showWelcome(), 280);
+    }
+  };
   if (search) search.value = "";
   renderGroupList(list, pick);
   if (search) search.oninput = () => renderGroupList(list, pick, search.value);
@@ -380,9 +393,18 @@ function renderCases() {
   $("#grid").innerHTML = DAYS.map((day, i) => {
     const group = st.group;
     const { done, total } = scheduleProgress(group, i);
-    const pct = Math.min(100, Math.round(done / Math.max(1, total) * 100));
+    const hasFull = !!group && inv.some(x => x.g === group && x.d === i && x.p === 3 && !x.x);
+    const isStarted = hasFull || done > 0;
+    const pct = hasFull ? 100 : Math.min(100, Math.round(done / Math.max(1, total) * 100));
+    let badge = "";
+    if (group) {
+      const label = hasFull ? "✓" : `${done}/${total}`;
+      const cls = `tile-progress${hasFull ? " is-complete" : isStarted ? "" : " is-empty"}`;
+      const aria = hasFull ? "Расписание полностью собрано" : `Собрано ${done} из ${total}`;
+      badge = `<span class="${cls}" style="--progress:${pct}%" aria-label="${aria}"><b>${label}</b></span>`;
+    }
     return `<button class="glass tint tile" data-i="${i}" data-dept="${dept.id}">
-      ${group ? `<span class="tile-progress" style="--progress:${pct}%" aria-label="Собрано ${done} из ${total}"><b>${done}/${total}</b></span>` : ""}
+      ${badge}
       <img class="chest" src="${CASE_IMG[i]}" alt="">
       <span class="tile-day">${day[1]}</span>
     </button>`;
@@ -516,10 +538,16 @@ function renderInv() {
     + `<button class="glass pill chipb${rev ? " on" : ""}" data-s="rev">⇅ Обратно</button>`;
   view = uniq(inv).sort((a, b) => SORTS[sortBy][1](a.it, b.it) || label(a.it).localeCompare(label(b.it), "ru"));
   if (rev) view.reverse();
-    $("#invGrid").innerHTML = view.length ? view.map((e, i) => {
+  $("#invGrid").innerHTML = view.length ? view.map((e, i) => {
     const { done, total } = scheduleProgress(e.it.g, e.it.d);
+    const isStarted = done > 0;
     const pct = Math.min(100, Math.round(done / Math.max(1, total) * 100));
-    const badge = e.it.p === 3 ? "" : `<span class="schedule-card-progress" style="--progress:${pct}%" aria-label="Собрано ${done} из ${total}"><b>${done}/${total}</b></span>`;
+    let badge = "";
+    if (e.it.p !== 3) {
+      const label = `${done}/${total}`;
+      const cls = `schedule-card-progress${isStarted ? "" : " is-empty"}`;
+      badge = `<span class="${cls}" style="--progress:${pct}%" aria-label="Собрано ${done} из ${total}"><b>${label}</b></span>`;
+    }
     return `<button class="glass icard schedule-inv-card" data-i="${i}" style="--c:${COL[e.it.r]};--card-i:${i}">${badge}${inner(e.it, e.n)}</button>`;
   }).join("") : '<p class="empty">Пока пусто</p>';
   const progress = new Map();
@@ -925,15 +953,37 @@ function colFinish() {
   navigator.vibrate?.([20, 40, 20]);
 }
 $("#petNameInput").oninput = e => { tele.name = e.target.value.slice(0, 16); save(); };
-$("#pet").onclick = () => {
+function spawnFloatCoin(x, y) {
+  const pet = $("#pet");
+  if (!pet) return;
+  if (x == null || y == null) {
+    const r = pet.getBoundingClientRect();
+    x = r.left + r.width / 2;
+    y = r.top + r.height / 2;
+  }
+  const c = document.createElement("div");
+  c.className = "float-coin";
+  c.style.left = x + "px";
+  c.style.top = y + "px";
+  c.style.setProperty("--dx", (Math.random() - 0.5) * 60 + "px");
+  c.innerHTML = '<img src="assets/coin.svg" alt="">';
+  document.body.append(c);
+  setTimeout(() => c.remove(), 950);
+}
+
+$("#pet").onclick = e => {
   const now = Date.now();
   if (now - lastTapAt < TAP_COOLDOWN) { say("#telMsg", "Не так быстро! Подожди мгновение."); return; }
   lastTapAt = now; coins += 1;
+
+  spawnFloatCoin(e.clientX, e.clientY);
+
   const pet = $("#pet");
   pet.classList.remove("tap-pop");
   void pet.offsetWidth;
   pet.classList.add("tap-pop");
   setTimeout(() => pet.classList.remove("tap-pop"), 260);
+
   save(); renderTele(); say("#telMsg", "+1 шышиш за нажатие!");
 };
 
@@ -965,6 +1015,8 @@ $("#skinGrid").onclick = async e => {
 /* ================= PROFILE ================= */
 function renderProfile() {
   $("#avatar").innerHTML = `<img src="${st.avatar}" alt="">`;
+  const ra = $("#railAvatarImg");
+  if (ra) ra.src = st.avatar;
   $("#name").value = st.name; say("#pGroup", `Группа: ${st.group ?? "—"}`);
   const h = $("#history"); h.innerHTML = "";
   if (!st.history.length) { h.innerHTML = '<p class="empty">Пока пусто</p>'; return; }
@@ -1100,3 +1152,185 @@ function showSkinViewer(skin) {
 
 $("#skinViewerClose").onclick = () => $("#skinViewer").classList.remove("open");
 $("#skinViewer").onclick = e => { if (e.target.id === "skinViewer") $("#skinViewer").classList.remove("open"); };
+
+/* ================= INFO & WELCOME ================= */
+const INFO_CONTENT = {
+  home: {
+    title: "Главная — кейсы расписаний",
+    html: `
+      <h3>Как открыть кейс</h3>
+      <ul>
+        <li>Группа выбирается при первом заходе или через «Настройки».</li>
+        <li><b>Категории сверху</b> — это объединенные направления. У каждого свой пул групп.</li>
+        <li><b>Плитка дня недели</b> — это и есть кейс. Нажми, чтобы открыть.</li>
+      </ul>
+      <h3>Что выпадает</h3>
+      <ul>
+        <li>Расписание случайной группы объединенных направлений на выбранный день.</li>
+        <li>Оно может быть <b>частью</b> (верх, середина (при наличии), низ) или <b>полным</b> — если у дня меньше 3 пар.</li>
+        <li>Открытие стоит <b>10 шышиш</b>.</li>
+      </ul>
+      <h3>Круг прогресса</h3>
+      <p>В левом верхнем углу плитки — сколько частей расписания <b>твоей группы</b> за этот день уже собрано (например, 2/3). Когда есть все части или полное расписание — круг становится зелёным с ✓.</p>
+    `
+  },
+  profile: {
+    title: "Профиль игрока",
+    html: `
+      <h3>Аватар</h3>
+      <p>Клик по изображению — переключает на следующий из готовых вариантов. Смена сохраняется.</p>
+      <h3>Имя</h3>
+      <p>Введи любое имя до 24 символов — оно отображается в боковом меню и в твоих подписях.</p>
+      <h3>История круток</h3>
+      <p>Последние <b>50</b> открытий кейсов расписаний с датой и редкостью. История сохраняется локально в браузере.</p>
+    `
+  },
+  spin: {
+    title: "Открытие кейса расписания",
+    html: `
+      <h3>Редкости и шансы</h3>
+      <ul>
+        <li>Каждая группа в кейсе имеет редкость: <b>Common</b>, <b>Rare</b>, <b>Mythic</b>, <b>Legendary</b>.</li>
+        <li>Примерные шансы: Rare ~10%, Mythic ~5%, Legendary ~1%, остальное — Common.</li>
+      </ul>
+      <h3>Что выпадает</h3>
+      <ul>
+        <li>Случайная <b>часть</b> расписания выпавшей группы: верх, середина (при наличии) или низ (или полное — для коротких дней).</li>
+        <li><b>15%</b> шанс — расписание «зашифровано», прочитать можно в инвентаре за <b>10 шышиш</b>.</li>
+      </ul>
+      <h3>Сброс кейса</h3>
+      <ul>
+        <li>Одно и то же расписание <b>не может выпасть дважды</b>, пока кейс не сброшен.</li>
+        <li>Когда выпадают все <b>Common</b> — кейс сбрасывается, и пул начинается заново.</li>
+      </ul>
+    `
+  },
+  inventory: {
+    title: "Инвентарь",
+    html: `
+      <h3>Что здесь</h3>
+      <ul>
+        <li>Все выбитые расписания — части и полные.</li>
+        <li>Зашифрованные помечены <b>замком</b> — их можно расшифровать за 10 шышиш.</li>
+      </ul>
+      <h3>Как собирать расписание</h3>
+      <ul>
+        <li>Нажми на часть → если у тебя уже есть все нужные части для этой группы+дня, появится кнопка <b>«Собрать расписание»</b>.</li>
+        <li>Полное расписание идёт на корм телифону, в Контракты и в Upgrader.</li>
+      </ul>
+      <h3>Круг прогресса</h3>
+      <p>Слева вверху — <b>X/N</b>: сколько частей этого расписания у тебя уже есть (N — сколько нужно всего: 2 для коротких дней, 3 для длинных). Полное расписание показывается без бейджа.</p>
+      <h3>Сортировки</h3>
+      <p>Кнопки сверху: по редкости, группе, алфавиту, цене, дню недели.</p>
+    `
+  },
+  upgrader: {
+    title: "Upgrader",
+    html: `
+      <h3>Как работает</h3>
+      <ul>
+        <li>Слева — расписание, которое улучшаем (<b>источник</b>).</li>
+        <li>Справа — какое расписание хотим получить (<b>цель</b>), из групп того же дня.</li>
+        <li>Шанс успеха показан в центре и зависит от разницы редкостей и редкости цели. Чем выше цель — тем ниже шанс.</li>
+      </ul>
+      <h3>Ограничения</h3>
+      <ul>
+        <li>В источнике — только <b>полное</b> читаемое расписание (не зашифрованное).</li>
+        <li><b>Legendary → Legendary</b> запрещено.</li>
+      </ul>
+      <h3>Результат</h3>
+      <p>Успех — в инвентарь попадает <b>полное</b> расписание цели (случайный день). Неудача — источник <b>сгорает</b>.</p>
+    `
+  },
+  contracts: {
+    title: "Контракты",
+    html: `
+      <h3>Что нужно</h3>
+      <ul>
+        <li><b>10 одинаковых</b> полных расписаний — Common или Rare, той же группы и дня.</li>
+        <li>Все должны быть читаемыми (не зашифрованными).</li>
+      </ul>
+      <h3>Что получишь</h3>
+      <p>Одно расписание следующей редкости (<b>Common → Rare</b>, <b>Rare → Mythic</b>) — случайной группы и случайного дня.</p>
+      <h3>Подпись</h3>
+      <p>Нарисуй что угодно в поле подписи (даже точку) — без подписи контракт не засчитается.</p>
+      <p class="info-muted">Секрет: набери на клавиатуре волшебную комбинацию — текст подписи изменится!</p>
+    `
+  },
+  telifon: {
+    title: "Телифон и коллекции",
+    html: `
+      <h3>Заработок шышиш</h3>
+      <ul>
+        <li><b>Тапай по телифону</b> → +1 шышиш (с небольшим кулдауном).</li>
+        <li>Раз в день корми его <b>полным расписанием</b> → получаешь <b>+1 телифокоин</b>.</li>
+        <li>Если не покормить день — телифон умрёт, телифокоины сгорят. Воскресить за <b>200 шышиш</b>.</li>
+      </ul>
+      <h3>Коллекции кейсов</h3>
+      <ul>
+        <li>Ниже — кейсы со скинами телифона. Открываются за <b>телифокоины</b>.</li>
+        <li>Кликни на <b>миниатюру скина</b> — увидишь его крупно и прочитаешь описание.</li>
+        <li>Кнопка «Открыть» перенаправляет на экран открытия коллекции.</li>
+      </ul>
+      <h3>Мои скины</h3>
+      <ul>
+        <li>Все выбитые скины. Их можно <b>использовать</b>, <b>снять</b> или <b>продать</b>.</li>
+        <li>Стандартный скин продать нельзя.</li>
+        <li>Фильтры: имя, редкость, коллекция. Сортировка по редкости / имени / коллекции.</li>
+      </ul>
+    `
+  },
+  collectionOpening: {
+    title: "Открытие коллекции",
+    html: `
+      <h3>Как открыть</h3>
+      <ul>
+        <li>Стоимость указана прямо на кнопке «Открыть коллекцию».</li>
+        <li>Оплата — <b>телифокоины</b>.</li>
+      </ul>
+      <h3>Что выпадает</h3>
+      <ul>
+        <li>Скин одной из редкостей коллекции — со своим шансом.</li>
+        <li><b>Один и тот же скин не может выпасть дважды</b>, пока коллекция не сброшена.</li>
+        <li>Когда выпадают все <b>Common</b>-скины — коллекция сбрасывается.</li>
+      </ul>
+      <h3>После открытия</h3>
+      <p>Показывается крупное превью скина с описанием. Скин сразу попадает в «Мои скины» на экране Телифона.</p>
+    `
+  }
+};
+
+function currentInfoKey() {
+  if ($("#collectionOpening")?.classList.contains("active")) return "collectionOpening";
+  if ($("#spin")?.classList.contains("active")) return "spin";
+  if ($("#inventory")?.classList.contains("active")) return "inventory";
+  if ($("#telifon")?.classList.contains("active")) return "telifon";
+  if ($("#upgrader")?.classList.contains("active")) return "upgrader";
+  if ($("#contracts")?.classList.contains("active")) return "contracts";
+  if ($("#profile")?.classList.contains("active")) return "profile";
+  return "home";
+}
+
+function showInfo() {
+  const content = INFO_CONTENT[currentInfoKey()];
+  if (!content) return;
+  $("#infoTitle").textContent = content.title;
+  $("#infoBody").innerHTML = content.html;
+  $("#infoModal").classList.add("open");
+}
+$("#infoBtn").onclick = showInfo;
+$("#infoModalClose").onclick = () => $("#infoModal").classList.remove("open");
+$("#infoModal").onclick = e => { if (e.target.id === "infoModal") $("#infoModal").classList.remove("open"); };
+
+function showWelcome() { $("#welcomeModal").classList.add("open"); }
+$("#welcomeClose").onclick = () => $("#welcomeModal").classList.remove("open");
+$("#welcomeOk").onclick = () => $("#welcomeModal").classList.remove("open");
+$("#welcomeModal").onclick = e => { if (e.target.id === "welcomeModal") $("#welcomeModal").classList.remove("open"); };
+$("#howToPlayBtn").onclick = showWelcome;
+
+/* показ welcome при повторном заходе, если ещё не видел */
+if (st.group && !store.get("welcomeShown", false)) {
+  store.set("welcomeShown", true);
+  setTimeout(() => showWelcome(), 600);
+}
+document.body.classList.toggle("has-group", !!st.group);

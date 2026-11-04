@@ -3504,3 +3504,482 @@ button:disabled:before {
         overflow-y: visible !important;
     }
 }
+
+/* ===== Progress rings: site-styled (glass + warm glow, green when done) ===== */
+#grid .tile-progress,
+.schedule-card-progress {
+    --progress: 0%;
+    --ring-color: var(--orange);
+    --ring-glow: rgba(255, 156, 74, .28);
+    position: absolute;
+    z-index: 4;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: conic-gradient(var(--ring-color) var(--progress), rgba(255, 255, 255, .1) 0);
+    box-shadow:
+        0 6px 16px rgba(0, 0, 0, .3),
+        0 0 14px var(--ring-glow),
+        inset 0 0 0 1px rgba(255, 255, 255, .08);
+    transition: box-shadow .3s ease;
+}
+
+#grid .tile-progress {
+    top: 12px;
+    left: 12px;
+    right: auto !important;
+    width: 50px;
+    height: 50px;
+}
+
+.schedule-card-progress {
+    top: 9px;
+    left: 9px;
+    right: auto !important;
+    width: 44px;
+    height: 44px;
+}
+
+#grid .tile-progress:before,
+.schedule-card-progress:before {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 25%, rgba(46, 26, 56, .92), rgba(16, 8, 22, .96));
+    border: 1px solid rgba(255, 255, 255, .1);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06);
+}
+
+#grid .tile-progress b,
+.schedule-card-progress b {
+    position: relative;
+    z-index: 1;
+    font-weight: 900;
+    letter-spacing: -.02em;
+    color: #fff;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, .8);
+}
+
+#grid .tile-progress b {
+    font-size: 11px;
+}
+
+.schedule-card-progress b {
+    font-size: 10px;
+}
+
+/* ===== Progress rings v2: gradient fill from h2.big:after ===== */
+#grid .tile-progress,
+.schedule-card-progress {
+    --progress: 0%;
+    --ring-glow: rgba(255, 156, 74, .28);
+    position: relative;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: rgba(255, 255, 255, .1);
+    box-shadow:
+        0 6px 16px rgba(0, 0, 0, .3),
+        0 0 14px var(--ring-glow),
+        inset 0 0 0 1px rgba(255, 255, 255, .08);
+    transition: box-shadow .3s ease;
+    isolation: isolate;
+}
+
+#grid .tile-progress {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: auto !important;
+    width: 50px;
+    height: 50px;
+    z-index: 4;
+}
+
+.schedule-card-progress {
+    position: absolute;
+    top: 9px;
+    left: 9px;
+    right: auto !important;
+    width: 44px;
+    height: 44px;
+    z-index: 4;
+}
+
+/* filled portion — orange→pink gradient, revealed by mask */
+#grid .tile-progress::after,
+.schedule-card-progress::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg,
+            var(--orange) 0deg,
+            var(--orange) 120deg,
+            var(--pink) 330deg,
+            var(--orange) 360deg);
+    -webkit-mask: conic-gradient(#000 0 var(--progress), transparent var(--progress) 100%);
+    mask: conic-gradient(#000 0 var(--progress), transparent var(--progress) 100%);
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* inner dark circle */
+#grid .tile-progress::before,
+.schedule-card-progress::before {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 25%, rgba(46, 26, 56, .92), rgba(16, 8, 22, .96));
+    border: 1px solid rgba(255, 255, 255, .1);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06);
+    z-index: 2;
+}
+
+#grid .tile-progress b,
+.schedule-card-progress b {
+    position: relative;
+    z-index: 3;
+    font-weight: 900;
+    letter-spacing: -.02em;
+    color: #fff;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, .8);
+}
+
+#grid .tile-progress b {
+    font-size: 11px;
+}
+
+.schedule-card-progress b {
+    font-size: 10px;
+}
+
+/* COMPLETE — green + checkmark */
+#grid .tile-progress.is-complete,
+.schedule-card-progress.is-complete {
+    --ring-glow: rgba(105, 230, 178, .45);
+}
+
+#grid .tile-progress.is-complete::after,
+.schedule-card-progress.is-complete::after {
+    background: var(--green);
+    -webkit-mask: none;
+    mask: none;
+}
+
+#grid .tile-progress.is-complete::before,
+.schedule-card-progress.is-complete::before {
+    background: radial-gradient(circle at 30% 25%, rgba(22, 48, 38, .94), rgba(10, 26, 20, .96));
+    border-color: rgba(105, 230, 178, .32);
+}
+
+#grid .tile-progress.is-complete b,
+.schedule-card-progress.is-complete b {
+    color: var(--green);
+    text-shadow: 0 0 12px rgba(105, 230, 178, .7);
+}
+
+#grid .tile-progress.is-complete b {
+    font-size: 20px;
+}
+
+.schedule-card-progress.is-complete b {
+    font-size: 17px;
+}
+
+/* EMPTY — muted */
+#grid .tile-progress.is-empty,
+.schedule-card-progress.is-empty {
+    --ring-glow: rgba(0, 0, 0, 0);
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, .25),
+        inset 0 0 0 1px rgba(255, 255, 255, .06);
+}
+
+#grid .tile-progress.is-empty b,
+.schedule-card-progress.is-empty b {
+    color: rgba(255, 255, 255, .5);
+    text-shadow: none;
+}
+
+@media (max-width: 420px) {
+    #grid .tile-progress {
+        left: 8px !important;
+        right: auto !important;
+        width: 44px;
+        height: 44px;
+    }
+
+    #grid .tile-progress b {
+        font-size: 10px;
+    }
+
+    #grid .tile-progress.is-complete b {
+        font-size: 17px;
+    }
+}
+
+/* ===== Fix sidebar glow artifact from shine animations ===== */
+
+/* 1) Убираем двойной backdrop-filter с кнопок сайдбара — 
+   родитель .bar уже даёт нужное размытие, второй слой только ломает композит */
+.bar-in button,
+.bar-in button.glass,
+.bar-in button.home,
+.bar-in button.active {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+/* 2) Жёстко клипим блеск: contain: paint надёжнее, чем overflow: hidden 
+   при анимациях transform внутри */
+.btn,
+.spin-cta,
+.case-cat,
+.tile,
+.chip {
+    overflow: clip;
+    contain: paint;
+}
+
+/* 3) Выносим блеск в собственный compositor-слой — 
+   тогда он не сможет «протечь» в backdrop-filter соседних элементов */
+.btn:before,
+.spin-cta:before,
+.case-cat:before,
+.tile:before,
+.chip:before {
+    will-change: transform;
+    contain: strict;
+    pointer-events: none;
+}
+
+/* 4) Изолируем сам сайдбар от перерисовок справа */
+.bar {
+    contain: paint;
+    isolation: isolate;
+    transform: translateZ(0);
+}
+
+.bar-in button.active {
+    box-shadow:
+        inset 3px 0 0 var(--orange),
+        inset 0 1px 0 rgba(255, 255, 255, .12),
+        0 8px 24px rgba(0, 0, 0, .15);
+}
+
+/* ===== Info button + info/welcome modals ===== */
+.info-btn {
+    position: fixed;
+    z-index: 40;
+    left: calc(var(--rail) + 24px);
+    bottom: 24px;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    display: none;
+    place-items: center;
+    font-size: 20px;
+    font-weight: 900;
+    color: #fff8fd;
+    background: linear-gradient(145deg, rgba(255, 173, 105, .22), rgba(255, 78, 170, .14));
+    border: 1px solid rgba(255, 178, 121, .5);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .14);
+    cursor: pointer;
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+body.has-group .info-btn {
+    display: grid;
+}
+
+.info-btn:hover {
+    transform: translateY(-2px) scale(1.06);
+    box-shadow: 0 12px 30px rgba(255, 100, 130, .3), inset 0 1px 0 rgba(255, 255, 255, .2);
+}
+
+.info-btn:active {
+    transform: scale(.94);
+}
+
+@media (max-width: 820px) {
+    .info-btn {
+        left: 14px;
+        bottom: calc(96px + env(safe-area-inset-bottom));
+        width: 42px;
+        height: 42px;
+        font-size: 18px;
+    }
+}
+
+.info-modal-box,
+.welcome-modal-box {
+    max-width: 580px;
+    position: relative;
+    max-height: 85dvh;
+    overflow-y: auto;
+}
+
+.info-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .08);
+    border: 1px solid rgba(255, 255, 255, .15);
+    color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    z-index: 2;
+}
+
+.info-close:hover {
+    background: rgba(255, 255, 255, .16);
+}
+
+.info-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #e8d7ea;
+}
+
+.info-body h3 {
+    font-size: 14px;
+    color: #ffbd82;
+    margin: 10px 0 2px;
+    letter-spacing: -.01em;
+}
+
+.info-body ul,
+.info-body ol {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.info-body li {
+    margin-bottom: 5px;
+}
+
+.info-body b {
+    color: #ffbd82;
+}
+
+.info-body .info-muted {
+    color: #a991b0;
+    font-size: 12px;
+    margin: 6px 0 0;
+}
+
+.welcome-modal-box #welcomeOk {
+    align-self: center;
+    margin-top: 8px;
+    min-width: 200px;
+}
+
+/* ===== Info hidden on settings ===== */
+body.info-hidden .info-btn {
+    display: none !important;
+}
+
+/* ===== Big "Как играть" button in settings ===== */
+.how-to-play-btn {
+    align-self: flex-start;
+    width: min(100%, 420px);
+    min-height: 68px;
+    height: auto;
+    padding: 12px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 6px 0 20px;
+    font-size: 13px;
+    letter-spacing: .06em;
+    text-align: left;
+}
+
+.how-to-play-btn .btn-main {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    line-height: 1.15;
+}
+
+.how-to-play-btn .btn-main small {
+    font-size: 11px;
+    font-weight: 650;
+    letter-spacing: .01em;
+    opacity: .78;
+    text-transform: none;
+}
+
+.how-to-play-btn .btn-star {
+    font-size: 20px;
+}
+
+@media (max-width: 820px) {
+    .how-to-play-btn {
+        width: 100%;
+        align-self: stretch;
+        justify-content: flex-start;
+        padding: 12px 18px;
+    }
+}
+
+/* ===== Floating coin on telifon tap ===== */
+.float-coin {
+    position: fixed;
+    z-index: 999;
+    pointer-events: none;
+    width: 26px;
+    height: 26px;
+    margin: 0;
+    will-change: transform, opacity;
+    animation: floatCoin 900ms cubic-bezier(.2, .7, .2, 1) forwards;
+    filter: drop-shadow(0 0 10px rgba(255, 166, 65, .85)) drop-shadow(0 2px 4px rgba(0, 0, 0, .5));
+}
+
+.float-coin img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+@keyframes floatCoin {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(.4) rotate(-15deg);
+    }
+
+    18% {
+        opacity: 1;
+        transform: translate(calc(-50% + var(--dx, 0px) * .15), -50%) scale(1.2) rotate(6deg);
+    }
+
+    60% {
+        opacity: 1;
+        transform: translate(calc(-50% + var(--dx, 0px) * .7), calc(-50% - 42px)) scale(1.05) rotate(-4deg);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(calc(-50% + var(--dx, 0px)), calc(-50% - 78px)) scale(.85) rotate(0deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .float-coin {
+        animation-duration: .01ms;
+    }
+}
