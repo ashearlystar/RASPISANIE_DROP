@@ -520,7 +520,8 @@ function renderInv() {
   $("#invGrid").innerHTML = view.length ? view.map((e, i) => {
     const { done, total } = scheduleProgress(e.it.g, e.it.d);
     const pct = Math.min(100, Math.round(done / Math.max(1, total) * 100));
-    return `<button class="glass icard schedule-inv-card" data-i="${i}" style="--c:${COL[e.it.r]};--card-i:${i}"><span class="schedule-card-progress" style="--progress:${pct}%" aria-label="Собрано ${done} из ${total}"><b>${done}/${total}</b></span>${inner(e.it, e.n)}</button>`;
+    const badge = e.it.p === 3 ? "" : `<span class="schedule-card-progress" style="--progress:${pct}%" aria-label="Собрано ${done} из ${total}"><b>${done}/${total}</b></span>`;
+    return `<button class="glass icard schedule-inv-card" data-i="${i}" style="--c:${COL[e.it.r]};--card-i:${i}">${badge}${inner(e.it, e.n)}</button>`;
   }).join("") : '<p class="empty">Пока пусто</p>';
   const progress = new Map();
   inv.filter(x => !x.x).forEach(x => {
