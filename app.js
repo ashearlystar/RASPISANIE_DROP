@@ -363,17 +363,30 @@ function openPicker() {
 }
 const renderSettings = () => renderGroupList($("#groups"), g => { setGroup(g); activeDept = deptForGroup(g).id; renderSettings(); renderCases(); say("#pageTitle", "Настройки"); });
 /* ================= CASES + SPIN ================= */
+function scheduleProgress(group, day) {
+  if (!group) return { done: 0, total: 3 };
+  const need = needParts(group, day);
+  const owned = new Set();
+  inv.filter(x => x.g === group && x.d === day && !x.x).forEach(x => {
+    if (x.p === 3) need.forEach(p => owned.add(p));   // полное = все части
+    else if (need.includes(x.p)) owned.add(x.p);       // дедуп по части
+  });
+  return { done: owned.size, total: need.length };
+}
 function renderCases() {
   const cats = $("#caseCategories");
   cats.innerHTML = DEPARTMENTS.map(d => `<button class="case-cat${d.id === activeDept ? " active" : ""}" data-dept="${d.id}"><span>${d.name}</span><small>${d.groups.length} направлений</small></button>`).join("");
   cats.querySelectorAll("[data-dept]").forEach(b => b.onclick = () => { activeDept = b.dataset.dept; renderCases(); });
   const dept = deptById(activeDept); $("#caseCategoryTitle").textContent = `${dept.name} · ${dept.groups.length} направлений`;
   $("#grid").innerHTML = DAYS.map((day, i) => {
-    const group = st.group, need = group ? needParts(group, i).length : 3;
-    const got = group ? new Set(inv.filter(x => x.g === group && x.d === i && !x.x && needParts(group, i).includes(x.p)).map(x => x.p)).size : 0;
-    const pct = Math.min(100, Math.round(got / Math.max(1, need) * 100));
+    const group = st.group;
+    const { done, total } = scheduleProgress(group, i);
+    const pct = Math.min(100, Math.round(done / Math.max(1, total) * 100));
     return `<button class="glass tint tile" data-i="${i}" data-dept="${dept.id}">
-      <img class="chest" src="${CASE_IMG[i]}" alt=""><span class="tile-day">${day[1]}</span></button>`;
+      ${group ? `<span class="tile-progress" style="--progress:${pct}%" aria-label="Собрано ${done} из ${total}"><b>${done}/${total}</b></span>` : ""}
+      <img class="chest" src="${CASE_IMG[i]}" alt="">
+      <span class="tile-day">${day[1]}</span>
+    </button>`;
   }).join("");
   $("#grid").querySelectorAll(".tile").forEach(t => t.onclick = () => openCase(+t.dataset.i, t.dataset.dept));
   $("#teacherGrid").innerHTML = TEACHER_CASES.map((day, i) => `<button class="teacher-case" disabled><span class="teacher-placeholder">✦</span><b>${day}</b><small>Скоро</small></button>`).join("");
@@ -505,9 +518,9 @@ function renderInv() {
   view = uniq(inv).sort((a, b) => SORTS[sortBy][1](a.it, b.it) || label(a.it).localeCompare(label(b.it), "ru"));
   if (rev) view.reverse();
   $("#invGrid").innerHTML = view.length ? view.map((e, i) => {
-    const need = needParts(e.it.g, e.it.d), owned = new Set(inv.filter(x => !x.x && x.g === e.it.g && x.d === e.it.d).flatMap(x => x.p === 3 ? need : [x.p]));
-    const done = need.filter(p => owned.has(p)).length, pct = Math.round(done / Math.max(1, need.length) * 100);
-    return `<button class="glass icard schedule-inv-card" data-i="${i}" style="--c:${COL[e.it.r]};--card-i:${i}"><span class="schedule-card-progress" style="--progress:${pct}%"><b>${done}/${need.length}</b></span>${inner(e.it, e.n)}</button>`;
+    const { done, total } = scheduleProgress(e.it.g, e.it.d);
+    const pct = Math.min(100, Math.round(done / Math.max(1, total) * 100));
+    return `<button class="glass icard schedule-inv-card" data-i="${i}" style="--c:${COL[e.it.r]};--card-i:${i}"><span class="schedule-card-progress" style="--progress:${pct}%" aria-label="Собрано ${done} из ${total}"><b>${done}/${total}</b></span>${inner(e.it, e.n)}</button>`;
   }).join("") : '<p class="empty">Пока пусто</p>';
   const progress = new Map();
   inv.filter(x => !x.x).forEach(x => {
