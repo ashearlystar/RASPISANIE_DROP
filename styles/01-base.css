@@ -174,8 +174,8 @@ button.glass:active {
 }
 
 #wallet img {
-    width: 17px;
-    height: 17px;
+    width: 18px;
+    height: 18px;
     filter: drop-shadow(0 0 6px rgba(255, 166, 65, .5))
 }
 
