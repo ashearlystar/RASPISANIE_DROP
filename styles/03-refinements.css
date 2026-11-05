@@ -4564,10 +4564,7 @@ body.info-hidden .info-btn {
     }
 }
 
-@media (max-width: 820px) {
-
-    /* Запрещаем сжимать панель с расписанием/скином */
-    #result .panel,
+#result .panel,
     #collectionResult .panel {
         flex-shrink: 0 !important;
         min-height: max-content !important;
@@ -4583,4 +4580,3 @@ body.info-hidden .info-btn {
         overflow: visible !important;
         max-height: none !important;
     }
-}
