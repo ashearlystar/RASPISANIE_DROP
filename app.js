@@ -21,12 +21,11 @@ const PRICE = { common: 10, rare: 15, mythic: 20, legendary: 70 };        // ш�
 const DEFAULT_N = 5;     // pairs assumed for groups whose schedule file isn't filled yet
 const FULL_K = { 1: .1, 2: .5, 3: 1 }, PIECE_K = { 2: .2, 3: 1 / 3 };
 const NEXT = { common: "rare", rare: "mythic" };                        // contracts (no Legendary)
-const IMG = { doc: "assets/icons/doc.svg", check: "assets/icons/check.svg" };
+const IMG = { doc: "assets/icons/doc.svg" };
 const CASE_IMG = ["assets/case_pn.png", "assets/case_vt.png", "assets/case_sr.png", "assets/case_cht.png", "assets/case_pt.png", "assets/case_sb.png"];
-const CASE_SIZE = 8;     // schedules inside one case (chosen group + CASE_SIZE-1 random others)
 const WEEK_ANCHOR = "2026-10-26";
 const LOCK_CHANCE = .15, UNLOCK_COST = 10, LOCKED_PRICE = 1;                // illegible drops: chance / price to read / sell price
-const FEED_REWARD = 1, CHEST_COST = 5, SKIN_PRICE = 40, REVIVE_COST = 200;   // + revive price of a dead telifon                      // telifon: coins per feeding / skin chest cost / skin sell price
+const FEED_REWARD = 1, SKIN_PRICE = 40, REVIVE_COST = 200;   // + revive price of a dead telifon                      // telifon: coins per feeding / skin chest cost / skin sell price
 const SKINS = [
   { id: "default", name: "Стандартный телифон", img: "assets/telifon.png", hue: 0, rarity: "default", description: "Классический внешний вид телифона. Базовый скин без особой редкости." },
   { id: "s1", name: "Мраморный градиент", img: "assets/telifon_marble-fade.png", hue: 0, description: "Мраморный узор с плавным переходом цветов. Классика, которая не выходит из моды." },
@@ -217,7 +216,6 @@ function renderDrops() {
 }
 /* ================= INVENTORY HELPERS ================= */
 const same = (a, b) => a.g === b.g && a.d === b.d && a.r === b.r && a.p === b.p && !a.x === !b.x;
-const count = it => inv.filter(x => same(x, it)).length;
 function take(it, n = 1) { for (let i = 0; i < n; i++) { const k = inv.findIndex(x => same(x, it)); if (k >= 0) inv.splice(k, 1); } }
 const price = it => {
   if (it.x) return LOCKED_PRICE;
@@ -773,7 +771,7 @@ const telCheck = () => { const dead = telDead(); if (dead && tele.coins) { tele.
 telCheck();
 const skinHTML = s => `<img class="skin-prev" src="${s ? s.img : "assets/telifon.png"}" alt="">`;
 let skinFilters = { rarity: "all", collection: "all", name: "", sort: "rarity", reverse: false };
-let lastTapAt = 0, tapDay = store.get("teleTapDay", ""), tapsToday = store.get("teleTapsToday", 0);
+let lastTapAt = 0;
 const TAP_COOLDOWN = 350;
 function renderTele() {
   const s = skinOf(tele.skin) || skinOf("default"), dead = telCheck(), fed = !dead && tele.last === today(), owned = new Map();
