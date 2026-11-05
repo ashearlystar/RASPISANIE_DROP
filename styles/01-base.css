@@ -1,22 +1,13 @@
 :root {
     color-scheme: dark;
     --bg: #100812;
-    --bg-2: #1b0b20;
-    --surface: #211126;
-    --surface-2: #2b1530;
-    --surface-3: #3a1b3b;
     --line: rgba(255, 232, 247, .13);
-    --line-strong: rgba(255, 232, 247, .25);
     --text: #fff8fd;
     --muted: #b8a2b9;
     --muted-2: #806a83;
     --orange: #ff9c4a;
-    --orange-hot: #ff6b35;
     --pink: #ff4eaa;
-    --blue: #43c8ff;
-    --violet: #9a63ff;
     --green: #69e6b2;
-    --radius: 24px;
     --rail: 246px;
     --topbar: 82px;
     --ease: cubic-bezier(.2, .8, .2, 1);
@@ -136,16 +127,6 @@ button.glass:active {
     text-transform: uppercase
 }
 
-.status-dot {
-    display: inline-block;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--green);
-    box-shadow: 0 0 12px rgba(105, 230, 178, .85);
-    margin-right: 8px
-}
-
 .topbar {
     position: fixed;
     z-index: 20;
@@ -172,17 +153,6 @@ button.glass:active {
     font-size: 20px;
     font-weight: 800;
     letter-spacing: -.045em
-}
-
-.topbar-status {
-    font-size: 9px;
-    letter-spacing: .12em;
-    font-weight: 850;
-    color: #c7b4c9;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    padding: 10px 13px;
-    background: rgba(255, 255, 255, .035)
 }
 
 #wallet {
@@ -222,59 +192,6 @@ button.glass:active {
     backdrop-filter: blur(24px);
     display: flex;
     flex-direction: column
-}
-
-.rail-brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 5px 10px 29px;
-    border-bottom: 1px solid rgba(255, 255, 255, .075)
-}
-
-.brand-symbol {
-    width: 42px;
-    height: 42px;
-    display: grid;
-    place-items: center;
-    border-radius: 14px;
-    background: linear-gradient(145deg, #ffb75e, #ff6d55 48%, #a85cff);
-    color: #220c20;
-    font-weight: 1000;
-    font-size: 16px;
-    letter-spacing: -.1em;
-    box-shadow: 0 8px 25px rgba(255, 104, 98, .2), inset 0 1px 0 rgba(255, 255, 255, .7)
-}
-
-.brand-symbol span {
-    margin-left: -2px;
-    color: #fff
-}
-
-.rail-brand div {
-    display: flex;
-    flex-direction: column;
-    gap: 3px
-}
-
-.rail-brand b {
-    font-size: 12px;
-    letter-spacing: .11em
-}
-
-.rail-brand small {
-    font-size: 9px;
-    letter-spacing: .17em;
-    color: var(--muted-2);
-    font-weight: 800
-}
-
-.rail-caption {
-    margin: 27px 12px 10px;
-    color: #6f5b73;
-    font-size: 9px;
-    font-weight: 900;
-    letter-spacing: .2em
 }
 
 .bar-in {
@@ -353,12 +270,6 @@ button.glass:active {
     height: 24px
 }
 
-.nav-arrow {
-    margin-left: auto;
-    font-size: 16px;
-    opacity: .55
-}
-
 .rail-bottom {
     margin-top: auto;
     border-top: 1px solid rgba(255, 255, 255, .08);
@@ -402,12 +313,6 @@ button.glass:active {
 .rail-user small {
     font-size: 10px;
     color: var(--muted-2)
-}
-
-.rail-more {
-    margin-left: auto;
-    color: #8c7592;
-    letter-spacing: 2px
 }
 
 #app {
@@ -494,14 +399,6 @@ button.glass:active {
     min-width: 0
 }
 
-.hero-logo {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-    margin-bottom: 45px
-}
-
 .title {
     margin: 0;
     display: block;
@@ -512,111 +409,6 @@ button.glass:active {
     width: min(290px, 100%);
     height: auto;
     filter: drop-shadow(0 12px 35px rgba(255, 104, 65, .15))
-}
-
-.season-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    border: 1px solid rgba(255, 255, 255, .12);
-    border-radius: 999px;
-    padding: 7px 10px;
-    color: #c1a7c4;
-    font-size: 9px;
-    font-weight: 900;
-    letter-spacing: .13em;
-    background: rgba(255, 255, 255, .035)
-}
-
-.season-tag i {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: var(--orange);
-    box-shadow: 0 0 9px var(--orange)
-}
-
-.hero-eyebrow {
-    color: #ffb178;
-    margin-bottom: 15px
-}
-
-.hero-title {
-    margin: 0;
-    font-size: clamp(36px, 4.4vw, 66px);
-    line-height: .98;
-    font-weight: 900;
-    letter-spacing: -.07em
-}
-
-.hero-title em {
-    font-style: normal;
-    background: linear-gradient(95deg, #fff5e8 0%, #ffb56e 36%, #ff65b4 70%, #a88bff 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent
-}
-
-.hero-description {
-    max-width: 420px;
-    color: #bba8bf;
-    font-size: 14px;
-    line-height: 1.75;
-    margin: 20px 0 25px;
-    letter-spacing: 0
-}
-
-.hero-metrics {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap
-}
-
-.metric-card {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 13px 15px;
-    min-width: 170px;
-    border: 1px solid rgba(255, 255, 255, .10);
-    border-radius: 17px;
-    background: linear-gradient(140deg, rgba(255, 255, 255, .055), rgba(255, 255, 255, .018))
-}
-
-.metric-icon {
-    width: 34px;
-    height: 34px;
-    display: grid;
-    place-items: center;
-    border-radius: 11px;
-    color: #ffbd7e;
-    background: rgba(255, 145, 83, .12);
-    font-size: 19px
-}
-
-.metric-card div {
-    display: flex;
-    flex-direction: column;
-    gap: 3px
-}
-
-.metric-card b {
-    font-size: 20px;
-    line-height: 1;
-    font-weight: 900
-}
-
-.metric-card small {
-    font-size: 8px;
-    letter-spacing: .1em;
-    color: #a88faa;
-    font-weight: 850
-}
-
-.hero-footnote {
-    font-size: 11px;
-    color: #88718f;
-    margin-top: 30px
 }
 
 .case-zone {
@@ -656,18 +448,6 @@ button.glass:active {
     font-size: 24px;
     margin: 6px 0 0;
     letter-spacing: -.05em
-}
-
-.section-count {
-    font-size: 12px;
-    font-weight: 900;
-    color: #ffbd82;
-    letter-spacing: .08em
-}
-
-.section-count i {
-    font-style: normal;
-    color: #806a83
 }
 
 .grid {

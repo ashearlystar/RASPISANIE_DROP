@@ -733,41 +733,8 @@ input:focus-visible {
         gap: 20px
     }
 
-    .hero-logo {
-        margin-bottom: 19px
-    }
-
     .title img {
         width: 174px
-    }
-
-    .hero-title {
-        font-size: clamp(32px, 9vw, 42px);
-        line-height: 1
-    }
-
-    .hero-description {
-        font-size: 12px;
-        line-height: 1.6
-    }
-
-    .hero-metrics {
-        width: 100%
-    }
-
-    .metric-card {
-        gap: 8px;
-        padding: 9px;
-        min-width: 0
-    }
-
-    .metric-card b {
-        font-size: 16px
-    }
-
-    .metric-card small {
-        font-size: 6.5px;
-        letter-spacing: .06em
     }
 
     .case-zone {
@@ -937,11 +904,6 @@ input:focus-visible {
     }
 }
 
-.rail-brand,
-.rail-caption {
-    display: none !important
-}
-
 .bar {
     padding-top: 24px
 }
@@ -1010,31 +972,6 @@ input:focus-visible {
     color: var(--muted);
     font-size: 11px;
     line-height: 1.5
-}
-
-.live-badge {
-    justify-self: end;
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 8px 10px;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 117, 140, .25);
-    background: rgba(255, 87, 128, .07);
-    color: #ffc3d1;
-    font-size: 8px;
-    font-weight: 900;
-    letter-spacing: .13em;
-    white-space: nowrap
-}
-
-.live-badge i {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #ff648b;
-    box-shadow: 0 0 10px #ff648b;
-    animation: livePulse 1.7s infinite
 }
 
 @keyframes livePulse {
