@@ -99,6 +99,13 @@ const COLLECTION_CASES = [
       { id: "rep-4", name: "Соевый", img: "assets/REPAINT/telifon_soeviy.png", chance: 15, description: "Телифон в очках и с поцелуем. Последнее, пожалуй, единственное, что позволяет не оскорблять его за соевость." },
       { id: "rep-5", name: "Вязанный", img: "assets/REPAINT/telifon_zov.png", chance: 64, description: "Телифон твоей бабушки." }
     ]
+  },
+  {
+    id: "devs", name: "DEVS COLLECTION", price: 3, image: "assets/telifon.png", rewards: [
+      { id: "dev-1", name: "Влад", img: "assets/DEVS/telifon_vova.png", chance: 54, description: "Самый умный человек в очках." },
+      { id: "dev-2", name: "Арслан", img: "assets/DEVS/telifon_arslan.png", chance: 54, description: "Буткаты и казаки, вот в чем кайф." },
+      { id: "dev-3", name: "Саня", img: "assets/DEVS/telifon_sanya.png", chance: 1, description: "В ожидании дембеля. Держись, друн." }
+    ]
   }
 ];
 
