@@ -24,6 +24,12 @@
             <img src="assets/icons/coin.svg" alt>
             <span id="coins">0</span>
             <span class="currency-label">шышиш</span>
+            <button
+                id="adBtn"
+                class="ad-btn"
+                type="button"
+                aria-label="Смотреть рекламу"
+            ><img src="assets/icons/plus.svg"></button>
         </div>
         <!-- group picker (every site open) -->
         <div id="picker" class="picker">
@@ -517,6 +523,56 @@
                 </p>
             </div>
             <button id="welcomeOk" class="btn glass green" type="button">Понятно, играем!</button>
+        </div>
+    </div>
+    <footer id="siteFooter" class="site-footer" hidden>
+        <p class="site-footer-disclaimer">
+            ВНИМАНИЕ: RASPISANIE DROP — это бесплатная игра и мем. 
+            Все совпадения с реальными рулетками случайны, а TELIFON CORP. 
+            — плод нашей фантазии. 
+            Проект не является азартной игрой в соответствии с ФЗ-244: 
+            ставок нет, реальные деньги не используются, вывести предметы невозможно. 
+            Берегите себя и свое расписание.
+        </p>
+        <p class="site-footer-contact">
+            Обратная связь и отзывы:
+            <a href="mailto:ТВОЯ@ПОЧТА">itsashearly@gmail.com</a>
+        </p>
+    </footer>
+    <div
+        id="adModal"
+        class="picker"
+        role="dialog"
+        aria-modal="true"
+    >
+        <div class="glass pbox ad-modal-box">
+            <button
+                id="adModalClose"
+                class="info-close"
+                type="button"
+                aria-label="Закрыть"
+                disabled
+            >✕</button>
+            <h2 class="big" style="text-align: center; margin-bottom: 4px;">Подпишись на Telegram</h2>
+            <p class="label small" style="text-align: center; margin: 0 0 6px;">
+                За просмотр ты получишь
+                <b style="color:#ff9c4a">+100 шышиш</b>
+            </p>
+            <div class="ad-qr-wrap">
+                <img src="assets/adQR.png" alt="QR-код Telegram-канала" class="ad-qr">
+            </div>
+            <p class="ad-hint" id="adHint">
+                Закрыть можно через
+                <b id="adCountdown">20</b>
+                сек.
+            </p>
+            <button id="adClaimBtn" class="btn glass green" disabled>Подождите...</button>
+            <a
+                href="https://t.me/aitebetashstar"
+                target="_blank"
+                rel="noopener"
+                class="ad-link"
+            >Открыть в Telegram</a>
         </div>
     </div>
     <script src="app.js"></script>

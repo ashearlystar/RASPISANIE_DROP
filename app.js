@@ -831,7 +831,7 @@ function renderSkinInventory() {
 }
 $("#feedBtn").onclick = async () => {
   if (telCheck()) return setMsg("#telMsg", "warning", "Телифон умер. Сначала воскреси его", "✕");
-    if (tele.last === today()) return setMsg("#telMsg", "info", "Телифон уже сыт. Возвращайся завтра", "✦", 3000);
+  if (tele.last === today()) return setMsg("#telMsg", "info", "Телифон уже сыт. Возвращайся завтра", "✦", 3000);
   const l = uniq(inv.filter(x => x.p === 3 && !x.x));
   if (!l.length) return setMsg("#telMsg", "warning", "Нужно полное читаемое расписание — собери или расшифруй в инвентаре", "!");
   const v = await choose("Чем кормим телифон?", l.map(e => ({ html: optHTML(e.it, e.n), val: e.it })));
@@ -1030,7 +1030,7 @@ function spawnFloatCoin(x, y) {
   c.style.left = x + "px";
   c.style.top = y + "px";
   c.style.setProperty("--dx", (Math.random() - 0.5) * 60 + "px");
-  c.innerHTML = '<img src="assets/coin.svg" alt="">';
+  c.innerHTML = '<img src="assets/icons/coin.svg" alt="">';
   document.body.append(c);
   setTimeout(() => c.remove(), 950);
 }
@@ -1414,3 +1414,89 @@ if (st.group && !store.get("welcomeShown", false)) {
   setTimeout(() => showWelcome(), 600);
 }
 document.body.classList.toggle("has-group", !!st.group);
+
+/* ================= FOOTER ================= */
+(function mountFooters() {
+  const tpl = document.getElementById('siteFooter');
+  if (!tpl) return;
+  const html = tpl.outerHTML.replace(' hidden', '');
+  const targets = [
+    'inventory', 'upgrader', 'contracts', 'telifon', 'profile', 'settings',
+    'cases', 'spin', 'result', 'collectionOpening', 'collectionResult'
+  ];
+  targets.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.insertAdjacentHTML('beforeend', html);
+  });
+  tpl.remove();
+})();
+
+/* ================= AD ("реклама") ================= */
+const AD_DURATION_MS = 20000;
+const AD_REWARD = 100;
+
+function openAdModal() {
+  const modal = $("#adModal");
+  if (!modal) return;
+
+  // Если таймер ещё не запускался — запускаем и сохраняем момент старта.
+  // Если уже запускался (например, пользователь перезагрузил страницу) — продолжаем с того же места.
+  let startedAt = store.get("adStartedAt", 0);
+  if (!startedAt) {
+    startedAt = Date.now();
+    store.set("adStartedAt", startedAt);
+  }
+
+  modal.classList.add("open");
+
+  const closeBtn = $("#adModalClose");
+  const claimBtn = $("#adClaimBtn");
+  const hint = $("#adHint");
+  const countdownEl = $("#adCountdown");
+
+  closeBtn.disabled = true;
+  claimBtn.disabled = true;
+  claimBtn.textContent = "Подождите...";
+  hint.innerHTML = 'Закрыть можно через <b id="adCountdown">20</b> сек.';
+  const cd = $("#adCountdown");
+
+  const tick = () => {
+    if (!modal.classList.contains("open")) return;
+    const elapsed = Date.now() - startedAt;
+    const remaining = Math.max(0, Math.ceil((AD_DURATION_MS - elapsed) / 1000));
+    if (cd) cd.textContent = remaining;
+    if (remaining <= 0) {
+      closeBtn.disabled = false;
+      claimBtn.disabled = false;
+      claimBtn.textContent = `Забрать +${AD_REWARD} шышиш`;
+      hint.innerHTML = "Реклама досмотрена. Забирай награду!";
+      return;
+    }
+    setTimeout(tick, 250);
+  };
+  tick();
+}
+
+function closeAdModal() {
+  $("#adModal").classList.remove("open");
+}
+
+function claimAd() {
+  const btn = $("#adClaimBtn");
+  if (btn.disabled) return;
+  coins += AD_REWARD;
+  store.set("adStartedAt", 0); // сбрасываем, следующий раз — новые 20 сек
+  save();
+  closeAdModal();
+  setMsg("#telMsg", "success", `+${AD_REWARD} шышиш! Спасибо за поддержку`, "✦", 3000);
+}
+
+$("#adBtn").onclick = openAdModal;
+$("#adModalClose").onclick = () => {
+  if ($("#adModalClose").disabled) return;
+  closeAdModal();
+};
+$("#adClaimBtn").onclick = claimAd;
+$("#adModal").onclick = (e) => {
+  if (e.target.id === "adModal" && !$("#adModalClose").disabled) closeAdModal();
+};
