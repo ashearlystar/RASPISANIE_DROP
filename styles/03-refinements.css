@@ -4005,3 +4005,11 @@ body.info-hidden .info-btn {
 .bar-in button:not(.active) img {
     filter: saturate(0.7) brightness(0.8);
 }
+
+/* Hide info button on result screens (nothing to explain there) */
+@supports selector(:has(*)) {
+  body:has(#result.active) .info-btn,
+  body:has(#collectionResult.active) .info-btn {
+    display: none !important;
+  }
+}
