@@ -4507,17 +4507,6 @@ body.info-hidden .info-btn {
     pointer-events: none;
 }
 
-/* ===== Gap между числом и "шышиш" ===== */
-#wallet .currency-label {
-    margin-left: 3px;
-}
-
-@media (max-width: 480px) {
-    #wallet .currency-label {
-        margin-left: 4px;
-    }
-}
-
 #wallet .ad-btn {
     width: 24px !important;
     height: 24px !important;
@@ -4550,25 +4539,27 @@ body.info-hidden .info-btn {
     }
 }
 
-/* Разрешаем кошельку быть шире, чтобы влезли цифры + кнопка */
-@media (max-width: 820px) {
-    #wallet {
-        max-width: 180px !important;
-    }
+/* Принудительно заставляем кошелек расти под контент, убираем сжатие */
+#wallet {
+    max-width: none !important;
+    /* снимаем лимит 128px */
+    width: max-content !important;
+    /* ширина ровно по контенту */
+    min-width: max-content !important;
 }
 
-/* Запрещаем сжимать текст и добавляем явный отступ */
-#wallet #coins,
-#wallet .currency-label {
+/* Запрещаем сжимать элементы внутри */
+#wallet>* {
     flex-shrink: 0 !important;
 }
 
-#wallet #coins {
-    margin-right: 4px;
-}
+@media (max-width: 820px) {
 
-@media (max-width: 480px) {
-    #wallet #coins {
-        margin-right: 5px;
+    /* Запрещаем flexbox сжимать контент в кейсах и результатах */
+    #spin>*,
+    #result>*,
+    #collectionOpening>*,
+    #collectionResult>* {
+        flex-shrink: 0 !important;
     }
 }
