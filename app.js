@@ -39,7 +39,7 @@ const SKINS = [
 // chances — относительные веса; они автоматически нормализуются при открытии кейса.
 const COLLECTION_CASES = [
   {
-    id: "halloween-2026", name: "HALLOWEEN 2026 COLLECTION", price: 7, image: "assets/telifon.png", rewards: [
+    id: "halloween-2026", name: "HALLOWEEN 2026 COLLECTION", price: 7, image: "assets/HALLOWEEN 2026/telifon_vamp.png", rewards: [
       { id: "h26-1", name: "Призрак", img: "assets/HALLOWEEN 2026/telifon_ghost.png", chance: 79, description: "Бу-у-у! Испугался?! А это обыкновенный телифон!" },
       { id: "h26-2", name: "Крик", img: "assets/HALLOWEEN 2026/telifon_scream.png", chance: 15, description: "Где-то я эту маску уже видел..." },
       { id: "h26-3", name: "Слэшер", img: "assets/HALLOWEEN 2026/telifon_slasher.png", chance: 5, description: "Телифон хоккеист! А, может и не хоккеист..." },
@@ -47,14 +47,14 @@ const COLLECTION_CASES = [
     ]
   },
   {
-    id: "new-year-2026", name: "NEW YEAR EVE 2026 COLLECTION", price: 7, image: "assets/telifon.png", rewards: [
+    id: "new-year-2026", name: "NEW YEAR EVE 2026 COLLECTION", price: 7, image: "assets/NEW YEAR EVE 2026/telifon_new-year.png", rewards: [
       { id: "ny26-1", name: "Олененок", img: "assets/NEW YEAR EVE 2026/telifon_deer.png", chance: 15, description: "Милый телифон с рогами." },
       { id: "ny26-2", name: "Эльф", img: "assets/NEW YEAR EVE 2026/telifon_elf.png", chance: 80, description: "Один из тех, кто помогает Санте делать игрушки-телифоны." },
       { id: "ny26-3", name: "Праздничный", img: "assets/NEW YEAR EVE 2026/telifon_new-year.png", chance: 5, description: "Бр-р-р... Он, конечно, нарядный, но черт его возьми, как ему не холодно?!" },
     ]
   },
   {
-    id: "jobs", name: "JOBS COLLECTION", price: 3, image: "assets/telifon.png", rewards: [
+    id: "jobs", name: "JOBS COLLECTION", price: 3, image: "assets/JOBS/telifon_rap.png", rewards: [
       { id: "jobs-1", name: "Космонавт", img: "assets/JOBS/telifon_cosmonaut.png", chance: 40, description: "Мечта многих в детстве, но только телифон смог воплотить ее в реальность!" },
       { id: "jobs-2", name: "Офисный работник", img: "assets/JOBS/telifon_employee.png", chance: 39, description: "Офисный работник. Ничего необычного. Скучен. Скучно. Скукота." },
       { id: "jobs-3", name: "Хакер", img: "assets/JOBS/telifon_hacker.png", chance: 5, description: "PENTAGON DESTROYER." },
@@ -63,7 +63,7 @@ const COLLECTION_CASES = [
     ]
   },
   {
-    id: "valentines", name: "VALENTINE'S DAY COLLECTION", price: 3, image: "assets/telifon.png", rewards: [
+    id: "valentines", name: "VALENTINE'S DAY COLLECTION", price: 3, image: "assets/VALENTINES DAY/telifon_rose.png", rewards: [
       { id: "val-1", name: "Ангел", img: "assets/VALENTINES DAY/telifon_angel.png", chance: 15, description: "Нимб над головою и сила божья." },
       { id: "val-2", name: "Разбитое сердце", img: "assets/VALENTINES DAY/telifon_broken-heart.png", chance: 15, description: "Даже телифону можно разбить сердце. Жалко красавчика." },
       { id: "val-3", name: "Тортик", img: "assets/VALENTINES DAY/telifon_cake.png", chance: 32, description: "Какой он вкусный! Попробуй!" },
@@ -76,7 +76,7 @@ const COLLECTION_CASES = [
     ]
   },
   {
-    id: "cosplay", name: "COSPLAY COLLECTION", price: 3, image: "assets/telifon.png", rewards: [
+    id: "cosplay", name: "COSPLAY COLLECTION", price: 3, image: "assets/COSPLAY/telifon_kaneki.png", rewards: [
       { id: "cos-1", name: "Американский", img: "assets/COSPLAY/telifon_capt-am.png", chance: 5, description: "Откуда он такой сбежал?" },
       { id: "cos-2", name: "Киберпанк", img: "assets/COSPLAY/telifon_cyberpunk.png", chance: 1, description: "Он реально хочет остаться в твоем инвентаре." },
       { id: "cos-3", name: "Зеленый монстр", img: "assets/COSPLAY/telifon_hulk.png", chance: 5, description: "Телифон крушить-ломать!" },
@@ -91,7 +91,7 @@ const COLLECTION_CASES = [
     ]
   },
   {
-    id: "repaint", name: "REPAINT COLLECTION", price: 1, image: "assets/telifon.png", rewards: [
+    id: "repaint", name: "REPAINT COLLECTION", price: 1, image: "assets/REPAINT/telifon_north-glow.png", rewards: [
       { id: "rep-1", name: "Голографический", img: "assets/REPAINT/telifon_hologram.png", chance: 5, description: "Телифон проецирует себя на твой экран. Да пребудет с тобой телифон!" },
       { id: "rep-2", name: "Мраморный градиент", img: "assets/REPAINT/telifon_marble-fade.png", chance: 15, description: "Мраморный узор с плавным переходом цветов. Классика, которая не выходит из моды." },
       { id: "rep-3", name: "Северное сияние", img: "assets/REPAINT/telifon_north-glow.png", chance: 1, description: "Глядя на северное сияние ты начинаешь соединять звезды, где столь прекрасное свечение и есть цвет некой фигуры. Получившийся результат и есть телифон." },
@@ -100,7 +100,7 @@ const COLLECTION_CASES = [
     ]
   },
   {
-    id: "devs", name: "DEVS COLLECTION", price: 3, image: "assets/telifon.png", rewards: [
+    id: "devs", name: "DEVS COLLECTION", price: 3, image: "assets/DEVS/telifon_sanya.png", rewards: [
       { id: "dev-1", name: "Влад", img: "assets/DEVS/telifon_vova.png", chance: 54, description: "Самый умный человек в очках." },
       { id: "dev-2", name: "Арслан", img: "assets/DEVS/telifon_arslan.png", chance: 54, description: "Буткаты и казаки, вот в чем кайф." },
       { id: "dev-3", name: "Саня", img: "assets/DEVS/telifon_sanya.png", chance: 1, description: "В ожидании дембеля. Держись, друн." }
