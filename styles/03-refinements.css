@@ -4563,3 +4563,24 @@ body.info-hidden .info-btn {
         flex-shrink: 0 !important;
     }
 }
+
+@media (max-width: 820px) {
+
+    /* Запрещаем сжимать панель с расписанием/скином */
+    #result .panel,
+    #collectionResult .panel {
+        flex-shrink: 0 !important;
+        min-height: max-content !important;
+        /* панель растягивается под контент */
+        max-height: none !important;
+        /* убираем любые ограничения высоты */
+    }
+
+    /* Внутренний список не должен создавать свой скролл */
+    #result .panel .lesson-list,
+    #collectionResult .panel .lesson-list,
+    #collectionResultPanel {
+        overflow: visible !important;
+        max-height: none !important;
+    }
+}
