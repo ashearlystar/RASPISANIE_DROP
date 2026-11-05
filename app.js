@@ -132,6 +132,12 @@ const st = {
 let rounds = store.get("rounds", {});     // one independent chest per day: {list, rar, dropped}
 let cur = null;                           // chest of the case that is open now
 let collectionDropped = store.get("collectionDropped", {});   // { caseId: [skinIds] }
+
+// collection roulette state — must be declared before showTab (TDZ)
+let colSpinId = 0, colSpinning = false, colWinner = null;
+let colCards = [], colFastSpin = false, colCurrentCase = null;
+const COL_N = 70, COL_START = 4, COL_WIN = 58;
+
 let inv = store.get("inv", []), coins = store.get("coins", 100);
 const tele = Object.assign({ coins: 0, last: "", skins: ["default"], skin: "default", name: "" }, store.get("tele", {}));
 if (!Array.isArray(tele.skins)) tele.skins = [];
@@ -143,6 +149,22 @@ const save = () => {
   document.body.classList.toggle("has-group", !!st.group);
 };
 const say = (id, t) => $(id).textContent = t;
+const autoMsgTimers = {};
+function setMsg(sel, type, text, icon = "✦", ms = 0) {
+  const el = $(sel);
+  if (!el) return;
+  if (autoMsgTimers[sel]) { clearTimeout(autoMsgTimers[sel]); autoMsgTimers[sel] = null; }
+  el.innerHTML = `<span class="msg-badge ${type}"><span class="msg-icon">${icon}</span>${text}</span>`;
+  if (ms > 0) {
+    autoMsgTimers[sel] = setTimeout(() => {
+      const badge = el.querySelector(".msg-badge");
+      if (badge) {
+        badge.classList.add("is-fading");
+        setTimeout(() => { if (el.contains(badge)) el.innerHTML = ""; }, 300);
+      }
+    }, ms);
+  }
+}
 const fmt = x => (Math.round(x * 10000) / 100).toString().replace(".", ",") + "%";
 const rnd = n => Math.floor(Math.random() * n);
 function roundKey(d, deptId = activeDept) { return `${deptId}:${d}`; }
@@ -320,11 +342,14 @@ function choose(title, opts, desc = "", previewImg = "") {
   });
 }
 /* ================= NAVIGATION ================= */
+/* ================= NAVIGATION ================= */
 let spinId = 0, spinning = false, curIdx = 0, winner = null, part = 0;
 function showTab(tab) {
   colSpinId++;
   colSpinning = false;
   document.body.classList.toggle("info-hidden", tab === "settings");
+  document.body.classList.remove("result-active");
+  if (tab !== "upgrader" && upWheelCancel) upWheelCancel();
   $("#collectionOpening")?.classList.remove("active");
   $("#collectionResult")?.classList.remove("active");
   $$(".screen").forEach(s => s.classList.toggle("active", s.id === tab));
@@ -456,11 +481,17 @@ function place(scroll) {
   }
 }
 function openCase(i, deptId = activeDept, autoSpin = false) {
-  if (autoSpin && coins < 10) { say("#resultNote", "Не хватает шышиш — потапай на телифон, чтобы получить ещё."); return; }
+  if (autoSpin && coins < 10) { setMsg("#resultNote", "warning", "Не хватает шышиш — потапай на телифон, чтобы получить ещё", "!"); return; }
   activeDept = deptId; curIdx = i; cur = R(i, deptId);
   if (!poolList().length) cur = newRound(i, activeDept);
   winner = pickWinner(); const nd = needParts(winner, i); part = nd[rnd(nd.length)];
   say("#spinLabel", `${deptById(deptId).name} · ${DAYS[i][1]}`);
+  $("#spinNote").innerHTML = "";
+  if (coins < 10) {
+    setMsg("#spinNote", "warning", "Не хватает шышиш — потапай на телифон, чтобы получить ещё", "!");
+  } else {
+    $("#spinNote").innerHTML = "";
+  }
   $("#spinBtn").disabled = coins < 10;
   btn.disabled = coins < 10; spinning = false;
   setSpinBtnText("Открыть кейс");
@@ -491,7 +522,11 @@ function spin() {
 }
 btn.onclick = () => {
   if (spinning) return;
-  if (coins < 10) { say("#spinLabel", "Не хватает шышиш · потапай на телифон, чтобы получить ещё"); return; }
+  if (coins < 10) {
+    setMsg("#spinNote", "warning", "Не хватает шышиш — потапай на телифон, чтобы получить ещё", "!");
+    return;
+  }
+  $("#spinNote").innerHTML = "";
   spin();
 };
 function setSpinBtnText(text, withPrice = true) {
@@ -505,10 +540,7 @@ $("#fastSpinBtn").onclick = () => {
   $("#fastSpinBtn").classList.toggle("green", fastSpin);
 };
 $("#resultBackCase").onclick = () => {
-  spinning = false;
-  btn.disabled = false;
-  setSpinBtnText("Открыть кейс");
-  showStage("spin");
+  openCase(curIdx, activeDept, false);
 };
 $("#resultSpinAgain").onclick = () => openCase(curIdx, activeDept, true);
 function finish() {
@@ -590,11 +622,17 @@ async function itemMenu(it) {
 }
 /* ================= UPGRADER ================= */
 let upSrc = null, upDst = null, upBusy = false;
+let upWheelCancel = null;
+let upLastMsg = "";
 function upChance(s, t) {
   const d = RI[t] - RI[s];
   return Math.max(0, 1 - .24 - (d > 0 ? .25 * d : 0) - (FIX[t] || 0) * .75);
 }
-function resetUp() { upSrc = upDst = null; upBusy = false; paintUp(); say("#upMsg", ""); }
+function resetUp() {
+  if (upWheelCancel) upWheelCancel();
+  upSrc = upDst = null; upBusy = false; paintUp();
+  $("#upMsg").innerHTML = upLastMsg;
+}
 function paintUp() {
   const s = $("#upSrc"), d = $("#upDst");
   s.innerHTML = upSrc ? inner(upSrc, 1) : "+"; s.style.setProperty("--c", upSrc ? COL[upSrc.r] : "");
@@ -610,14 +648,21 @@ function paintUp() {
 }
 $("#upSrc").onclick = async () => {
   if (upBusy) return;
-  const l = uniq(inv.filter(x => x.p === 3 && !x.x));
-  if (!l.length) return say("#upMsg", "Нет полных расписаний — собери 3 части в инвентаре");
+  const l = uniq(inv.filter(x => x.p === 3 && !x.x && x.r !== "legendary"));
+  if (!l.length) return setMsg("#upMsg", "warning", "Нет подходящих расписаний (Common, Rare, Mythic)", "!");
   const v = await choose("Что улучшаем?", l.map(e => ({ html: optHTML(e.it, e.n), val: e.it })));
-  if (v) { upSrc = v; upDst = null; paintUp(); }
+  if (v) {
+    upSrc = v; upDst = null;
+    upLastMsg = "";
+    $("#upMsg").innerHTML = "";
+    const orbit = $("#ptrOrbit");
+    if (orbit) { orbit.style.transition = "none"; orbit.style.transform = "rotate(0deg)"; }
+    paintUp();
+  }
 };
 $("#upDst").onclick = async () => {
   if (upBusy) return;
-  if (!upSrc) return say("#upMsg", "Сначала выбери расписание");
+  if (!upSrc) return setMsg("#upMsg", "warning", "Сначала выбери расписание", "!");
   const rr = R(upSrc.d, deptForGroup(upSrc.g).id), l = rr.list.filter(g => !(upSrc.r === "legendary" && rr.rar[g] === "legendary"));
   const v = await choose("Что хотим получить?", l.map(g => ({ html: `<span style="color:${COL[rr.rar[g]]}">${g}</span><small>${RN[rr.rar[g]]}</small>`, val: g })));
   if (v) { upDst = v; paintUp(); }
@@ -627,36 +672,54 @@ function spinWheel(roll) {
     const t0 = performance.now(), duration = 4600, turns = 5, end = 360 * turns + roll * 360;
     const orbit = $("#ptrOrbit");
     if (!orbit) { setTimeout(resolve, 100); return; }
+
+    upWheelCancel = () => {
+      if (orbit) {
+        orbit.style.transition = "none";
+        orbit.style.transform = `rotate(${end}deg)`;   // прыжок в финальный угол
+      }
+      upWheelCancel = null;
+      resolve();
+    };
+
     orbit.style.transition = "none"; orbit.style.transform = "rotate(0deg)";
     requestAnimationFrame(() => requestAnimationFrame(() => {
       (function frame(now) {
+        if (!upWheelCancel) return;                    // цикл прерван — выходим
         const p = Math.min(1, (now - t0) / duration), angle = ease(p) * end;
         orbit.style.transform = `rotate(${angle}deg)`;
         if (p < 1) requestAnimationFrame(frame);
-        else setTimeout(resolve, 300);
+        else {
+          upWheelCancel = null;
+          setTimeout(resolve, 300);
+        }
       })(performance.now());
     }));
   });
 }
 $("#upGo").onclick = async () => {
   if (upBusy) return;
-  if (!upSrc || !upDst) return say("#upMsg", "Выбери расписание и цель");
+  if (!upSrc || !upDst) return setMsg("#upMsg", "warning", "Выбери расписание и цель", "!");
   const tr = R(upSrc.d, deptForGroup(upSrc.g).id).rar[upDst];
-  if (upSrc.r === "legendary" && tr === "legendary") return say("#upMsg", "Legendary → Legendary нельзя");
-  upBusy = true; say("#upMsg", "");
+  if (upSrc.r === "legendary" && tr === "legendary") return setMsg("#upMsg", "warning", "Legendary → Legendary нельзя", "✕");
+  upBusy = true; upLastMsg = ""; $("#upMsg").innerHTML = "";
   const c = upChance(upSrc.r, tr), roll = Math.random(), src = upSrc, dst = upDst;
   take(src); save();
   await spinWheel(roll);
   const ok = roll < c;
   if (ok) inv.push({ g: dst, d: src.d, r: tr, p: 3 });
-  save(); say("#upMsg", ok ? "Успех! Расписание в инвентаре" : "Неудача — расписание сгорело");
+  save();
+  upLastMsg = ok
+    ? `<span class="msg-badge success"><span class="msg-icon">✦</span>Успех! Расписание в инвентаре</span>`
+    : `<span class="msg-badge fail"><span class="msg-icon">✕</span>Неудача — расписание сгорело</span>`;
+  $("#upMsg").innerHTML = upLastMsg;
   upSrc = upDst = null; upBusy = false; paintUp();
 };
 /* ================= CONTRACTS ================= */
 let ctSel = null, signed = false, drawing = false;
 const sig = $("#sig"), cx = sig.getContext("2d"), INK = "#26336f";
 function clearSig() { cx.clearRect(0, 0, sig.width, sig.height); signed = false; }
-function resetCt() { ctSel = null; clearSig(); paintCt(); say("#ctMsg", ""); say("#sigLbl", "Ваша подпись"); }
+function resetCt() { ctSel = null; clearSig(); paintCt(); $("#ctMsg").innerHTML = ""; say("#sigLbl", "Ваша подпись"); }
 function paintCt() {
   $("#ctSlots").innerHTML = Array.from({ length: 10 }, () =>
     `<div class="glass mini"${ctSel ? ` style="--c:${COL[ctSel.r]}"` : ""}>${ctSel ? inner(ctSel, 1) : ""}</div>`).join("");
@@ -665,9 +728,9 @@ function paintCt() {
 }
 $("#ctPick").onclick = async () => {
   const l = uniq(inv.filter(x => x.p === 3 && !x.x && NEXT[x.r])).filter(e => e.n >= 10);
-  if (!l.length) return say("#ctMsg", "Нужно 10 одинаковых полных расписаний (Common или Rare)");
+  if (!l.length) return setMsg("#ctMsg", "warning", "Нужно 10 одинаковых полных расписаний (Common или Rare)", "!");
   const v = await choose("10 одинаковых расписаний", l.map(e => ({ html: optHTML(e.it, e.n), val: e.it })));
-  if (v) { ctSel = v; paintCt(); say("#ctMsg", ""); }
+  if (v) { ctSel = v; paintCt(); $("#ctMsg").innerHTML = ""; }
 };
 const pos = e => {
   const r = sig.getBoundingClientRect(); return [(e.clientX - r.left) * sig.width / r.width, (e.clientY - r.top) * sig.height / r.height,
@@ -687,12 +750,12 @@ sig.onpointermove = e => {
 sig.onpointerup = sig.onpointercancel = () => drawing = false;
 $("#sigClear").onclick = clearSig;
 $("#ctGo").onclick = () => {
-  if (!ctSel) return say("#ctMsg", "Сначала выбери расписания");
-  if (!signed) return say("#ctMsg", "Поставь подпись — хотя бы точку");
+  if (!ctSel) return setMsg("#ctMsg", "warning", "Сначала выбери расписания", "!");
+  if (!signed) return setMsg("#ctMsg", "warning", "Поставь подпись — хотя бы точку", "!");
   take(ctSel, 10);
   const it = { g: ctSel.g, d: rnd(DAYS.length), r: NEXT[ctSel.r], p: 3 };
   inv.push(it); save(); resetCt();
-  say("#ctMsg", `Получено: ${label(it)} (${RN[it.r]})`);
+  $("#ctMsg").innerHTML = `<span class="msg-badge reward"><span class="msg-icon">✦</span>Получено: <b style="color:${COL[it.r]}">${esc(label(it))} (${RN[it.r]})</b></span>`;
 };
 let seq = "";
 addEventListener("keydown", e => {
@@ -720,7 +783,11 @@ function renderTele() {
   const nm = tele.name.trim() || "Телифон", ps = $("#petStatus"), stt = dead ? "dead" : fed ? "fed" : "hungry";
   $("#petNameInput").value = tele.name; ps.textContent = "• " + { dead: "мертв", fed: "сыт", hungry: "голоден" }[stt]; ps.dataset.s = stt;
   say("#petHint", dead ? `${nm} умер: ты не кормил его целый день, телифокоины сгорели. Воскреси за ${REVIVE_COST} шышиш` : fed ? `${nm} сыт. Приходи завтра — снова будет голоден` : `${nm} голоден! Покорми его любым полным расписанием`);
-  say("#teleCoins", tele.coins); renderCollectionCases(); $("#feedBtn").disabled = fed; $("#feedBtn").style.display = dead ? "none" : ""; $("#reviveBtn").style.display = dead ? "" : "none"; say("#chestBtn", "Коллекции кейсов");
+  say("#teleCoins", tele.coins); renderCollectionCases(); $("#feedBtn").disabled = false;
+  $("#feedBtn").classList.toggle("is-fed", fed);
+  $("#feedBtn").textContent = fed ? "Уже сыт" : "Покормить";
+  $("#feedBtn").style.display = dead ? "none" : "";
+  $("#reviveBtn").style.display = dead ? "" : "none"; say("#chestBtn", "Коллекции кейсов");
   renderSkinInventory();
 }
 function renderSkinInventory() {
@@ -765,13 +832,13 @@ function renderSkinInventory() {
   $("#skinSortReverse").onclick = () => { skinFilters.reverse = !skinFilters.reverse; renderSkinInventory(); };
 }
 $("#feedBtn").onclick = async () => {
-  if (telCheck()) return say("#telMsg", "Телифон умер. Сначала воскреси его");
-  if (tele.last === today()) return say("#telMsg", "Телифон уже сыт. Возвращайся завтра!");
+  if (telCheck()) return setMsg("#telMsg", "warning", "Телифон умер. Сначала воскреси его", "✕");
+    if (tele.last === today()) return setMsg("#telMsg", "info", "Телифон уже сыт. Возвращайся завтра", "✦", 3000);
   const l = uniq(inv.filter(x => x.p === 3 && !x.x));
-  if (!l.length) return say("#telMsg", "Нужно полное читаемое расписание — собери или расшифруй его в инвентаре");
+  if (!l.length) return setMsg("#telMsg", "warning", "Нужно полное читаемое расписание — собери или расшифруй в инвентаре", "!");
   const v = await choose("Чем кормим телифон?", l.map(e => ({ html: optHTML(e.it, e.n), val: e.it })));
   if (!v) return;
-  take(v); tele.coins += FEED_REWARD; tele.last = today(); save(); renderTele(); say("#telMsg", `Ням! +${FEED_REWARD} телифокоин`);
+  take(v); tele.coins += FEED_REWARD; tele.last = today(); save(); renderTele(); setMsg("#telMsg", "success", `Ням! +${FEED_REWARD} телифокоин`, "✦");
 };
 function renderCollectionCases() {
   const host = $("#collectionCases");
@@ -810,9 +877,6 @@ $("#collectionCases").addEventListener("keydown", e => {
 });
 
 /* ================= COLLECTION CASE OPENING (roulette) ================= */
-let colSpinId = 0, colSpinning = false, colWinner = null;
-let colCards = [], colFastSpin = false, colCurrentCase = null;
-const COL_N = 70, COL_START = 4, COL_WIN = 58;
 
 function colTrackMetrics() {
   const track = $("#collectionOpenTrack");
@@ -945,10 +1009,6 @@ function colFinish() {
   ${wasReset ? `<p class="collection-result-note">✦ Все Common выпали — кейс обновлён</p>` : ""}
 `;
 
-  $("#collectionOpenHint").textContent = wasReset
-    ? `Выпал скин «${reward.name}»! Все Common выпали — кейс обновлён.`
-    : `Выпал скин «${reward.name}»!`;
-
   const btn = $("#collectionOpenBtn");
   btn.innerHTML = `<span class="btn-star">✦</span><span class="btn-main">Открыть ещё раз<small>за ${c.price} телифокоинов</small></span>`;
   btn.disabled = tele.coins < c.price;
@@ -979,7 +1039,7 @@ function spawnFloatCoin(x, y) {
 
 $("#pet").onclick = e => {
   const now = Date.now();
-  if (now - lastTapAt < TAP_COOLDOWN) { say("#telMsg", "Не так быстро! Подожди мгновение."); return; }
+  if (now - lastTapAt < TAP_COOLDOWN) { setMsg("#telTapMsg", "warning", "Не так быстро! Подожди мгновение", "!", 1000); return; }
   lastTapAt = now; coins += 1;
 
   spawnFloatCoin(e.clientX, e.clientY);
@@ -990,13 +1050,13 @@ $("#pet").onclick = e => {
   pet.classList.add("tap-pop");
   setTimeout(() => pet.classList.remove("tap-pop"), 260);
 
-  save(); renderTele(); say("#telMsg", "+1 шышиш за нажатие!");
+  save(); renderTele(); setMsg("#telTapMsg", "success", "+1 шышиш", "✦", 1000);
 };
 
 $("#reviveBtn").onclick = async () => {
-  if (coins < REVIVE_COST) return say("#telMsg", `Нужно ${REVIVE_COST} шышиш, у тебя ${coins}`);
+  if (coins < REVIVE_COST) return setMsg("#telMsg", "warning", `Нужно ${REVIVE_COST} шышиш, у тебя ${coins}`, "!");
   if (!await choose(`Воскресить телифон за ${REVIVE_COST} шышиш?`, [{ html: "Воскресить", val: 1 }])) return;
-  coins -= REVIVE_COST; tele.last = ""; tele.born = today(); save(); renderTele(); say("#telMsg", "Телифон ожил! Корми его хотя бы раз в день");
+  coins -= REVIVE_COST; tele.last = ""; tele.born = today(); save(); renderTele(); setMsg("#telMsg", "success", "Телифон ожил! Корми его хотя бы раз в день", "✦");
 };
 $("#skinGrid").onclick = async e => {
   const b = e.target.closest("[data-id]"); if (!b) return;
@@ -1053,8 +1113,8 @@ function showCollectionOpening(id) {
   stage.dataset.case = id;
   $("#collectionOpenTitle").textContent = c.name;
 
+  const available = ensureCollectionPool(c);
   const dropped = collectionDropped[c.id] || [];
-  const available = c.rewards.filter(r => !dropped.includes(r.id));
   const sorted = [...c.rewards].sort((a, b) => (RI[a.rarity] ?? 99) - (RI[b.rarity] ?? 99));
   $("#collectionOpenDrops").innerHTML = sorted.map(r => {
     const gone = dropped.includes(r.id);
@@ -1062,7 +1122,11 @@ function showCollectionOpening(id) {
   }).join("");
   $("#collectionDropCount").textContent = `${String(available.length).padStart(2, "0")} ДОСТУПНО`;
 
-  $("#collectionOpenHint").textContent = tele.coins < c.price ? "Покорми телифон полным расписанием, чтобы получить телифокоины." : "";
+  if (tele.coins < c.price) {
+    setMsg("#collectionOpenHint", "warning", "Покорми телифон полным расписанием, чтобы получить телифокоины", "!");
+  } else {
+    $("#collectionOpenHint").innerHTML = "";
+  }
   const btn = $("#collectionOpenBtn");
   btn.innerHTML = `<span class="btn-star">✦</span><span class="btn-main">Открыть коллекцию<small>за ${c.price} телифокоинов</small></span>`;
   btn.disabled = tele.coins < c.price || available.length === 0;
@@ -1094,17 +1158,18 @@ $("#collectionOpenBtn").onclick = () => {
   const c = COLLECTION_CASES.find(x => x.id === stage.dataset.case);
   if (!c || colSpinning) return;
   if (tele.coins < c.price) {
-    $("#collectionOpenHint").textContent = "Покорми телифон полным расписанием, чтобы получить телифокоины.";
+    setMsg("#collectionOpenHint", "warning", "Покорми телифон полным расписанием, чтобы получить телифокоины", "!");
     return;
   }
   colCurrentCase = c;
+  ensureCollectionPool(c);
   colWinner = pickColWinner(c.rewards, c.id);
   if (!colWinner) {
-    $("#collectionOpenHint").textContent = "Все скины уже выпали. Кейс обновится, когда выпадут все Common.";
+    setMsg("#collectionOpenHint", "warning", "Все скины уже выпали. Кейс обновится, когда выпадут все Common", "!");
     return;
   }
   setColWinnerCard(colWinner);
-  $("#collectionOpenHint").textContent = "";
+  $("#collectionOpenHint").innerHTML = "";
   const btn = $("#collectionOpenBtn");
   btn.innerHTML = '<span class="btn-star">✦</span><span class="btn-main">Открытие...</span>';
   btn.disabled = true;
@@ -1121,6 +1186,17 @@ function recordColDrop(caseId, skinId, rewards) {
   const allCommonsDropped = commons.length > 0 && commons.every(r => collectionDropped[caseId].includes(r.id));
   if (allCommonsDropped) delete collectionDropped[caseId];    // сброс
   store.set("collectionDropped", collectionDropped);
+}
+
+function ensureCollectionPool(c) {
+  const dropped = collectionDropped[c.id] || [];
+  const available = c.rewards.filter(r => !dropped.includes(r.id));
+  if (available.length === 0 && c.rewards.length > 0) {
+    delete collectionDropped[c.id];
+    store.set("collectionDropped", collectionDropped);
+    return c.rewards;
+  }
+  return available;
 }
 
 $("#collectionResultBack").onclick = () => {

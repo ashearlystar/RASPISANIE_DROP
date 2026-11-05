@@ -120,6 +120,7 @@
                             расписание для твоей
                             коллекции
                             </span>
+                            <small id="spinNote" class="label small"></small>
                         </div>
                     </div>
                     <div class="roulette-shell">
@@ -254,15 +255,17 @@
                             <small id="petHint"></small>
                             <small class="tap-hint">
                                 Нажимай на телифон, чтобы
-                            получать +1 шышиш
+                                получать +1 шышиш
                             </small>
                         </div>
+                        <div id="telTapMsg"></div>
                         <div class="tele-wallet glass">
                             <span>Телифокоины</span>
                             <b id="teleCoins">0</b>
                         </div>
                         <button id="feedBtn" class="btn glass green small pet-action">Покормить</button>
                         <button id="reviveBtn" class="btn glass small pet-action" style="display:none">Воскресить</button>
+                        <div id="telMsg"></div>
                     </div>
                     <div class="pet-skins-panel glass">
                         <h3>
@@ -276,7 +279,6 @@
                     <button id="chestBtn" class="btn glass small">Коллекции кейсов</button>
                 </div>
             </div>
-            <p id="telMsg" class="label small"></p>
             <h2>Коллекции</h2>
             <div id="collectionCases" class="collection-cases"></div>
         </section>
@@ -296,8 +298,9 @@
                     <p id="collectionOpenTitle" class="label"></p>
                     <span class="case-open-subtitle">
                         Каждое открытие — новый
-                        скин для твоей коллекции
+        скин для твоей коллекции
                     </span>
+                    <p id="collectionOpenHint" class="label small"></p>
                 </div>
             </div>
             <div class="roulette-shell">
@@ -339,7 +342,6 @@
                 </div>
                 <div id="collectionOpenDrops" class="drops"></div>
             </div>
-            <p id="collectionOpenHint" class="label small"></p>
         </div>
         <div id="collectionResult" class="stage">
             <p id="collectionResultLabel" class="label"></p>

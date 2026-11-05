@@ -4008,8 +4008,261 @@ body.info-hidden .info-btn {
 
 /* Hide info button on result screens (nothing to explain there) */
 @supports selector(:has(*)) {
-  body:has(#result.active) .info-btn,
-  body:has(#collectionResult.active) .info-btn {
-    display: none !important;
-  }
+
+    body:has(#result.active) .info-btn,
+    body:has(#collectionResult.active) .info-btn {
+        display: none !important;
+    }
+}
+
+/* ===== Message badges (upgrader / contracts) ===== */
+#upMsg,
+#ctMsg {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.msg-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    text-align: center;
+    max-width: 100%;
+    box-sizing: border-box;
+    line-height: 1.4;
+    animation: msgBadgeIn .3s cubic-bezier(.2, .7, .2, 1);
+}
+
+.msg-badge .msg-icon {
+    font-size: 14px;
+    line-height: 1;
+    flex: none;
+}
+
+.msg-badge.success {
+    background: rgba(105, 230, 178, .14);
+    border: 1px solid rgba(105, 230, 178, .38);
+    color: #b6f5d8;
+}
+
+.msg-badge.success .msg-icon {
+    color: #69e6b2;
+}
+
+.msg-badge.fail {
+    background: rgba(241, 107, 125, .14);
+    border: 1px solid rgba(241, 107, 125, .38);
+    color: #ffbcc3;
+}
+
+.msg-badge.fail .msg-icon {
+    color: #f16b7d;
+}
+
+.msg-badge.reward {
+    background: rgba(255, 190, 100, .14);
+    border: 1px solid rgba(255, 190, 100, .35);
+    color: #ffdca1;
+}
+
+.msg-badge.reward .msg-icon {
+    color: #ffbe64;
+}
+
+@keyframes msgBadgeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .msg-badge {
+        animation: none;
+    }
+}
+
+/* ===== Fix shine artifact: #sig hover triggers repaint of #ctPick's ::before ===== */
+
+/* 1) Изолируем кнопку "Выбрать ×10" в собственный слой */
+#contracts #ctPick {
+    transform: translateZ(0);
+    will-change: transform;
+    contain: paint;
+    isolation: isolate;
+}
+
+/* 2) Жёстко клипим блик внутри кнопки */
+#contracts #ctPick::before {
+    will-change: transform, opacity;
+    contain: strict;
+    pointer-events: none;
+}
+
+/* 3) Изолируем поле подписи в отдельный слой, 
+      чтобы смена box-shadow при hover не вызывала repaint соседей */
+#contracts #sig {
+    transform: translateZ(0);
+    will-change: box-shadow, border-color;
+    contain: paint;
+}
+
+/* 4) Изолируем всю секцию контрактов от перерисовок фона */
+#contracts {
+    contain: paint;
+    isolation: isolate;
+}
+
+#contracts #ctPick.glass {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+/* ===== Message badge: warning / info variants ===== */
+.msg-badge.warning {
+    background: rgba(255, 190, 100, .14);
+    border: 1px solid rgba(255, 190, 100, .35);
+    color: #ffdca1;
+}
+
+.msg-badge.warning .msg-icon {
+    color: #ffbe64;
+}
+
+.msg-badge.info {
+    background: rgba(67, 200, 255, .12);
+    border: 1px solid rgba(67, 200, 255, .32);
+    color: #b6e8ff;
+}
+
+.msg-badge.info .msg-icon {
+    color: #43c8ff;
+}
+
+/* ===== Contracts order: pick → msg → slots ===== */
+#contracts>.big {
+    order: 0;
+}
+
+#contracts>#ctPick {
+    order: 1;
+}
+
+#contracts>#ctMsg {
+    order: 2;
+    width: 100%;
+    margin: 0;
+}
+
+#contracts>#ctSlots {
+    order: 3;
+}
+
+#contracts>.arrow {
+    order: 4;
+}
+
+#contracts>#ctOut {
+    order: 5;
+}
+
+#contracts>#sigLbl {
+    order: 6;
+}
+
+#contracts>#sig {
+    order: 7;
+}
+
+#contracts>.two {
+    order: 8;
+}
+
+/* ===== Message badge containers (spin / collection opening) ===== */
+
+#spin #spinNote {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0;
+    color: #a991b0;
+}
+
+#telTapMsg,
+#telMsg {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    margin: 10px 0;
+    min-height: 40px;
+    height: auto;
+    box-sizing: border-box;
+}
+
+#feedBtn.is-fed {
+    opacity: .7;
+    filter: saturate(.6);
+}
+
+.msg-badge.is-fading {
+    animation: msgBadgeOut .3s ease forwards;
+}
+
+@keyframes msgBadgeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+}
+
+/* ===== Reserved space for message badges (no layout jump) ===== */
+
+/* Spin / result / collection opening */
+#spin #spinNote,
+#collectionOpening #collectionOpenHint,
+#result #resultNote {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    min-height: 40px;
+    margin: 10px auto 0;
+    box-sizing: border-box;
+}
+
+/* Upgrader / Contracts */
+#upgrader #upMsg,
+#contracts #ctMsg {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 40px;
+    margin: 10px auto;
+    box-sizing: border-box;
 }
