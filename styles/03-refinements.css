@@ -4565,18 +4565,221 @@ body.info-hidden .info-btn {
 }
 
 #result .panel,
-    #collectionResult .panel {
-        flex-shrink: 0 !important;
-        min-height: max-content !important;
-        /* панель растягивается под контент */
-        max-height: none !important;
-        /* убираем любые ограничения высоты */
+#collectionResult .panel {
+    flex-shrink: 0 !important;
+    min-height: max-content !important;
+    /* панель растягивается под контент */
+    max-height: none !important;
+    /* убираем любые ограничения высоты */
+}
+
+/* Внутренний список не должен создавать свой скролл */
+#result .panel .lesson-list,
+#collectionResult .panel .lesson-list,
+#collectionResultPanel {
+    overflow: visible !important;
+    max-height: none !important;
+}
+
+/* ========================================= */
+/* ФИКС: СКРОЛЛ У КРАЯ + СТИЛЬ + ПАНЕЛЬ БЕЗ СКРОЛЛА */
+/* ========================================= */
+
+/* 1. Стиль скроллбара для коллекций (.stage) — как у .screen */
+.stage::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+}
+
+.stage::-webkit-scrollbar-thumb {
+    background: rgba(194, 120, 201, .28);
+    border-radius: 9px;
+}
+
+.stage::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.stage {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(194, 120, 201, .28) transparent;
+}
+
+/* 2. Панель расписания НЕ скроллится сама — растёт по контенту */
+#result .panel,
+#collectionResult .panel,
+#panel,
+#collectionResultPanel {
+    overflow: visible !important;
+    max-height: none !important;
+    flex-shrink: 0 !important;
+}
+
+/* 3. #spin / #result на всю ширину экрана, скроллбар у края */
+@media (min-width: 821px) {
+
+    #spin.stage.active,
+    #result.stage.active {
+        left: 0 !important;
+        right: 0 !important;
+        transform: none !important;
+        max-width: none !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding-left: clamp(24px, 4vw, 64px) !important;
+        padding-right: clamp(24px, 4vw, 64px) !important;
+        box-sizing: border-box !important;
     }
 
-    /* Внутренний список не должен создавать свой скролл */
-    #result .panel .lesson-list,
-    #collectionResult .panel .lesson-list,
-    #collectionResultPanel {
-        overflow: visible !important;
-        max-height: none !important;
+    /* Контент внутри центрируется, не расползается */
+    #spin>*:not(.site-footer),
+    #result>*:not(.site-footer) {
+        max-width: 980px !important;
+        width: 100%;
+        margin-left: auto !important;
+        margin-right: auto !important;
     }
+
+    #result>#panel {
+        max-width: 820px !important;
+    }
+}
+
+/* 4. #cases — на всю ширину экрана, скроллбар у края */
+#cases.home-stage.active {
+    max-width: none !important;
+    width: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+}
+
+/* Контент Главной по центру, чтобы не расползался */
+#cases>.case-zone {
+    max-width: 1400px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    width: 100%;
+}
+
+/* ========================================= */
+/* ФИНАЛЬНЫЙ ФИКС СКРОЛЛБАРА КОЛЛЕКЦИЙ       */
+/* ========================================= */
+
+/* 1. Принудительно растягиваем контейнеры коллекций на весь экран */
+@media (min-width: 821px) {
+
+    body #collectionOpening.stage.active,
+    body #collectionResult.stage.active {
+        position: absolute !important;
+        top: 0 !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        transform: none !important;
+        padding-left: clamp(24px, 4vw, 64px) !important;
+        padding-right: clamp(24px, 4vw, 64px) !important;
+        box-sizing: border-box !important;
+        overflow-y: auto !important;
+    }
+
+    /* 2. Контент внутри центрируем, чтобы он не расползался */
+    body #collectionOpening>*:not(.site-footer),
+    body #collectionResult>*:not(.site-footer) {
+        width: 100% !important;
+        max-width: 980px !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+    /* Панель результата чуть поуже, как и было */
+    body #collectionResult>#collectionResultPanel {
+        max-width: 820px !important;
+    }
+}
+
+/* 3. Убиваем внутренний скролл у панели результата нахуй */
+body #collectionResultPanel,
+body #collectionResult .panel,
+body #collectionOpening .panel {
+    max-height: none !important;
+    overflow: visible !important;
+    flex-shrink: 0 !important;
+}
+
+/* 4. Единый стиль скроллбара для stage (чтобы был тонкий и фиолетовый, как на вкладках) */
+.stage::-webkit-scrollbar {
+    width: 7px !important;
+}
+
+.stage::-webkit-scrollbar-thumb {
+    background: rgba(194, 120, 201, .28) !important;
+    border-radius: 9px !important;
+}
+
+.stage::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+.stage {
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(194, 120, 201, .28) transparent !important;
+}
+
+/* ========================================= */
+/* ФИНАЛЬНЫЙ ФИКС СКРОЛЛБАРА ГЛАВНОЙ И СПИНА */
+/* ========================================= */
+
+@media (min-width: 821px) {
+
+    /* 1. ГЛАВНАЯ — растягиваем на весь экран */
+    body #app #home #cases.home-stage.active {
+        position: relative !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding-left: clamp(24px, 4vw, 64px) !important;
+        padding-right: clamp(24px, 4vw, 64px) !important;
+        box-sizing: border-box !important;
+        overflow-y: auto !important;
+    }
+
+    /* Контент Главной центрируем, чтобы не расползался */
+    body #app #home #cases.home-stage.active>.hero-copy,
+    body #app #home #cases.home-stage.active>.case-zone {
+        width: 100% !important;
+        max-width: 1400px !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+    /* 2. ЭКРАН ПРОКРУТКИ КЕЙСА — растягиваем на весь экран */
+    body #app #home #spin.stage.active {
+        position: absolute !important;
+        top: 0 !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        transform: none !important;
+        padding-left: clamp(24px, 4vw, 64px) !important;
+        padding-right: clamp(24px, 4vw, 64px) !important;
+        box-sizing: border-box !important;
+        overflow-y: auto !important;
+    }
+
+    /* Контент Спина центрируем */
+    body #app #home #spin.stage.active>*:not(.site-footer) {
+        width: 100% !important;
+        max-width: 980px !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+}
+
