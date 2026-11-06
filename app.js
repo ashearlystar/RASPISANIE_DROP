@@ -16,7 +16,7 @@ const deptForGroup = g => DEPARTMENTS.find(d => d.groups.includes(g)) || DEPARTM
 const RN = { common: "Common", rare: "Rare", mythic: "Mythic", legendary: "Legendary" };
 const COL = { common: "#D4D4D4", rare: "#00A0E0", mythic: "#FF00A0", legendary: "#ff9a1f" };
 const RI = { common: 0, rare: 1, mythic: 2, legendary: 3 };
-const FIX = { rare: .10, mythic: .05, legendary: .01 };                  // fixed drop chances
+const FIX = { rare: .13, mythic: .08, legendary: .03 };                  // fixed drop chances
 const PRICE = { common: 10, rare: 15, mythic: 20, legendary: 70 };        // шышиш
 const DEFAULT_N = 5;     // pairs assumed for groups whose schedule file isn't filled yet
 const FULL_K = { 1: .1, 2: .5, 3: 1 }, PIECE_K = { 2: .2, 3: 1 / 3 };
@@ -25,7 +25,8 @@ const IMG = { doc: "assets/icons/doc.svg" };
 const CASE_IMG = ["assets/case_pn.png", "assets/case_vt.png", "assets/case_sr.png", "assets/case_cht.png", "assets/case_pt.png", "assets/case_sb.png"];
 const WEEK_ANCHOR = "2026-10-26";
 const LOCK_CHANCE = .15, UNLOCK_COST = 10, LOCKED_PRICE = 1;                // illegible drops: chance / price to read / sell price
-const FEED_REWARD = 1, SKIN_PRICE = 40, REVIVE_COST = 200;   // + revive price of a dead telifon                      // telifon: coins per feeding / skin chest cost / skin sell price
+const FEED_REWARDS = { common: 1, rare: 2, mythic: 6, legendary: 10 };
+const SKIN_PRICE = 40, REVIVE_COST = 2000;   // + revive price of a dead telifon                      // telifon: coins per feeding / skin chest cost / skin sell price
 const SKINS = [
   { id: "default", name: "Стандартный телифон", img: "assets/telifon.png", hue: 0, rarity: "default", description: "Классический внешний вид телифона. Базовый скин без особой редкости." },
   { id: "s1", name: "Мраморный градиент", img: "assets/telifon_marble-fade.png", hue: 0, description: "Мраморный узор с плавным переходом цветов. Классика, которая не выходит из моды." },
@@ -101,9 +102,9 @@ const COLLECTION_CASES = [
   },
   {
     id: "devs", name: "DEVS COLLECTION", price: 3, image: "assets/DEVS/telifon_sanya.png", rewards: [
-      { id: "dev-1", name: "Влад", img: "assets/DEVS/telifon_vova.png", chance: 54, description: "Самый умный человек в очках." },
-      { id: "dev-2", name: "Арслан", img: "assets/DEVS/telifon_arslan.png", chance: 54, description: "Буткаты и казаки, вот в чем кайф." },
-      { id: "dev-3", name: "Саня", img: "assets/DEVS/telifon_sanya.png", chance: 1, description: "В ожидании дембеля. Держись, друн." }
+      { id: "dev-2", name: "Арслан", img: "assets/DEVS/telifon_arslan.png", chance: 54, description: "Буткаты и казаки, вот в чем кайф. Привет! Я создал этот чат для нашего проекта. Здесь мы сможем обсудить важные вещи!" },
+      { id: "dev-1", name: "Влад", img: "assets/DEVS/telifon_vova.png", chance: 54, description: "Самый умный человек в очках. Привет, друн! Разденься." },
+      { id: "dev-3", name: "Саня", img: "assets/DEVS/telifon_sanya.png", chance: 1, description: "Enjoyer по призванию. Всегда в поисках новых способов провести время с кайфом. В ожидании дембеля. Держись, друн." }
     ]
   }
 ];
@@ -351,6 +352,10 @@ function showTab(tab) {
   $("#collectionOpening")?.classList.remove("active");
   $("#collectionResult")?.classList.remove("active");
   $$(".screen").forEach(s => s.classList.toggle("active", s.id === tab));
+  if (tab === "home") {
+    const home = document.getElementById("home");
+    if (home) home.scrollTop = 0;
+  }
   $$(".bar [data-tab]").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
   const pageNames = { home: "Главная", inventory: "Коллекция", upgrader: "Upgrader", contracts: "Контрактный центр", profile: "Профиль игрока", telifon: "Телифон", settings: "Настройки" };
   const title = $("#pageTitle");
@@ -361,7 +366,13 @@ function showTab(tab) {
   if (ra) ra.src = st.avatar;
   ({ profile: renderProfile, settings: renderSettings, inventory: renderInv, upgrader: resetUp, contracts: resetCt, telifon: renderTele })[tab]?.();
 }
-const showStage = id => $$(".stage").forEach(s => s.classList.toggle("active", s.id === id));
+const showStage = id => {
+  if (id === "cases" || id === "spin" || id === "result") {
+    const home = document.getElementById("home");
+    if (home) home.scrollTop = 0; // Сбрасываем скролл наверх
+  }
+  $$(".stage").forEach(s => s.classList.toggle("active", s.id === id));
+};
 function goHome() { spinId++; spinning = false; showTab("home"); renderCases(); showStage("cases"); }
 $$(".bar [data-tab]").forEach(b => b.onclick = () => {
   if (b.dataset.tab === "home") return goHome();
@@ -836,7 +847,20 @@ $("#feedBtn").onclick = async () => {
   if (!l.length) return setMsg("#telMsg", "warning", "Нужно полное читаемое расписание — собери или расшифруй в инвентаре", "!");
   const v = await choose("Чем кормим телифон?", l.map(e => ({ html: optHTML(e.it, e.n), val: e.it })));
   if (!v) return;
-  take(v); tele.coins += FEED_REWARD; tele.last = today(); save(); renderTele(); setMsg("#telMsg", "success", `Ням! +${FEED_REWARD} телифокоин`, "✦");
+  // НОВАЯ ЛОГИКА:
+  take(v);
+  const reward = FEED_REWARDS[v.r] || 1;
+  tele.coins += reward;
+  tele.last = today();
+  save();
+  renderTele();
+
+  // Красиво склоняем слово "телифокоин" в зависимости от числа
+  let word = "телифокоинов";
+  if (reward === 1) word = "телифокоин";
+  else if (reward >= 2 && reward <= 4) word = "телифокоина";
+
+  setMsg("#telMsg", "success", `Ням! +${reward} ${word}`, "✦");
 };
 function renderCollectionCases() {
   const host = $("#collectionCases");
@@ -1343,7 +1367,7 @@ const INFO_CONTENT = {
       <h3>Заработок шышиш</h3>
       <ul>
         <li><b>Тапай по телифону</b> → +1 шышиш (с небольшим кулдауном).</li>
-        <li>Раз в день корми его <b>полным расписанием</b> → получаешь <b>+1 телифокоин</b>.</li>
+        <li>Раз в день корми его <b>полным расписанием</b> → получаешь телифокоины в зависимости от редкости: <b>Common (+1)</b>, <b>Rare (+2)</b>, <b>Mythic (+6)</b>, <b>Legendary (+10)</b>.</li>
         <li>Если не покормить день — телифон умрёт, телифокоины сгорят. Воскресить за <b>200 шышиш</b>.</li>
       </ul>
       <h3>Коллекции кейсов</h3>
@@ -1417,18 +1441,9 @@ document.body.classList.toggle("has-group", !!st.group);
 
 /* ================= FOOTER ================= */
 (function mountFooters() {
-  const tpl = document.getElementById('siteFooter');
-  if (!tpl) return;
-  const html = tpl.outerHTML.replace(' hidden', '');
-  const targets = [
-    'inventory', 'upgrader', 'contracts', 'telifon', 'profile', 'settings',
-    'cases', 'spin', 'result', 'collectionOpening', 'collectionResult'
-  ];
-  targets.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.insertAdjacentHTML('beforeend', html);
-  });
-  tpl.remove();
+  const footer = document.getElementById('siteFooter');
+  if (!footer) return;
+  footer.removeAttribute('hidden');
 })();
 
 /* ================= AD ("реклама") ================= */
