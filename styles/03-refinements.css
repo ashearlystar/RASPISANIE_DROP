@@ -5072,3 +5072,45 @@ body>.site-footer .site-footer-contact a:hover {
         max-width: 820px !important;
     }
 }
+
+/* ===== Финальные правки по UI ===== */
+
+/* 1. Выравниваем заголовок "История круток" по центру списка */
+#profile h2 {
+    width: 100% !important;
+    max-width: 900px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    align-self: center !important;
+    text-align: left !important;
+    /* Оставляем текст слева, но сам блок теперь по центру */
+}
+
+/* 2. Увеличиваем расстояние между футером и навигацией на мобильных */
+@media (max-width: 820px) {
+
+    /* Поднимаем навигацию выше (было 65px, стало 80px) */
+    .bar {
+        bottom: calc(80px + env(safe-area-inset-bottom)) !important;
+    }
+
+    /* Чуть увеличиваем отступ снизу для контента, чтобы он не прятался за поднявшейся навигацией */
+    #inventory.screen,
+    #upgrader.screen,
+    #contracts.screen,
+    #telifon.screen,
+    #profile.screen,
+    #settings.screen,
+    #cases.home-stage.active,
+    #spin.stage.active,
+    #result.stage.active,
+    #collectionOpening.stage.active,
+    #collectionResult.stage.active {
+        padding-bottom: calc(175px + env(safe-area-inset-bottom)) !important;
+    }
+
+    /* Кнопку "?" тоже поднимаем чуть выше */
+    .info-btn {
+        bottom: calc(155px + env(safe-area-inset-bottom)) !important;
+    }
+}
