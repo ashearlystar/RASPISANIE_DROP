@@ -5291,3 +5291,88 @@ body.result-active .info-btn,
 body.has-group.result-active .info-btn {
     display: none !important;
 }
+
+/* ========================================= */
+/* ИДЕАЛЬНОЕ ЦЕНТРИРОВАНИЕ UPGRADER (FLEXBOX V2) */
+/* ========================================= */
+
+/* 1. ПК версия */
+@media (min-width: 821px) {
+    #upgrader .up {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: clamp(20px, 4vw, 60px) !important;
+        width: 100% !important;
+        max-width: 900px !important;
+        margin: 20px auto 0 !important;
+    }
+
+    #upgrader .up .mini {
+        width: 220px !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* Возвращаем исходный размер 210px и запрещаем ему сжиматься */
+    #upgrader .up .wheel {
+        width: 210px !important;
+        height: 210px !important;
+        flex: 0 0 210px !important; 
+        margin: 0 !important;
+        padding: 0 !important;
+        position: relative !important;
+    }
+    
+    /* Внутренний кружок с процентами на ПК */
+    #upgrader #upPct {
+        width: 74px !important;
+        height: 74px !important;
+        font-size: 24px !important;
+    }
+}
+
+/* 2. Мобильная версия */
+@media (max-width: 820px) {
+    #upgrader .up {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        width: 100% !important;
+        margin: 10px auto 0 !important;
+    }
+
+    /* Боковые карточки занимают всё оставшееся место */
+    #upgrader .up .mini {
+        flex: 1 1 0% !important; 
+        width: auto !important;
+        min-width: 0 !important;
+        min-height: 100px !important;
+    }
+
+    /* Круг на мобилках */
+    #upgrader .up .wheel {
+        flex: 0 0 clamp(120px, 38vw, 160px) !important;
+        width: clamp(120px, 38vw, 160px) !important;
+        height: auto !important; /* Убираем фиксированную высоту */
+        aspect-ratio: 1 / 1 !important; /* Жестко задаем пропорции круга */
+        align-self: center !important; /* Запрещаем растягиваться по высоте */
+        margin: 0 !important;
+        padding: 0 !important;
+        position: relative !important;
+    }
+
+    /* Внутренний кружок с процентами */
+    #upgrader #upPct {
+        width: 56px !important;
+        height: 56px !important;
+        font-size: 18px !important;
+    }
+}
+
+/* 3. Фикс самого кольца и стрелочки (чтобы не вылезали за пределы круга) */
+#upgrader .wheel-ring {
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+}
