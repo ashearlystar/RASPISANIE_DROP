@@ -371,6 +371,8 @@ const showStage = id => {
     const home = document.getElementById("home");
     if (home) home.scrollTop = 0; // Сбрасываем скролл наверх
   }
+  document.body.classList.toggle("result-active", id === "result" || id === "collectionResult");
+
   $$(".stage").forEach(s => s.classList.toggle("active", s.id === id));
 };
 function goHome() { spinId++; spinning = false; showTab("home"); renderCases(); showStage("cases"); }
@@ -1406,7 +1408,7 @@ const INFO_CONTENT = {
 
 function currentInfoKey() {
   if ($("#collectionOpening")?.classList.contains("active")) return "collectionOpening";
-  if ($("#spin")?.classList.contains("active")) return "spin";
+  if ($("#home")?.classList.contains("active") && $("#spin")?.classList.contains("active")) return "spin";
   if ($("#inventory")?.classList.contains("active")) return "inventory";
   if ($("#telifon")?.classList.contains("active")) return "telifon";
   if ($("#upgrader")?.classList.contains("active")) return "upgrader";

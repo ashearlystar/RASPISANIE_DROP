@@ -3859,15 +3859,6 @@ body.info-hidden .info-btn {
     filter: saturate(0.7) brightness(0.8);
 }
 
-/* Hide info button on result screens (nothing to explain there) */
-@supports selector(:has(*)) {
-
-    body:has(#result.active) .info-btn,
-    body:has(#collectionResult.active) .info-btn {
-        display: none !important;
-    }
-}
-
 /* ===== Message badges (upgrader / contracts) ===== */
 #upMsg,
 #ctMsg {
@@ -5112,5 +5103,200 @@ body>.site-footer .site-footer-contact a:hover {
     /* Кнопку "?" тоже поднимаем чуть выше */
     .info-btn {
         bottom: calc(155px + env(safe-area-inset-bottom)) !important;
+    }
+}
+
+/* ========================================= */
+/* ФИНАЛЬНЫЕ МОБИЛЬНЫЕ ФИКСЫ                 */
+/* ========================================= */
+
+/* 1. Кнопка "Понятно, играем" растягивается по ширине модалки */
+.welcome-modal-box #welcomeOk {
+    max-width: 100% !important;
+    min-width: 0 !important;
+    align-self: stretch !important;
+    box-sizing: border-box !important;
+}
+
+/* На всякий случай делаем padding у модалки одинаковым, чтобы кнопка не прилипала к краям */
+.welcome-modal-box {
+    padding: 22px !important;
+}
+
+/* 2. Фикс кнопки InfoBtn: скрываем её только если активна и Главная, и Result */
+@media (min-width: 821px) {
+
+    /* Сбрасываем старое правило, которое срабатывало на скрытых вкладках */
+    body:has(#result.active) .info-btn,
+    body:has(#collectionResult.active) .info-btn {
+        display: grid !important;
+    }
+}
+
+@supports selector(:has(*)) {
+
+    /* Скрываем InfoBtn только на самом экране результата (когда Главная активна) */
+    body:has(#home.active) :is(#result.active, #collectionResult.active)~.info-btn {
+        display: none !important;
+    }
+}
+
+/* 3. Скролл расписания на мобилках (если вдруг предыдущий фикс не применился) */
+@media (max-width: 820px) {
+
+    #home>#result.stage.active,
+    #home>#collectionResult.stage.active {
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100% !important;
+        overflow: hidden !important;
+        padding-top: 16px !important;
+        padding-bottom: calc(175px + env(safe-area-inset-bottom)) !important;
+    }
+
+    #resultLabel,
+    #collectionResultLabel,
+    #resultNote,
+    #result .result-actions,
+    #collectionResult .result-actions {
+        flex: 0 0 auto !important;
+    }
+
+    #result .panel,
+    #collectionResult .panel {
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        margin-bottom: 10px !important;
+        max-height: none !important;
+    }
+
+    #result .panel .lesson-list,
+    #collectionResult .panel .lesson-list {
+        overflow-y: visible !important;
+    }
+}
+
+/* ========================================= */
+/* МОБИЛЬНЫЕ ФИКСЫ: Кнопка и Скролл расписания */
+/* ========================================= */
+
+@media (max-width: 820px) {
+
+    /* 1. Фикс ширины кнопки "Понятно, играем!" */
+    .welcome-modal-box #welcomeOk {
+        max-width: 260px !important;
+        min-width: 0 !important;
+    }
+
+    /* 2 & 3. Фикс скролла: двигаем только таблицу, а не страницу */
+    #home>#result.stage.active,
+    #home>#collectionResult.stage.active {
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100% !important;
+        /* Занимаем всю доступную высоту */
+        overflow: hidden !important;
+        /* Запрещаем скроллить всю страницу */
+        padding-top: 16px !important;
+        /* Отступ снизу под навигацию и футер (было 175px) */
+        padding-bottom: calc(175px + env(safe-area-inset-bottom)) !important;
+    }
+
+    /* Заголовок, заметки и кнопки внизу остаются на месте */
+    #resultLabel,
+    #collectionResultLabel,
+    #resultNote,
+    #result .result-actions,
+    #collectionResult .result-actions {
+        flex: 0 0 auto !important;
+    }
+
+    /* Сама панель с контентом растягивается и скроллится */
+    #result .panel,
+    #collectionResult .panel {
+        flex: 1 1 auto !important;
+        /* Забирает всё свободное место */
+        min-height: 0 !important;
+        /* Обязательное условие для работы скролла внутри flex-контейнера */
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        margin-bottom: 10px !important;
+        max-height: none !important;
+        /* Убираем старый костыль с 68vh */
+    }
+
+    /* Список внутри не должен создавать свой собственный скролл */
+    #result .panel .lesson-list,
+    #collectionResult .panel .lesson-list {
+        overflow-y: visible !important;
+    }
+}
+
+/* ===== ФИКС КНОПКИ "ПОНЯТНО, ИГРАЕМ" (чтобы не сжималась) ===== */
+.welcome-modal-box #welcomeOk {
+    flex-shrink: 0 !important;
+    min-height: 48px !important;
+    height: auto !important;
+    min-width: 200px !important;
+    max-width: 100% !important;
+    align-self: center !important;
+}
+
+/* Убираем старые костыли с :has() для кнопки "?" */
+body.result-active .info-btn {
+    display: none !important;
+}
+
+/* ========================================= */
+/* МОБИЛЬНЫЙ СКРОЛЛ СТРАНИЦЫ (вместо панели) */
+/* ========================================= */
+
+@media (max-width: 820px) {
+
+    /* 1. Разрешаем скролл всей секции #home */
+    #home.screen.active {
+        display: block !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        padding: 0 !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* 2. Все активные экраны внутри Главной становятся обычными блоками */
+    #home>.stage.active {
+        position: relative !important;
+        inset: auto !important;
+        width: 100% !important;
+        min-height: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+        /* Огромный отступ снизу, чтобы навигация и футер не закрывали последние строки */
+        padding: 20px 16px calc(200px + env(safe-area-inset-bottom)) !important;
+        margin: 0 !important;
+    }
+
+    /* Главная (кейсы) сохраняет свои родные отступы */
+    #home>#cases.home-stage.active {
+        padding: 16px 13px calc(200px + env(safe-area-inset-bottom)) !important;
+    }
+
+    /* 3. Убираем внутренний скролл у панели расписания */
+    #result .panel,
+    #collectionResult .panel {
+        flex: none !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+
+    /* 4. Сбрасываем жесткую высоту экранов результата */
+    #home>#result.stage.active,
+    #home>#collectionResult.stage.active {
+        display: flex !important;
+        flex-direction: column !important;
+        height: auto !important;
+        overflow: visible !important;
     }
 }
